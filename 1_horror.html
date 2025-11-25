@@ -1,0 +1,348 @@
+　　<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恐怖拼贴画 - 鲜血版</title>
+    <style>
+        /* --- 全局设置 --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            color: #fff;
+            font-family: "Courier New", Courier, "楷体", "KaiTi", serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* --- 顶部控制栏 (固定高度，防止遮挡) --- */
+        #controls {
+            height: 80px; /* 固定高度 */
+            background: #111;
+            border-bottom: 2px solid #300; /* 暗红边框 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            z-index: 2000; /* 确保永远在最顶层 */
+            box-shadow: 0 5px 20px rgba(0,0,0,0.9);
+            position: relative;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 18px;
+            background: #000;
+            border: 1px solid #444;
+            color: #ddd;
+            width: 300px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background: #222;
+            color: #ccc;
+            border: 1px solid #444;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #600;
+            color: #fff;
+            border-color: #f00;
+            box-shadow: 0 0 10px #600;
+        }
+
+        /* --- 画板区域 --- */
+        #board {
+            flex-grow: 1;
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+            /* 稍微加一点暗红晕影 */
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        /* --- 纸条样式 --- */
+        .scrap {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 20px;
+            font-size: 45px;
+            font-weight: bold;
+            color: #000;
+            cursor: grab;
+            filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.8));
+            transition: transform 0.1s;
+            white-space: nowrap; 
+        }
+
+        .scrap:active {
+            cursor: grabbing;
+            z-index: 9999 !important;
+        }
+
+        /* 文字层 */
+        .scrap span.text {
+            position: relative;
+            z-index: 5;
+        }
+
+        /* --- 血迹特效 (CSS绘制) --- */
+        .blood-stain {
+            position: absolute;
+            background-color: rgba(138, 3, 3, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 4; /* 在文字下方 */
+            mix-blend-mode: multiply; /* 正片叠底，像渗透进去一样 */
+            filter: blur(1px);
+        }
+
+        /* 背景上的大血渍 */
+        .bg-blood {
+            position: absolute;
+            background: radial-gradient(circle, #4a0000 0%, transparent 70%);
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+            animation: drip 10s infinite alternate;
+        }
+
+        @keyframes drip {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* 提示语 */
+        #hint {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #444;
+            font-size: 20px;
+            pointer-events: none;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        <input type="text" id="input-text" placeholder="输入文字... (死, RUN, 救命)" maxlength="20">
+        <button onclick="createCollage()">生成 (Cut)</button>
+        <button onclick="clearBoard()" style="font-size:14px;">清空</button>
+    </div>
+
+    <div id="board">
+        <div id="hint">输入文字，点击生成，拖拽碎片...</div>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const input = document.getElementById('input-text');
+        const hint = document.getElementById('hint');
+
+        // 字体库
+        const fontList = [
+            '"Courier New", monospace', 
+            '"Times New Roman", serif', 
+            '"Arial Black", sans-serif', 
+            '"楷体", "KaiTi", serif', 
+            '"SimHei", sans-serif'
+        ];
+
+        // 纸张颜色
+        const paperColors = ['#f2f2f2', '#e6e6e6', '#d9cbb8', '#bfbfbf', '#111'];
+
+        // 生成不规则边缘
+        function getRandomClip() {
+            let points = [];
+            points.push(`0% 0%`);
+            points.push(`${20 + Math.random()*10}% ${Math.random()*5}%`);
+            points.push(`100% 0%`);
+            points.push(`100% 100%`);
+            points.push(`${50 + Math.random()*20}% ${95 + Math.random()*5}%`);
+            points.push(`0% 100%`);
+            return `polygon(${points.join(',')})`;
+        }
+
+        // 生成随机血迹形状 (使用 border-radius 模拟液体)
+        function createBloodStain(parent, size) {
+            const blood = document.createElement('div');
+            blood.className = 'blood-stain';
+            
+            // 随机大小和位置
+            const w = size * (0.3 + Math.random() * 0.5); 
+            const h = size * (0.3 + Math.random() * 0.5);
+            blood.style.width = w + 'px';
+            blood.style.height = h + 'px';
+            blood.style.left = (Math.random() * (100 - 30)) + '%'; // 相对父元素位置
+            blood.style.top = (Math.random() * (100 - 30)) + '%';
+            
+            // 液体形状：使用不同的圆角半径
+            const r1 = Math.floor(Math.random() * 40 + 30);
+            const r2 = Math.floor(Math.random() * 40 + 30);
+            const r3 = Math.floor(Math.random() * 40 + 30);
+            const r4 = Math.floor(Math.random() * 40 + 30);
+            blood.style.borderRadius = `${r1}% ${r2}% ${r3}% ${r4}% / ${r3}% ${r1}% ${r4}% ${r2}%`;
+            
+            parent.appendChild(blood);
+        }
+
+        // 在背景生成大的血渍装饰
+        function addBackgroundSplatter() {
+            const splatter = document.createElement('div');
+            splatter.className = 'bg-blood';
+            const size = 100 + Math.random() * 200;
+            splatter.style.width = size + 'px';
+            splatter.style.height = size + 'px';
+            splatter.style.left = Math.random() * 100 + '%';
+            splatter.style.top = Math.random() * 100 + '%';
+            
+            // 随机液体形状
+            const r1 = Math.floor(Math.random() * 100);
+            const r2 = Math.floor(Math.random() * 100);
+            splatter.style.borderRadius = `${r1}% ${100-r1}% ${r2}% ${100-r2}%`;
+            
+            board.appendChild(splatter);
+        }
+
+        function createCollage() {
+            const text = input.value.trim();
+            if (!text) return;
+            if(hint) hint.style.display = 'none';
+
+            // 每次生成时，背景增加一点恐怖气氛
+            if(Math.random() > 0.5) addBackgroundSplatter();
+
+            const chars = text.split('');
+
+            chars.forEach(char => {
+                if (char === ' ') return;
+
+                const div = document.createElement('div');
+                div.className = 'scrap';
+                
+                // 1. 样式随机
+                const bgColor = paperColors[Math.floor(Math.random() * paperColors.length)];
+                const font = fontList[Math.floor(Math.random() * fontList.length)];
+                
+                div.style.backgroundColor = bgColor;
+                div.style.fontFamily = font;
+                
+                // 黑纸处理
+                if(bgColor === '#111') div.style.color = '#fff';
+
+                // 2. 位置计算 (关键：防止遮挡顶部)
+                // Board 的高度 - 纸条大概高度(100)
+                const boardHeight = board.clientHeight;
+                const boardWidth = board.clientWidth;
+                
+                // Y轴从 20px 开始，最多到 boardHeight - 100px
+                // 这样因为 #board 是在 #controls 下面的，所以 top:0 就已经是安全区域了
+                const y = Math.random() * (boardHeight - 120); 
+                const x = Math.random() * (boardWidth - 100);
+
+                div.style.left = x + 'px';
+                div.style.top = y + 'px';
+                
+                const rot = Math.random() * 40 - 20;
+                div.style.transform = `rotate(${rot}deg)`;
+                div.style.clipPath = getRandomClip();
+
+                // 3. 内部文字
+                const span = document.createElement('span');
+                span.className = 'text';
+                span.innerText = char;
+                div.appendChild(span);
+
+                // 4. 血迹效果逻辑
+                // 几率产生血字
+                if (Math.random() < 0.2) {
+                    div.style.color = '#8a0000';
+                    div.style.textShadow = '1px 1px 0px #000';
+                    if(bgColor === '#111') div.style.backgroundColor = '#2a0000';
+                }
+
+                // 几率在纸条上滴血 (40%几率)
+                if (Math.random() < 0.4) {
+                    createBloodStain(div, 60); // 60是参考大小
+                }
+                // 偶尔有大血块
+                if (Math.random() < 0.1) {
+                    createBloodStain(div, 100);
+                }
+
+                dragElement(div);
+                board.appendChild(div);
+            });
+
+            input.value = '';
+        }
+
+        function clearBoard() {
+            board.innerHTML = '';
+            board.appendChild(hint);
+            hint.style.display = 'block';
+        }
+
+        // 通用拖拽函数
+        function dragElement(elmnt) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            elmnt.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+                
+                // 拖拽时放大、旋转归零、置顶
+                elmnt.style.zIndex = 10000;
+                elmnt.style.transform = `scale(1.1) rotate(0deg)`;
+                elmnt.style.transition = 'none'; // 移除过渡让拖拽更跟手
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                // 边界检查（可选，这里允许稍微拖出去一点）
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+                // 放下时恢复随机旋转
+                const rot = Math.random() * 40 - 20;
+                elmnt.style.transform = `scale(1) rotate(${rot}deg)`;
+                elmnt.style.transition = 'transform 0.1s';
+                elmnt.style.zIndex = "100";
+            }
+        }
+        
+        input.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") createCollage();
+        });
+    </script>
+</body>
+</html>
