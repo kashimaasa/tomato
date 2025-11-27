@@ -10,10 +10,11 @@
             --glass-border: rgba(255, 255, 255, 0.08);
             --accent-color: #d4af37; /* 香槟金 */
             --paper-color: #f0f0e0; /* 账单纸张色 */
+            --diary-paper: #fdfbf7; /* 日记纸张色 */
             --card-bg: #1a1a1a; /* 输入卡片/商店背景 */
             --text-main: #e0e0e0;
             --text-dim: #888;
-            --period-color: #ff6b81; /* 生理期主色 */
+            --period-color: #ff6b81; 
             --period-predict: #ffb8c1;
         }
 
@@ -105,7 +106,6 @@
             transition: all 0.2s;
         }
         .icon-btn:active { transform: scale(0.9); background: var(--accent-color); color: #000; }
-        /* 生理期按钮特殊样式 */
         .icon-btn.period-btn { color: var(--period-color); border-color: rgba(255, 107, 129, 0.3); }
 
         /* 2. Chat */
@@ -234,6 +234,46 @@
         .btn-end-period { background: #333; border: 1px solid #555; }
         .period-status-text { font-size: 0.9em; color: var(--period-predict); margin-bottom: 10px; min-height: 1.2em;}
 
+        /* === 日记本样式 (新增) === */
+        .diary-modal-content {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 400px; height: 600px; max-height: 85vh;
+            background: var(--diary-paper); color: #444;
+            padding: 20px 25px; border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            animation: modal-in 0.3s ease-out;
+            display: flex; flex-direction: column;
+            font-family: "KaiTi", "STKaiti", "楷体", "Georgia", serif; /* 字体美化 */
+        }
+        .diary-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dcd3b8; padding-bottom: 10px; margin-bottom: 15px; flex-shrink: 0; }
+        .diary-title { font-size: 1.4em; font-weight: bold; color: #5a4a42; letter-spacing: 2px; }
+        .diary-btn { background: transparent; border: 1px solid #8c7b70; color: #5a4a42; padding: 4px 10px; border-radius: 20px; font-family: inherit; cursor: pointer; font-size: 0.9em; transition: all 0.2s; }
+        .diary-btn:hover { background: #8c7b70; color: #fff; }
+        
+        .diary-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
+        .diary-list::-webkit-scrollbar { width: 5px; }
+        .diary-list::-webkit-scrollbar-thumb { background: #dcd3b8; border-radius: 2px; }
+        
+        .diary-entry-item { 
+            padding: 12px 0; border-bottom: 1px dashed #dcd3b8; cursor: pointer; 
+            transition: padding-left 0.2s; 
+        }
+        .diary-entry-item:hover { padding-left: 5px; }
+        .diary-date { font-size: 0.85em; color: #8c7b70; font-weight: bold; margin-bottom: 4px; }
+        .diary-preview { font-size: 1em; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* 编辑器部分 (纸张效果) */
+        .diary-editor-container { flex: 1; display: none; flex-direction: column; }
+        .diary-textarea {
+            flex: 1; width: 100%; border: none; outline: none; resize: none;
+            background: transparent;
+            font-family: inherit; font-size: 1.1em; line-height: 30px;
+            background-image: linear-gradient(transparent 29px, #dcd3b8 30px);
+            background-size: 100% 30px;
+            color: #2c2c2c; padding-top: 5px;
+        }
+        .diary-toolbar { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; flex-shrink: 0; }
+
         .input-field { width: 100%; background: #252525; border: 1px solid #555; color: #fff; padding: 10px; border-radius: 6px; font-size: 1em; margin-bottom: 20px; outline: none; }
         .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 15px;}
         .modal-btn { flex: 1; padding: 10px 0; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; }
@@ -256,6 +296,7 @@
                 <span class="coin-status">🪙 <span id="coin-count">0</span></span>
             </div>
             <div class="header-actions">
+                <button class="icon-btn" onclick="openDiary()" title="心情日记">📓</button>
                 <button class="icon-btn period-btn" onclick="openPeriodModal()" title="生理期记录">🌺</button>
                 <button class="icon-btn" onclick="openStore()" title="杂货铺">🛍️</button>
                 <button class="icon-btn" onclick="openHistory()" title="时光账单">📜</button>
@@ -375,6 +416,35 @@
         </div>
     </div>
 
+    <!-- 弹窗：心情日记 (新增) -->
+    <div id="modal-diary" class="modal-overlay">
+        <div class="diary-modal-content">
+            <div class="diary-header">
+                <span class="diary-title">心情随笔</span>
+                <button class="diary-btn" id="new-diary-btn" onclick="showDiaryEditor()">+ 提笔</button>
+                <button class="diary-btn" id="back-diary-btn" onclick="showDiaryList()" style="display:none;">返回</button>
+            </div>
+            
+            <!-- 列表视图 -->
+            <ul class="diary-list" id="diary-list-view">
+                <!-- 动态生成 -->
+            </ul>
+
+            <!-- 编辑视图 -->
+            <div class="diary-editor-container" id="diary-editor-view">
+                <textarea class="diary-textarea" id="diary-text" placeholder="今天发生了什么..."></textarea>
+                <div class="diary-toolbar">
+                    <button class="diary-btn" onclick="deleteCurrentEntry()" style="color:#d9534f; border-color:#d9534f;">撕掉</button>
+                    <button class="diary-btn" onclick="saveDiaryEntry()">保存</button>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top: auto; padding-top: 10px; border-top: 1px solid #dcd3b8;">
+                <button class="modal-btn cancel" style="background: #8c7b70; color:#fff" onclick="closeDiary()">合上日记</button>
+            </div>
+        </div>
+    </div>
+
     <audio id="bgm" preload="auto"></audio>
 
     <script>
@@ -411,7 +481,14 @@
             modalPeriod: document.getElementById('modal-period'),
             periodStatus: document.getElementById('period-status'),
             calMonthLabel: document.getElementById('cal-month-label'),
-            calDaysContainer: document.getElementById('calendar-days-container')
+            calDaysContainer: document.getElementById('calendar-days-container'),
+            // Diary
+            modalDiary: document.getElementById('modal-diary'),
+            diaryListView: document.getElementById('diary-list-view'),
+            diaryEditorView: document.getElementById('diary-editor-view'),
+            diaryText: document.getElementById('diary-text'),
+            newDiaryBtn: document.getElementById('new-diary-btn'),
+            backDiaryBtn: document.getElementById('back-diary-btn')
         };
 
         const sounds = {
@@ -419,7 +496,6 @@
             cafe: "https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg"
         };
 
-        // --- 丰富的数据配置 (恢复) ---
         const FISH_TYPES = {
             'guppy': { name: '孔雀鱼', icon: '🐟', price: 10, desc: '色彩斑斓，活泼好动，适合新手。' },
             'neon': { name: '红绿灯鱼', icon: '🐠', price: 20, desc: '体侧有霓虹光带，群游时像流动的光。' },
@@ -435,7 +511,7 @@
             { id: 'drink_warm', name: '壁炉', price: 5, desc: '热红酒与肉桂', quote: '希望这杯酒能暖一暖你疲惫的灵魂。' }
         ];
 
-        // 完整的对话系统 (恢复)
+        // 完整的对话系统
         const chatTopics = [
             { id: 'tired', user: ["我觉得有点累。", "今天过得好漫长。", "能量耗尽了。"] },
             { id: 'story', user: ["讲讲你的故事吧。", "这里一直都这么安静吗？", "你有在等的人吗？"] },
@@ -472,14 +548,16 @@
 
         // --- 状态数据 ---
         let state = {
-            isFocusing: false, timeLeft: 0, initialTime: 0, timerId: null, audioContext: null, mood: 'calm', completedCount: 0, elapsedFocusTime: 0
+            isFocusing: false, timeLeft: 0, initialTime: 0, timerId: null, audioContext: null, mood: 'calm', completedCount: 0, elapsedFocusTime: 0,
+            currentDiaryId: null // 编辑日记ID
         };
 
         let playerData = {
             coins: 0,
             inventory: { fishFood: 0 },
             ownedFish: [],
-            periodLogs: [] // { startDate: timestamp, endDate: timestamp }
+            periodLogs: [], // { startDate: timestamp, endDate: timestamp }
+            diaryEntries: [] // { id: ts, dateStr: string, text: string }
         };
 
         // --- 初始化与加载 ---
@@ -494,13 +572,12 @@
             ui.bgm.src = sounds.rain; ui.bgm.volume = 0.4;
             ui.bgm.addEventListener('ended', function() { this.currentTime = 0; this.play(); }, false);
             
-            getWeatherAndGreet(); // 恢复天气API调用
+            getWeatherAndGreet();
             startBartenderAI();
             updateCoinUI();
         };
 
         function getWeatherAndGreet() {
-            // 如果处于生理期，优先显示关怀信息
             if(isPeriodActive()) {
                  addMessage("（注意到你有些虚弱）欢迎回来。外面风大，先进来暖和一下。", "bartender");
                  state.mood = 'calm';
@@ -535,7 +612,7 @@
             ui.moodDot.style.backgroundColor = colors[state.mood];
         }
 
-        // --- 数据存取与文件修复 ---
+        // --- 数据存取 ---
         function saveData() {
             localStorage.setItem('driftwood_v2_data', JSON.stringify(playerData));
             localStorage.setItem('driftwood_history', ui.historyList.innerHTML);
@@ -547,8 +624,8 @@
             if (saved) {
                 playerData = JSON.parse(saved);
                 if (!playerData.periodLogs) playerData.periodLogs = [];
+                if (!playerData.diaryEntries) playerData.diaryEntries = [];
             } else {
-                // 迁移
                 const oldData = localStorage.getItem('driftwood_data');
                 if (oldData) {
                     try {
@@ -594,10 +671,10 @@
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    // 宽松校验
                     if (data && typeof data === 'object' && data.player) {
                         playerData = data.player;
                         if (!playerData.periodLogs) playerData.periodLogs = [];
+                        if (!playerData.diaryEntries) playerData.diaryEntries = [];
                         if (data.history) ui.historyList.innerHTML = data.history;
                         state.completedCount = data.count || 0;
                         ui.totalSessions.innerText = `累计专注: ${state.completedCount} 次`;
@@ -613,6 +690,88 @@
             };
             reader.readAsText(file);
             input.value = '';
+        }
+
+        // --- 心情日记逻辑 (新增) ---
+        function openDiary() { ui.modalDiary.classList.add('open'); showDiaryList(); }
+        function closeDiary() { ui.modalDiary.classList.remove('open'); }
+        
+        function showDiaryList() {
+            ui.diaryListView.style.display = 'block';
+            ui.diaryEditorView.style.display = 'none';
+            ui.newDiaryBtn.style.display = 'block';
+            ui.backDiaryBtn.style.display = 'none';
+            
+            ui.diaryListView.innerHTML = '';
+            // 按时间倒序
+            const entries = playerData.diaryEntries.sort((a,b) => b.id - a.id);
+            if (entries.length === 0) {
+                ui.diaryListView.innerHTML = '<li style="padding:20px; text-align:center; color:#8c7b70; font-style:italic;">纸页空白，等待落笔。</li>';
+            } else {
+                entries.forEach(entry => {
+                    const li = document.createElement('li');
+                    li.className = 'diary-entry-item';
+                    li.innerHTML = `
+                        <div class="diary-date">${entry.dateStr}</div>
+                        <div class="diary-preview">${entry.text.substring(0, 20)}${entry.text.length>20?'...':''}</div>
+                    `;
+                    li.onclick = () => showDiaryEditor(entry.id);
+                    ui.diaryListView.appendChild(li);
+                });
+            }
+        }
+
+        function showDiaryEditor(id = null) {
+            ui.diaryListView.style.display = 'none';
+            ui.diaryEditorView.style.display = 'flex';
+            ui.newDiaryBtn.style.display = 'none';
+            ui.backDiaryBtn.style.display = 'block';
+            
+            state.currentDiaryId = id;
+            if (id) {
+                const entry = playerData.diaryEntries.find(e => e.id === id);
+                ui.diaryText.value = entry ? entry.text : '';
+            } else {
+                ui.diaryText.value = ''; // 新建
+            }
+            ui.diaryText.focus();
+        }
+
+        function saveDiaryEntry() {
+            const text = ui.diaryText.value.trim();
+            if (!text) {
+                alert("内容为空。");
+                return;
+            }
+            
+            if (state.currentDiaryId) {
+                // 更新
+                const entry = playerData.diaryEntries.find(e => e.id === state.currentDiaryId);
+                if (entry) entry.text = text;
+            } else {
+                // 新建
+                const now = new Date();
+                const dateStr = now.toLocaleString('zh-CN', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'});
+                playerData.diaryEntries.push({
+                    id: Date.now(),
+                    dateStr: dateStr,
+                    text: text
+                });
+            }
+            saveData();
+            showDiaryList();
+        }
+
+        function deleteCurrentEntry() {
+            if (!state.currentDiaryId) {
+                showDiaryList();
+                return;
+            }
+            if (confirm("确定要撕掉这一页吗？")) {
+                playerData.diaryEntries = playerData.diaryEntries.filter(e => e.id !== state.currentDiaryId);
+                saveData();
+                showDiaryList();
+            }
         }
 
         // --- 生理期系统 ---
@@ -686,7 +845,7 @@
             }
         }
 
-        // --- 商店 & 宠物 (恢复) ---
+        // --- 商店 & 宠物 ---
         function openStore() { ui.modalStore.classList.add('open'); renderShopItems(); renderAquarium(); }
         function closeStore() { ui.modalStore.classList.remove('open'); }
         function switchStoreTab(tab) {
@@ -719,7 +878,6 @@
             } else alert("金币不足");
         }
         function buyDrink(drink) {
-            // 生理期拦截
             if (isPeriodActive() && (drink.id === 'drink_mute' || drink.id === 'drink_old')) {
                 addMessage("（Cipher 挡住了酒单）“这两天还是不要喝冰的和烈酒比较好。”", "bartender");
                 setTimeout(() => addMessage("“我会为你准备一杯热红糖姜茶，这杯算我请的。”", "bartender"), 1500);
@@ -791,11 +949,9 @@
         function resetUI() { ui.focusBtn.innerText="开始专注"; ui.focusBtn.classList.remove('active-state'); ui.timeSetterBox.style.display='flex'; }
         function updateCoinUI() { ui.coinCount.innerText=playerData.coins; ui.storeCoinCount.innerText=playerData.coins; }
 
-        // --- 核心对话逻辑 (Rich Dialogue + Period Integration) ---
+        // --- 对话 & 饮品 ---
         function chatWithBartender() {
             if (state.isFocusing) return addMessage("嘘... 钟摆还在走。", "bartender");
-            
-            // 1. 生理期特殊关怀 (50% 概率触发，或用户选择"tired"类话题时)
             if (isPeriodActive() && Math.random() < 0.6) {
                 const comfortLines = [
                     "这里有热可可，还有毯子。如果不舒服，可以随时在沙发上躺一会儿。",
@@ -807,26 +963,18 @@
                 addMessage(comfortLines[Math.floor(Math.random() * comfortLines.length)], "bartender");
                 return;
             }
-
-            // 2. 正常丰富对话逻辑 (恢复 V1 版本)
             const topicObj = chatTopics[Math.floor(Math.random() * chatTopics.length)];
-            const topicID = topicObj.id;
             const userText = topicObj.user[Math.floor(Math.random() * topicObj.user.length)];
-            
             addMessage(userText, "user");
-            
             setTimeout(() => {
-                // 根据心情获取回复
-                const responseList = bartenderResponses[state.mood][topicID] || bartenderResponses['calm'][topicID];
+                const responseList = bartenderResponses[state.mood][topicObj.id] || bartenderResponses['calm'][topicObj.id];
                 const reply = responseList[Math.floor(Math.random() * responseList.length)];
                 addMessage(reply, "bartender");
             }, 1000);
         }
 
-        // --- 饮品逻辑 (Rich Drinks) ---
         function orderDrink() {
             if (state.isFocusing) return addMessage("（Cipher 摇摇头）专注时只提供白水。", "bartender");
-            
             if (isPeriodActive()) {
                 addMessage("请给我一杯随心饮。", "user");
                 const periodDrinks = [
@@ -843,7 +991,6 @@
                 }, 1000);
                 return;
             }
-
             addMessage("请给我一杯随心饮。", "user");
             const normalDrinks = [
                 "（递上一杯「莫比乌斯环」）“苦涩是开始，回甘是结束。正如生活。”",
@@ -866,15 +1013,9 @@
         function startBartenderAI() {
             setInterval(() => {
                 if (state.isFocusing) return;
-                
-                // 随机切换心情 (恢复 V1)
                 const r = Math.random();
-                if (r < 0.5) state.mood = 'calm';
-                else if (r < 0.8) state.mood = 'melancholic';
-                else state.mood = 'cheerful';
+                if (r < 0.5) state.mood = 'calm'; else if (r < 0.8) state.mood = 'melancholic'; else state.mood = 'cheerful';
                 updateStatusUI();
-
-                // 随机环境事件 (恢复 V1)
                 if (Math.random() < 0.25) {
                     const events = ["Cipher 往杯中加了一块老冰。", "Cipher 换了一张黑胶唱片。", "风铃轻响，似有故人来。", "Cipher 轻轻擦拭着吧台上的水渍。"];
                     addMessage(events[Math.floor(Math.random()*events.length)], "event");
@@ -910,8 +1051,8 @@
             ui.todoList.appendChild(li); closeTodoModal();
         }
         ui.todoInput.addEventListener('keypress', (e)=>{ if(e.key==='Enter') confirmTodo(); });
-        [ui.modalBill, ui.modalTodo, ui.modalStore, ui.modalPeriod].forEach(m => { m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); }); });
+        [ui.modalBill, ui.modalTodo, ui.modalStore, ui.modalPeriod, ui.modalDiary].forEach(m => { m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); }); });
 
     </script>
 </body>
-    </html>
+</html>
