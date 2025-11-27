@@ -2106,7 +2106,7 @@
         setTimeout(() => addMessage((bartenderResponses[state.mood][t.id]||bartenderResponses.calm[t.id])[Math.floor(Math.random()*2)], "bartender"), 1000);
     }
     function orderDrink() {
-        if (state.isFocusing) return addMessage("嗯？专注时喝酒可不好哦，提您保管了。", "bartender");
+        if (state.isFocusing) return addMessage("嗯？专注时喝酒可不好哦，替您保管了。", "bartender");
         // 现在改为随机提供已解锁的饮品
         const available = playerData.unlockedDrinks;
         const drinkId = available[Math.floor(Math.random() * available.length)];
@@ -2463,6 +2463,7 @@
 </script>
 </body>
 </html>
+
 
 
 
