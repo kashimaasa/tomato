@@ -380,12 +380,15 @@
         width: 4px; height: 4px; background: var(--accent-color); border-radius: 50%;
     }
 
-    /* 选中状态 (最高优先级) */
+    /* 1. 选中状态 (改为金色光圈，不再遮挡文字和背景) */
     .calendar-day.selected { 
-        background: var(--text-main); color: #000; 
-        font-weight: bold; box-shadow: 0 0 10px rgba(255,255,255,0.3);
-        z-index: 10; transform: scale(1.1);
-        border: none;
+        box-shadow: inset 0 0 0 2px #d4af37, 0 0 15px rgba(212, 175, 55, 0.3); /* 金色内描边+光晕 */
+        background-color: rgba(212, 175, 55, 0.1); /* 极淡的金色背景 */
+        color: #fff !important; /* 文字强制白色，确保清晰 */
+        text-shadow: 0 0 2px #000; /* 给文字加一点点阴影，防止背景太亮看不清 */
+        font-weight: bold; 
+        transform: scale(1.1); 
+        z-index: 20;
     }
     
     /* 经期状态 (连体胶囊效果) */
@@ -407,11 +410,14 @@
         color: var(--period-predict); 
         background: rgba(255, 107, 129, 0.1);
     }
+    
     .calendar-day.ovulation { 
-        background: rgba(162, 155, 254, 0.2); 
-        border: 1px solid var(--ovulation-color); 
-        color: #fff;
+        border: 2px solid #a29bfe; /* 明显的紫色边框 */
+        color: #a29bfe; 
+        font-weight: bold;
+        background: rgba(162, 155, 254, 0.15); /* 淡紫色背景 */
     }
+        
     .calendar-day.fertile { 
         background: rgba(162, 155, 254, 0.1); 
         font-size: 0.9em;
@@ -1467,7 +1473,8 @@
     }
 
     
-    // 核心：渲染日历 (已简化为独立圆形)
+    
+            // 核心：渲染日历
     function renderPeriodCalendar() {
         const now = new Date();
         const displayDate = new Date(now.getFullYear(), now.getMonth() + state.calendarOffset, 1);
@@ -1499,35 +1506,39 @@
             const today = new Date(); today.setHours(0,0,0,0);
             if(timeStr === today.getTime()) div.classList.add('today');
 
-            // 2. 标记选中 (最优先)
+            // 2. 标记选中 (金色光圈)
             if(state.selectedDateObj && timeStr === state.selectedDateObj.getTime()) {
                 div.classList.add('selected');
                 document.getElementById('selected-date-label').innerText = `${month+1}月${d}日`;
             }
 
-            // 3. 标记历史记录 (独立圆圈，不再连体)
+            // 3. 标记历史记录 (修复：不自动填充到今天)
             let isLog = false;
-            // 辅助检查函数
+            
+            // 检查逻辑：
+            // 如果只有 startDate (没点结束)，则只渲染那一天。
+            // 如果有 endDate，则渲染中间范围。
             const checkInLog = (ts) => {
                 return playerData.periodLogs.some(l => {
                     const s = new Date(l.startDate).setHours(0,0,0,0);
-                    // 如果没有结束日期，且距离开始在30天内，视为进行中
-                    const isActive = !l.endDate && (Date.now() - l.startDate < 30*24*3600*1000); 
-                    const e = l.endDate ? new Date(l.endDate).setHours(0,0,0,0) : (isActive ? today.getTime() : s);
+                    // 核心修改：如果没有结束日期，结束时间就等于开始时间 (只显示单点)
+                    // 只有当你手动点了“结束”，有了 endDate，范围才会出现
+                    const e = l.endDate ? new Date(l.endDate).setHours(0,0,0,0) : s;
                     return ts >= s && ts <= e;
                 });
             };
 
             if (checkInLog(timeStr)) {
                 isLog = true;
-                div.classList.add('active-period'); // 添加粉色背景类
+                div.classList.add('active-period'); 
             }
 
-            // 4. 标记预测 (如果这一天不是实心记录)
+            // 4. 标记预测与排卵
             if (!isLog && predictions) {
                 if (timeStr >= predictions.nextStart && timeStr < predictions.nextStart + (5 * 86400000)) {
                     div.classList.add('predicted');
                 }
+                // 排卵日准确标记
                 if (timeStr === predictions.ovulationDate) {
                     div.classList.add('ovulation');
                 }
@@ -1615,17 +1626,25 @@
     }
 
     // 操作处理
+// 操作处理 (增加未来日期禁止逻辑)
     function setPeriodAction(action) {
         if (!state.selectedDateObj) return showToast("请先选择日期");
-        const targetTime = state.selectedDateObj.getTime();
         
+        const targetTime = state.selectedDateObj.getTime();
+        const today = new Date();
+        today.setHours(0,0,0,0); //把今天的时间设为0点，方便比较
+
+        // 1. 禁止未来的逻辑
+        if (targetTime > today.getTime()) {
+            return showToast("🚫 无法设置未来的经期");
+        }
+
         // 排序记录
         playerData.periodLogs.sort((a,b) => a.startDate - b.startDate);
 
         if (action === 'start') {
-            // 检查是否冲突
             const conflict = playerData.periodLogs.find(l => {
-                const e = l.endDate || Date.now();
+                const e = l.endDate || l.startDate; 
                 return targetTime >= l.startDate && targetTime <= e;
             });
             
@@ -1634,14 +1653,16 @@
             } else {
                 playerData.periodLogs.push({ startDate: targetTime, endDate: null });
                 saveData();
-                showToast("已标记为开始");
+                showToast("已标记：经期开始");
                 addMessage("已记录。多喝热水。", "bartender");
             }
         }
         else if (action === 'end') {
             // 寻找 targetTime 之前最近的一个记录
             let targetLog = null;
+            // 倒序查找最近的一个开始时间
             for (let i = playerData.periodLogs.length - 1; i >= 0; i--) {
+                // 只有当这个记录还没有结束日期，或者结束日期就是今天/目标日期时才修改
                 if (playerData.periodLogs[i].startDate <= targetTime) {
                     targetLog = playerData.periodLogs[i];
                     break;
@@ -1649,16 +1670,20 @@
             }
             
             if (targetLog) {
+                // 如果结束时间比开始时间还早，那是错误的
+                if (targetTime < targetLog.startDate) {
+                     return showToast("结束日期不能早于开始日期");
+                }
                 targetLog.endDate = targetTime;
                 saveData();
-                showToast("已标记为结束");
+                showToast("已标记：经期结束");
             } else {
-                showToast("找不到对应的开始日期");
+                showToast("请先设置开始日期");
             }
         }
         else if (action === 'clear') {
             const index = playerData.periodLogs.findIndex(l => {
-                const e = l.endDate || (isPeriodOngoing(l) ? Date.now() : l.startDate); 
+                const e = l.endDate || l.startDate;
                 return targetTime >= l.startDate && targetTime <= e;
             });
             
@@ -1763,5 +1788,6 @@
 </script>
 </body>
 </html>
+
 
 
