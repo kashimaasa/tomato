@@ -503,8 +503,6 @@
 <div class="vignette"></div>
 
 <div class="app-container" id="main-container">
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
 
     <!-- Header -->
     <div class="header-area">
@@ -1365,11 +1363,34 @@
     function buyFish(fishType, free = false) {
         const fish = FISH_TYPES[fishType];
         if (!free && playerData.coins < fish.price) { showToast("金币不足"); return; }
+        
         if (!free) playerData.coins -= fish.price;
-        playerData.ownedFish.push({ id: Date.now().toString(), type: fishType, name: fish.name, icon: fish.icon, hunger: 100, happiness: 100, lastFed: Date.now(), lastPlayed: Date.now() });
-        updateCoinUI(); saveData(); renderShopItems(); renderPetTab();
-        if (!free) { showToast(`购买成功：${fish.name}`); triggerAchievement('fish_keeper'); } 
-        else addMessage(`获得了新的 ${fish.icon} ${fish.name}！`, "event");
+        
+        playerData.ownedFish.push({ 
+            id: Date.now().toString(), 
+            type: fishType, 
+            name: fish.name, 
+            icon: fish.icon, 
+            hunger: 100, 
+            happiness: 100, 
+            lastFed: Date.now(), 
+            lastPlayed: Date.now() 
+        });
+        
+        updateCoinUI(); 
+        saveData(); 
+        renderShopItems(); 
+        renderPetTab();
+        
+        if (!free) { 
+            showToast(`购买成功：${fish.name}`); 
+            // 修改点：这里删掉了原来的 triggerAchievement('fish_keeper');
+            // 改为调用检查函数，系统会自动判断是否满3条
+            checkAchievements(); 
+        } 
+        else {
+            addMessage(`获得了新的 ${fish.icon} ${fish.name}！`, "event");
+        }
     }
     function renderPetTab() {
         ui.foodCount.innerText = playerData.inventory.fishFood;
@@ -1384,13 +1405,46 @@
         });
     }
     function feedFish(id) {
-        if (playerData.inventory.fishFood <= 0) { showToast("没有鱼粮了"); return; }
+        if (playerData.inventory.fishFood <= 0) { showToast("没有鱼粮了，去货架买点吧"); return; }
         const f = playerData.ownedFish.find(f => f.id === id);
-        if(f) { f.hunger = Math.min(100, f.hunger + 30); f.lastFed = Date.now(); playerData.inventory.fishFood--; saveData(); renderPetTab(); showToast(`喂食了 ${f.name}`); }
+        if(f) { 
+            f.hunger = Math.min(100, f.hunger + 30); 
+            f.lastFed = Date.now(); 
+            playerData.inventory.fishFood--; 
+            saveData(); 
+            renderPetTab(); 
+            
+            // 随机文本库
+            const msgs = [
+                `投喂了 ${f.name}，它吃得很香！`,
+                `${f.name} 抢走了鱼食，甚至吐了个泡泡。`,
+                `你撒下一把鱼粮，${f.name} 看起来很有活力。`,
+                `${f.name} 摇着尾巴吃完了食物。`
+            ];
+            const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+            showToast(randomMsg); 
+        }
     }
+
     function playWithFish(id) {
         const f = playerData.ownedFish.find(f => f.id === id);
-        if(f) { f.happiness = Math.min(100, f.happiness + 25); f.lastPlayed = Date.now(); saveData(); renderPetTab(); showToast(`和 ${f.name} 玩耍了一会儿`); }
+        if(f) { 
+            f.happiness = Math.min(100, f.happiness + 25); 
+            f.lastPlayed = Date.now(); 
+            saveData(); 
+            renderPetTab(); 
+            
+            // 随机文本库
+            const msgs = [
+                `你手指在缸壁划过，${f.name} 追着跑了一会。`,
+                `和 ${f.name} 发了一会儿呆，心情变好了。`,
+                `${f.name} 在水草间穿梭，仿佛在为你表演。`,
+                `你盯着 ${f.name} 看，它好像也认得你。`,
+                `${f.name} 游过来蹭了蹭玻璃。`
+            ];
+            const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+            showToast(randomMsg); 
+        }
     }
     function updatePetStatsLoop() {
         if (Date.now() % 300000 < 1000) { saveData(); if(document.querySelector('.store-tab.active') && document.querySelector('.store-tab.active').innerText==='鱼缸') renderPetTab(); }
@@ -1786,8 +1840,6 @@
     ui.diaryText.addEventListener('keydown', (e)=>{if(e.ctrlKey&&e.key==='s'){e.preventDefault();saveDiaryEntry()}});
 
 </script>
+<div id="toast-container"></div>
 </body>
 </html>
-
-
-
