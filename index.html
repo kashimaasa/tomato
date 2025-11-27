@@ -6,23 +6,38 @@
     <title>Bar Driftwood - 深巷浮木</title>
     <style>
         :root {
+            /* 默认夜间模式变量 */
+            --bg-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1920&auto=format&fit=crop');
             --glass-bg: rgba(18, 18, 18, 0.95);
             --glass-border: rgba(255, 255, 255, 0.08);
             --accent-color: #d4af37; /* 香槟金 */
-            --paper-color: #f0f0e0; /* 账单纸张色 */
-            --diary-paper: #fdfbf7; /* 日记纸张色 */
-            --card-bg: #1a1a1a; /* 输入卡片/商店背景 */
             --text-main: #e0e0e0;
             --text-dim: #888;
+            --card-bg: #1a1a1a;
+            --paper-color: #f0f0e0;
+            --diary-paper: #fdfbf7;
             --period-color: #ff6b81; 
             --period-predict: #ffb8c1;
+            --shadow-color: rgba(0,0,0,0.5);
+        }
+
+        /* 日间模式变量覆盖 */
+        body.day-mode {
+            --bg-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1920&auto=format&fit=crop'); /* 明亮的咖啡馆 */
+            --glass-bg: rgba(245, 245, 245, 0.85); /* 浅色磨砂 */
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --accent-color: #b08d55; /* 深咖啡金 */
+            --text-main: #2c2c2c;
+            --text-dim: #666;
+            --card-bg: #ffffff;
+            --shadow-color: rgba(0,0,0,0.1);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             background-color: #050505;
-            background-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1920&auto=format&fit=crop');
+            background-image: var(--bg-image);
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -34,6 +49,7 @@
             flex-direction: column;
             overflow: hidden;
             user-select: none;
+            transition: background-image 0.5s ease;
         }
 
         /* 动画定义 */
@@ -58,7 +74,7 @@
 
         .vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.95) 90%);
+            background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 90%); /* 调淡晕影适配日间 */
             pointer-events: none; z-index: 0;
         }
 
@@ -71,6 +87,8 @@
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border-left: 1px solid var(--glass-border);
             border-right: 1px solid var(--glass-border);
+            box-shadow: 0 0 50px var(--shadow-color);
+            transition: background 0.5s ease;
         }
 
         /* 1. Header */
@@ -78,6 +96,10 @@
             padding: 15px 15px 10px 15px; text-align: center;
             border-bottom: 1px solid var(--glass-border); flex-shrink: 0;
             position: relative;
+        }
+        .theme-toggle-btn {
+            position: absolute; left: 15px; top: 15px;
+            background: transparent; border: none; font-size: 1.2em; cursor: pointer; opacity: 0.7;
         }
         .realtime-clock {
             font-size: 2.4em; color: var(--accent-color);
@@ -93,36 +115,24 @@
             font-size: 0.8em; color: #ffdb4d; margin-left: 10px; font-weight: bold;
             display: flex; align-items: center; gap: 4px;
         }
+        /* Day Mode 下的金币颜色调整 */
+        body.day-mode .coin-status { color: #d6b028; }
 
-        /* 新增：文字按钮导航行 */
+        /* 导航行 */
         .nav-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: center; gap: 15px;
+            margin-top: 15px; padding-top: 12px;
+            border-top: 1px solid var(--glass-border);
         }
         .nav-btn {
             background: transparent;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #aaa;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            letter-spacing: 1px;
+            border: 1px solid var(--glass-border);
+            color: var(--text-dim);
+            padding: 6px 16px; border-radius: 4px; font-size: 0.85em;
+            cursor: pointer; transition: all 0.2s; font-family: inherit; letter-spacing: 1px;
         }
-        .nav-btn:hover {
-            color: var(--accent-color);
-            border-color: var(--accent-color);
-            background: rgba(255,255,255,0.05);
-        }
-        .nav-btn:active { transform: scale(0.96); }
-        .nav-btn.special { color: #ff8fa3; border-color: rgba(255, 107, 129, 0.2); }
-        .nav-btn.special:hover { border-color: var(--period-color); color: var(--period-color); }
+        .nav-btn:hover { color: var(--accent-color); border-color: var(--accent-color); background: rgba(255,255,255,0.05); }
+        .nav-btn.special { color: var(--period-color); border-color: rgba(255, 107, 129, 0.3); }
 
         /* 2. Chat */
         .chat-area {
@@ -141,40 +151,50 @@
         .msg-user { align-self: flex-end; background-color: rgba(212, 175, 55, 0.15); color: #ddd; text-align: right; margin-left: 20px; }
         .msg-event { align-self: center; font-size: 0.85em; color: var(--accent-color); font-style: italic; opacity: 0.7; margin: 5px 0; text-align: center; }
 
+        /* 日间模式气泡适配 */
+        body.day-mode .msg-bartender { color: #333; background: rgba(0,0,0,0.05); }
+        body.day-mode .msg-user { color: #222; background: rgba(176, 141, 85, 0.2); }
+
         /* 3. Mid Section */
         .mid-section { padding: 0 15px 10px; flex-shrink: 0; }
         .panel-box {
-            background: rgba(0, 0, 0, 0.4); padding: 10px;
+            background: rgba(0, 0, 0, 0.1); padding: 10px; /* 降低透明度适配日间 */
             border-radius: 8px; border: 1px solid var(--glass-border);
         }
-        .panel-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
-        }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .panel-title { font-size: 0.85em; color: var(--text-dim); letter-spacing: 1px; }
         
         .open-todo-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid #555; color: #ccc;
+            background: rgba(255,255,255,0.1); border: 1px solid #777; color: var(--text-main);
             padding: 4px 12px; border-radius: 20px; font-size: 0.85em; cursor: pointer; transition: all 0.2s;
         }
         .list-container { list-style: none; padding: 0; margin: 0; max-height: 80px; overflow-y: auto; }
-        .list-item { display: flex; align-items: center; padding: 6px 0; font-size: 0.9em; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .list-item.completed span { text-decoration: line-through; color: #555; }
+        .list-item { display: flex; align-items: center; padding: 6px 0; font-size: 0.9em; border-bottom: 1px solid var(--glass-border); }
+        .list-item.completed span { text-decoration: line-through; color: var(--text-dim); }
         .list-item input[type="checkbox"] { margin-right: 10px; accent-color: var(--accent-color); }
-        .del-btn { margin-left: auto; background: transparent; border: none; color: #666; font-size: 1.4em; padding: 0 10px; cursor: pointer; }
+        .del-btn { margin-left: auto; background: transparent; border: none; color: var(--text-dim); font-size: 1.4em; padding: 0 10px; cursor: pointer; }
 
         /* 4. Controls */
         .controls-area {
-            padding: 15px 20px 25px; background: rgba(12, 12, 12, 0.98);
+            padding: 15px 20px 25px; background: var(--glass-bg); /* 跟随主题 */
             border-top: 1px solid var(--glass-border); flex-shrink: 0;
         }
-        .timer-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .timer-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .timer-display { font-size: 2em; color: var(--accent-color); font-variant-numeric: tabular-nums; font-weight: bold; }
-        .time-setter { display: flex; align-items: center; color: #ccc; font-size: 0.9em; }
-        .time-input { background: #2a2a2a; border: 1px solid #555; color: #fff; width: 50px; text-align: center; padding: 5px; margin: 0 8px; border-radius: 4px; font-size: 1.1em; font-weight: bold; }
+        .time-setter { display: flex; align-items: center; color: var(--text-dim); font-size: 0.9em; }
+        .time-input { background: rgba(0,0,0,0.2); border: 1px solid #555; color: var(--text-main); width: 50px; text-align: center; padding: 5px; margin: 0 8px; border-radius: 4px; font-size: 1.1em; font-weight: bold; }
         
+        /* 专注标签输入 */
+        .focus-tag-input {
+            width: 100%; background: rgba(0,0,0,0.1); border: none; border-bottom: 1px solid #555;
+            color: var(--text-main); font-size: 0.9em; padding: 5px; margin-bottom: 12px; outline: none;
+            text-align: center; font-family: inherit;
+        }
+        .focus-tag-input::placeholder { color: var(--text-dim); opacity: 0.6; }
+
         .action-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         button.action-btn {
-            background: rgba(255,255,255,0.06); border: 1px solid #444; color: #aaa; padding: 14px 0;
+            background: rgba(255,255,255,0.06); border: 1px solid #555; color: var(--text-dim); padding: 14px 0;
             border-radius: 8px; font-family: inherit; font-size: 0.95em; cursor: pointer; transition: all 0.2s;
         }
         button.action-btn:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
@@ -182,73 +202,87 @@
         button.action-btn.active-state { background: var(--accent-color); color: #000; border-color: var(--accent-color); font-weight: bold; }
 
         .audio-row { display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; }
-        select { background: transparent; border: none; color: #ccc; flex: 1; font-size: 0.9em; outline: none; }
-        option { background: #222; }
+        select { background: transparent; border: none; color: var(--text-dim); flex: 1; font-size: 0.9em; outline: none; }
+        option { background: #222; color: #ccc; }
         input[type="range"] { width: 80px; accent-color: var(--accent-color); }
 
         /* === 模态框通用 === */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
             z-index: 100; display: none; opacity: 0; transition: opacity 0.3s;
         }
         .modal-overlay.open { display: block; opacity: 1; }
 
-        /* 账单弹窗 */
+        /* 账单 & 统计 弹窗 */
         .receipt-modal {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 85%; max-width: 340px; background: var(--paper-color); color: #333;
             padding: 20px; font-family: "Courier New", "SimSun", monospace;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: modal-in 0.4s ease-out;
-            max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 10px 30px var(--shadow-color); animation: modal-in 0.4s ease-out;
+            max-height: 85vh; overflow-y: auto;
         }
         .receipt-header { text-align: center; border-bottom: 2px dashed #999; padding-bottom: 10px; margin-bottom: 10px; }
         .receipt-list { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; border-bottom: 2px dashed #999; font-size: 0.9em; }
+        .receipt-list::-webkit-scrollbar { width: 4px; }
+        .receipt-list::-webkit-scrollbar-thumb { background: #bbb; border-radius: 2px; }
         .data-controls { margin-top: 15px; display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
         .data-btn { font-size: 0.75em; background: #ddd; border: 1px solid #999; padding: 4px 8px; cursor: pointer; color: #333; margin-bottom: 5px; }
+
+        /* 扇形统计图容器 */
+        .chart-container { margin: 15px 0; text-align: center; }
+        .chart-svg { max-width: 150px; max-height: 150px; margin: 0 auto; display: block; transform: rotate(-90deg); border-radius: 50%;}
+        .chart-legend { font-size: 0.75em; color: #555; margin-top: 10px; text-align: left; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;}
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .legend-color { width: 10px; height: 10px; display: inline-block; border-radius: 2px; }
 
         /* 商店 & 输入弹窗 */
         .input-modal {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 90%; max-width: 360px; background: var(--card-bg); border: 1px solid #444;
-            color: #fff; padding: 20px; border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8); animation: modal-in 0.3s ease-out; text-align: center;
+            color: var(--text-main); padding: 20px; border-radius: 12px;
+            box-shadow: 0 10px 40px var(--shadow-color); animation: modal-in 0.3s ease-out; text-align: center;
         }
         .input-modal h3 { margin: 0 0 15px 0; color: var(--accent-color); font-weight: normal; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
         .store-tabs { display: flex; border-bottom: 1px solid #444; margin-bottom: 15px; }
-        .store-tab { flex: 1; padding: 10px; cursor: pointer; color: #888; border-bottom: 2px solid transparent; }
+        .store-tab { flex: 1; padding: 10px; cursor: pointer; color: var(--text-dim); border-bottom: 2px solid transparent; }
         .store-tab.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
         .store-grid { display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 300px; overflow-y: auto; text-align: left; padding-right: 5px; }
         .store-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
         .store-item.disabled { opacity: 0.5; pointer-events: none; }
         .item-info { display: flex; flex-direction: column; flex: 1; margin-right: 10px; }
-        .item-name { font-weight: bold; color: #eee; font-size: 0.95em; }
-        .item-desc { font-size: 0.75em; color: #aaa; margin-top: 3px; }
+        .item-name { font-weight: bold; color: var(--text-main); font-size: 0.95em; }
+        .item-desc { font-size: 0.75em; color: var(--text-dim); margin-top: 3px; }
         .buy-btn { background: #333; color: #ffdb4d; border: 1px solid #555; padding: 5px 12px; border-radius: 4px; font-size: 0.85em; cursor: pointer; white-space: nowrap; }
 
         /* 宠物卡片 */
-        .pet-card { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; border: 1px solid #333; display: flex; align-items: center; gap: 15px; }
+        .pet-card { background: rgba(0,0,0,0.1); padding: 12px; border-radius: 8px; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 15px; }
         .pet-icon { font-size: 2.5em; animation: float 3s ease-in-out infinite; }
         .pet-stats { flex: 1; }
         .pet-name { font-size: 0.9em; color: var(--accent-color); font-weight: bold; }
-        .stat-row { display: flex; align-items: center; gap: 8px; font-size: 0.75em; color: #bbb; margin-top: 3px; }
+        .stat-row { display: flex; align-items: center; gap: 8px; font-size: 0.75em; color: var(--text-dim); margin-top: 3px; }
         .progress-bg { flex: 1; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.5s; }
-        .feed-btn-small { background: rgba(255,255,255,0.1); border: none; color: #fff; font-size: 0.8em; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
+        .feed-btn-small { background: rgba(255,255,255,0.1); border: none; color: var(--text-main); font-size: 0.8em; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
 
         /* 生理期日历 */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #ccc; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: var(--text-dim); }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 15px; font-size: 0.85em; }
-        .calendar-day-label { text-align: center; color: #666; font-size: 0.75em; padding-bottom: 5px; }
-        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 4px; background: rgba(255,255,255,0.05); color: #888; position: relative; }
-        .calendar-day.today { border: 1px solid #fff; color: #fff; }
-        .calendar-day.active-period { background: rgba(255, 107, 129, 0.4); color: #fff; }
+        .calendar-day-label { text-align: center; color: var(--text-dim); font-size: 0.75em; padding-bottom: 5px; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text-dim); position: relative; }
+        .calendar-day.today { border: 1px solid var(--text-main); color: var(--text-main); }
+        .calendar-day.active-period { background: rgba(255, 107, 129, 0.4); color: var(--text-main); }
         .calendar-day.predicted { border: 1px dashed var(--period-color); color: var(--period-predict); }
         .period-controls { display: flex; gap: 10px; margin-top: 15px; }
         .period-btn-action { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; color: #fff; opacity: 0.9; }
         .btn-start-period { background: var(--period-color); }
         .btn-end-period { background: #333; border: 1px solid #555; }
         .period-status-text { font-size: 0.9em; color: var(--period-predict); margin-bottom: 10px; min-height: 1.2em;}
+        
+        .period-history-list { max-height: 100px; overflow-y: auto; text-align: left; font-size: 0.85em; border-top: 1px solid #444; margin-top: 15px; padding-top: 10px;}
+        .period-history-item { display: flex; justify-content: space-between; padding: 4px 0; color: #aaa; }
+        .period-del-btn { color: #d9534f; cursor: pointer; margin-left: 10px;}
+        .period-add-row { display: flex; gap: 5px; margin-top: 10px; align-items: center; font-size: 0.8em; color: #888;}
 
         /* 日记本样式 */
         .diary-modal-content {
@@ -256,7 +290,7 @@
             width: 90%; max-width: 400px; height: 600px; max-height: 85vh;
             background: var(--diary-paper); color: #444;
             padding: 20px 25px; border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 40px var(--shadow-color);
             animation: modal-in 0.3s ease-out;
             display: flex; flex-direction: column;
             font-family: "KaiTi", "STKaiti", "楷体", "Georgia", serif;
@@ -289,13 +323,14 @@
 
     </style>
 </head>
-<body>
+<body class="">
 
     <div class="vignette"></div>
 
     <div class="app-container" id="main-container">
         <!-- Header -->
         <div class="header-area">
+            <button class="theme-toggle-btn" onclick="toggleTheme()">☀️</button>
             <div class="realtime-clock" id="clock">00:00</div>
             <div class="bartender-status">
                 <span class="mood-dot" id="mood-indicator"></span>
@@ -303,7 +338,7 @@
                 <span class="coin-status">🪙 <span id="coin-count">0</span></span>
             </div>
             
-            <!-- 新增：文字导航行 -->
+            <!-- 文字导航行 -->
             <div class="nav-row">
                 <button class="nav-btn" onclick="openDiary()">日记</button>
                 <button class="nav-btn special" onclick="openPeriodModal()">生理期</button>
@@ -335,6 +370,9 @@
                 </div>
             </div>
 
+            <!-- 专注命名输入 -->
+            <input type="text" class="focus-tag-input" id="focus-tag-input" placeholder="本次专注内容（如：阅读、代码...）" autocomplete="off">
+
             <div class="action-row">
                 <button class="action-btn primary" id="focus-btn" onclick="toggleFocus()">开始专注</button>
                 <button class="action-btn" onclick="orderDrink()">随心饮</button>
@@ -351,7 +389,7 @@
         </div>
     </div>
 
-    <!-- 弹窗：时光账单 -->
+    <!-- 弹窗：时光账单 & 统计 -->
     <div id="modal-bill" class="modal-overlay">
         <div class="receipt-modal">
             <div class="receipt-header">
@@ -359,7 +397,16 @@
                 <p>Bar Driftwood</p>
                 <p id="total-sessions" style="font-size: 0.8em; margin-top:5px;">累计专注: 0 次</p>
             </div>
+
+            <!-- 扇形统计图区 -->
+            <div class="chart-container">
+                <div style="font-size: 0.8em; color: #888; margin-bottom: 5px;">今日专注分布</div>
+                <svg id="pie-chart" class="chart-svg" viewBox="-1 -1 2 2"></svg>
+                <div id="chart-legend" class="chart-legend"></div>
+            </div>
+
             <ul id="history-list" class="receipt-list"></ul>
+            
             <div style="margin-top: 15px; border-top: 1px dashed #999; padding-top: 10px; text-align: center;">
                 <p style="font-size: 0.8em; color: #666; margin-bottom: 5px;">数据备份</p>
                 <div class="data-controls">
@@ -417,10 +464,23 @@
                 <div class="calendar-day-label">六</div>
             </div>
             <div id="calendar-days-container" class="calendar-grid"></div>
+            
             <div class="period-controls">
                 <button class="period-btn-action btn-start-period" onclick="logPeriodStart()">姨妈来了</button>
                 <button class="period-btn-action btn-end-period" onclick="logPeriodEnd()">姨妈走了</button>
             </div>
+            
+            <!-- 历史与补录 -->
+            <div class="period-history-list" id="period-history-list">
+                <!-- JS Fill -->
+            </div>
+            <div class="period-add-row">
+                <span>补录:</span>
+                <input type="date" id="period-add-date" style="background:#333; color:#fff; border:none; border-radius:4px;">
+                <button class="data-btn" onclick="retroAddPeriodStart()">始</button>
+                <button class="data-btn" onclick="retroAddPeriodEnd()">终</button>
+            </div>
+
             <div class="modal-actions"><button class="modal-btn cancel" onclick="closePeriodModal()">关闭</button></div>
         </div>
     </div>
@@ -452,6 +512,7 @@
     <script>
         // --- 核心 UI 引用 ---
         const ui = {
+            body: document.body,
             container: document.getElementById('main-container'),
             clock: document.getElementById('clock'),
             statusText: document.getElementById('status-text'),
@@ -461,6 +522,7 @@
             focusBtn: document.getElementById('focus-btn'),
             customInput: document.getElementById('custom-minutes'),
             timeSetterBox: document.getElementById('time-setter-box'),
+            focusTagInput: document.getElementById('focus-tag-input'), // New
             bgm: document.getElementById('bgm'),
             noiseSelector: document.getElementById('noise-selector'),
             volumeSlider: document.getElementById('volume'),
@@ -468,6 +530,9 @@
             modalBill: document.getElementById('modal-bill'),
             historyList: document.getElementById('history-list'),
             totalSessions: document.getElementById('total-sessions'),
+            pieChart: document.getElementById('pie-chart'), // New
+            chartLegend: document.getElementById('chart-legend'), // New
+            
             modalTodo: document.getElementById('modal-todo'),
             todoInput: document.getElementById('todo-input-field'),
             todoList: document.getElementById('todo-list'),
@@ -484,6 +549,8 @@
             periodStatus: document.getElementById('period-status'),
             calMonthLabel: document.getElementById('cal-month-label'),
             calDaysContainer: document.getElementById('calendar-days-container'),
+            periodHistoryList: document.getElementById('period-history-list'), // New
+            periodAddDate: document.getElementById('period-add-date'), // New
             // Diary
             modalDiary: document.getElementById('modal-diary'),
             diaryListView: document.getElementById('diary-list-view'),
@@ -513,7 +580,6 @@
             { id: 'drink_warm', name: '壁炉', price: 5, desc: '热红酒与肉桂', quote: '希望这杯酒能暖一暖你疲惫的灵魂。' }
         ];
 
-        // 完整的对话系统
         const chatTopics = [
             { id: 'tired', user: ["我觉得有点累。", "今天过得好漫长。", "能量耗尽了。"] },
             { id: 'story', user: ["讲讲你的故事吧。", "这里一直都这么安静吗？", "你有在等的人吗？"] },
@@ -551,20 +617,25 @@
         // --- 状态数据 ---
         let state = {
             isFocusing: false, timeLeft: 0, initialTime: 0, timerId: null, audioContext: null, mood: 'calm', completedCount: 0, elapsedFocusTime: 0,
-            currentDiaryId: null
+            currentDiaryId: null,
+            currentFocusTag: "默认"
         };
 
         let playerData = {
             coins: 0,
             inventory: { fishFood: 0 },
             ownedFish: [],
-            periodLogs: [],
-            diaryEntries: []
+            periodLogs: [], // { startDate: timestamp, endDate: timestamp }
+            diaryEntries: [],
+            focusHistory: [], // { timestamp: number, duration: number, tag: string }
+            isDayMode: false
         };
 
         // --- 初始化与加载 ---
         window.onload = () => {
             loadData();
+            if(playerData.isDayMode) ui.body.classList.add('day-mode');
+            
             setInterval(() => {
                 const now = new Date();
                 ui.clock.innerText = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -577,7 +648,28 @@
             getWeatherAndGreet();
             startBartenderAI();
             updateCoinUI();
+            
+            // 防切屏检测
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden && state.isFocusing) {
+                    addMessage("Cipher 皱了皱眉：“你刚才去哪了？时钟可是不会等人的。”", "bartender");
+                    // 也可以选择在这里暂停计时或惩罚
+                }
+            });
         };
+        
+        // 主题切换
+        function toggleTheme() {
+            playerData.isDayMode = !playerData.isDayMode;
+            if(playerData.isDayMode) {
+                ui.body.classList.add('day-mode');
+                addMessage("（拉开窗帘）让阳光进来吧。", "event");
+            } else {
+                ui.body.classList.remove('day-mode');
+                addMessage("（拉上窗帘）还是夜晚更适合这里。", "event");
+            }
+            saveData();
+        }
 
         function getWeatherAndGreet() {
             if(isPeriodActive()) {
@@ -585,7 +677,6 @@
                  state.mood = 'calm';
                  return;
             }
-
             if ("geolocation" in navigator) {
                 addMessage("（Cipher 望向窗外）正在确认外面的天气...", "event");
                 navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -600,9 +691,9 @@
 
         function handleWeather(w) {
             const code = w.weathercode;
-            if (code <= 3) { state.mood = 'calm'; addMessage("外面是个晴朗的夜晚，适合独处。", "bartender"); }
+            if (code <= 3) { state.mood = 'calm'; addMessage("外面是个晴朗的日子，适合独处。", "bartender"); }
             else if (code >= 51) { state.mood = 'melancholic'; addMessage("下雨了，进来躲躲吧。", "bartender"); }
-            else { state.mood = 'cheerful'; addMessage("今晚的风很舒服。", "bartender"); }
+            else { state.mood = 'cheerful'; addMessage("今天的风很舒服。", "bartender"); }
             updateStatusUI();
         }
 
@@ -627,6 +718,7 @@
                 playerData = JSON.parse(saved);
                 if (!playerData.periodLogs) playerData.periodLogs = [];
                 if (!playerData.diaryEntries) playerData.diaryEntries = [];
+                if (!playerData.focusHistory) playerData.focusHistory = [];
             } else {
                 const oldData = localStorage.getItem('driftwood_data');
                 if (oldData) {
@@ -645,30 +737,19 @@
         }
 
         function exportDataFile() {
-            const data = {
-                player: playerData,
-                history: ui.historyList.innerHTML,
-                count: state.completedCount,
-                timestamp: Date.now()
-            };
+            const data = { player: playerData, history: ui.historyList.innerHTML, count: state.completedCount, timestamp: Date.now() };
             const jsonStr = JSON.stringify(data, null, 2);
             const blob = new Blob([jsonStr], {type: "application/json"});
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `driftwood_backup_${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const a = document.createElement('a'); a.href = url; a.download = `driftwood_backup_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
             addMessage("存档文件已生成。", "event");
         }
 
         function triggerImport() { document.getElementById('file-input').click(); }
 
         function handleFileImport(input) {
-            const file = input.files[0];
-            if (!file) return;
+            const file = input.files[0]; if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -677,24 +758,18 @@
                         playerData = data.player;
                         if (!playerData.periodLogs) playerData.periodLogs = [];
                         if (!playerData.diaryEntries) playerData.diaryEntries = [];
+                        if (!playerData.focusHistory) playerData.focusHistory = [];
                         if (data.history) ui.historyList.innerHTML = data.history;
                         state.completedCount = data.count || 0;
                         ui.totalSessions.innerText = `累计专注: ${state.completedCount} 次`;
-                        saveData();
-                        alert("存档导入成功！页面将自动刷新。");
-                        location.reload();
-                    } else {
-                        throw new Error("存档结构不完整");
-                    }
-                } catch (err) {
-                    alert("错误：文件已损坏或格式不正确。");
-                }
+                        saveData(); alert("存档导入成功！页面将自动刷新。"); location.reload();
+                    } else throw new Error("结构不完整");
+                } catch (err) { alert("错误：文件已损坏或格式不正确。"); }
             };
-            reader.readAsText(file);
-            input.value = '';
+            reader.readAsText(file); input.value = '';
         }
 
-        // --- 心情日记逻辑 ---
+        // --- 心情日记 ---
         function openDiary() { ui.modalDiary.classList.add('open'); showDiaryList(); }
         function closeDiary() { ui.modalDiary.classList.remove('open'); }
         function showDiaryList() {
@@ -702,50 +777,39 @@
             ui.newDiaryBtn.style.display = 'block'; ui.backDiaryBtn.style.display = 'none';
             ui.diaryListView.innerHTML = '';
             const entries = playerData.diaryEntries.sort((a,b) => b.id - a.id);
-            if (entries.length === 0) {
-                ui.diaryListView.innerHTML = '<li style="padding:20px; text-align:center; color:#8c7b70; font-style:italic;">纸页空白，等待落笔。</li>';
-            } else {
-                entries.forEach(entry => {
-                    const li = document.createElement('li'); li.className = 'diary-entry-item';
-                    li.innerHTML = `<div class="diary-date">${entry.dateStr}</div><div class="diary-preview">${entry.text.substring(0, 20)}${entry.text.length>20?'...':''}</div>`;
-                    li.onclick = () => showDiaryEditor(entry.id);
-                    ui.diaryListView.appendChild(li);
-                });
-            }
+            if (entries.length === 0) ui.diaryListView.innerHTML = '<li style="padding:20px; text-align:center; color:#8c7b70; font-style:italic;">纸页空白，等待落笔。</li>';
+            else entries.forEach(entry => {
+                const li = document.createElement('li'); li.className = 'diary-entry-item';
+                li.innerHTML = `<div class="diary-date">${entry.dateStr}</div><div class="diary-preview">${entry.text.substring(0, 20)}${entry.text.length>20?'...':''}</div>`;
+                li.onclick = () => showDiaryEditor(entry.id); ui.diaryListView.appendChild(li);
+            });
         }
         function showDiaryEditor(id = null) {
             ui.diaryListView.style.display = 'none'; ui.diaryEditorView.style.display = 'flex';
             ui.newDiaryBtn.style.display = 'none'; ui.backDiaryBtn.style.display = 'block';
             state.currentDiaryId = id;
-            if (id) {
-                const entry = playerData.diaryEntries.find(e => e.id === id);
-                ui.diaryText.value = entry ? entry.text : '';
-            } else { ui.diaryText.value = ''; }
+            if (id) { const entry = playerData.diaryEntries.find(e => e.id === id); ui.diaryText.value = entry ? entry.text : ''; }
+            else { ui.diaryText.value = ''; }
             ui.diaryText.focus();
         }
         function saveDiaryEntry() {
-            const text = ui.diaryText.value.trim();
-            if (!text) { alert("内容为空。"); return; }
-            if (state.currentDiaryId) {
-                const entry = playerData.diaryEntries.find(e => e.id === state.currentDiaryId);
-                if (entry) entry.text = text;
-            } else {
-                const now = new Date();
-                const dateStr = now.toLocaleString('zh-CN', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'});
-                playerData.diaryEntries.push({ id: Date.now(), dateStr: dateStr, text: text });
-            }
+            const text = ui.diaryText.value.trim(); if (!text) { alert("内容为空。"); return; }
+            if (state.currentDiaryId) { const entry = playerData.diaryEntries.find(e => e.id === state.currentDiaryId); if (entry) entry.text = text; }
+            else { const now = new Date(); const dateStr = now.toLocaleString('zh-CN', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}); playerData.diaryEntries.push({ id: Date.now(), dateStr: dateStr, text: text }); }
             saveData(); showDiaryList();
         }
         function deleteCurrentEntry() {
             if (!state.currentDiaryId) { showDiaryList(); return; }
-            if (confirm("确定要撕掉这一页吗？")) {
-                playerData.diaryEntries = playerData.diaryEntries.filter(e => e.id !== state.currentDiaryId);
-                saveData(); showDiaryList();
-            }
+            if (confirm("确定要撕掉这一页吗？")) { playerData.diaryEntries = playerData.diaryEntries.filter(e => e.id !== state.currentDiaryId); saveData(); showDiaryList(); }
         }
 
-        // --- 生理期系统 ---
-        function openPeriodModal() { ui.modalPeriod.classList.add('open'); renderPeriodCalendar(); updatePeriodStatus(); }
+        // --- 生理期系统 (增强版) ---
+        function openPeriodModal() { 
+            ui.modalPeriod.classList.add('open'); 
+            renderPeriodCalendar(); 
+            updatePeriodStatus(); 
+            renderPeriodHistory(); // Show history
+        }
         function closePeriodModal() { ui.modalPeriod.classList.remove('open'); }
         function isPeriodActive() {
             if (playerData.periodLogs.length === 0) return false;
@@ -759,34 +823,47 @@
         function logPeriodStart() {
             if (isPeriodActive()) return alert("你已经记录了本次生理期开始。");
             playerData.periodLogs.push({ startDate: Date.now(), endDate: null });
-            saveData(); renderPeriodCalendar(); updatePeriodStatus();
+            saveData(); renderPeriodCalendar(); updatePeriodStatus(); renderPeriodHistory();
             addMessage("Cipher 默默调高了室内的空调温度。", "event");
         }
         function logPeriodEnd() {
             if (!isPeriodActive()) return alert("当前没有进行中的生理期记录。");
             playerData.periodLogs[playerData.periodLogs.length - 1].endDate = Date.now();
-            saveData(); renderPeriodCalendar(); updatePeriodStatus();
+            saveData(); renderPeriodCalendar(); updatePeriodStatus(); renderPeriodHistory();
             addMessage("身体恢复了吗？真是太好了。", "bartender");
         }
-        function updatePeriodStatus() {
-            if (isPeriodActive()) {
-                ui.periodStatus.innerText = "当前状态：生理期中";
-                ui.periodStatus.style.color = "#ff6b81";
-            } else {
-                const nextDate = predictNextPeriod();
-                if (nextDate) {
-                    const daysLeft = Math.ceil((nextDate - Date.now()) / (1000 * 60 * 60 * 24));
-                    ui.periodStatus.innerText = `预测：下一次经期约在 ${daysLeft} 天后`;
-                    ui.periodStatus.style.color = "#ffb8c1";
-                } else {
-                    ui.periodStatus.innerText = "暂无记录，无法预测";
-                }
+        // 动态预测
+        function getAverageCycle() {
+            if (playerData.periodLogs.length < 2) return 28; // Default
+            let totalDiff = 0;
+            let count = 0;
+            // 计算最近3次周期的平均值
+            for(let i = playerData.periodLogs.length - 1; i > 0 && count < 3; i--) {
+                const current = playerData.periodLogs[i].startDate;
+                const prev = playerData.periodLogs[i-1].startDate;
+                totalDiff += (current - prev);
+                count++;
             }
+            const avgMs = totalDiff / count;
+            return Math.round(avgMs / (1000 * 60 * 60 * 24));
         }
         function predictNextPeriod() {
             if (playerData.periodLogs.length === 0) return null;
             const lastStart = playerData.periodLogs[playerData.periodLogs.length - 1].startDate;
-            return lastStart + (28 * 24 * 60 * 60 * 1000);
+            const avgCycle = getAverageCycle();
+            return lastStart + (avgCycle * 24 * 60 * 60 * 1000);
+        }
+        function updatePeriodStatus() {
+            if (isPeriodActive()) {
+                ui.periodStatus.innerText = "当前状态：生理期中"; ui.periodStatus.style.color = "#ff6b81";
+            } else {
+                const nextDate = predictNextPeriod();
+                if (nextDate) {
+                    const daysLeft = Math.ceil((nextDate - Date.now()) / (1000 * 60 * 60 * 24));
+                    ui.periodStatus.innerText = `预测：下一次经期约在 ${daysLeft} 天后 (周期约${getAverageCycle()}天)`;
+                    ui.periodStatus.style.color = "#ffb8c1";
+                } else { ui.periodStatus.innerText = "暂无足够记录预测"; }
+            }
         }
         function renderPeriodCalendar() {
             const container = ui.calDaysContainer; container.innerHTML = '';
@@ -814,6 +891,51 @@
                 container.appendChild(div);
             }
         }
+        // 补录与历史
+        function renderPeriodHistory() {
+            ui.periodHistoryList.innerHTML = '';
+            playerData.periodLogs.slice().reverse().forEach((log, index) => {
+                // index is reversed index
+                const realIndex = playerData.periodLogs.length - 1 - index;
+                const s = new Date(log.startDate).toLocaleDateString();
+                const e = log.endDate ? new Date(log.endDate).toLocaleDateString() : '进行中';
+                const div = document.createElement('div');
+                div.className = 'period-history-item';
+                div.innerHTML = `<span>${s} - ${e}</span> <span class="period-del-btn" onclick="deletePeriodLog(${realIndex})">×</span>`;
+                ui.periodHistoryList.appendChild(div);
+            });
+        }
+        function deletePeriodLog(index) {
+            if(confirm("确定删除这条记录吗？")) {
+                playerData.periodLogs.splice(index, 1);
+                saveData(); renderPeriodCalendar(); updatePeriodStatus(); renderPeriodHistory();
+            }
+        }
+        function retroAddPeriodStart() {
+            const val = ui.periodAddDate.value;
+            if(!val) return alert("请选择日期");
+            const ts = new Date(val).getTime();
+            // 简单的插入逻辑：如果最近一次没结束，不允许插。实际应该更复杂，这里简化处理允许补录新的开始。
+            if(isPeriodActive()) return alert("请先结束当前的记录");
+            playerData.periodLogs.push({ startDate: ts, endDate: null });
+            // sort logs by date
+            playerData.periodLogs.sort((a,b) => a.startDate - b.startDate);
+            saveData(); renderPeriodCalendar(); updatePeriodStatus(); renderPeriodHistory();
+            alert("补录开始日期成功");
+        }
+        function retroAddPeriodEnd() {
+            const val = ui.periodAddDate.value;
+            if(!val) return alert("请选择日期");
+            const ts = new Date(val).getTime();
+            // 找最近一个没有结束日期的
+            const openLog = playerData.periodLogs.find(l => !l.endDate);
+            if(!openLog) return alert("没有进行中的记录可结束");
+            if(ts < openLog.startDate) return alert("结束日期不能早于开始日期");
+            openLog.endDate = ts;
+            saveData(); renderPeriodCalendar(); updatePeriodStatus(); renderPeriodHistory();
+            alert("补录结束日期成功");
+        }
+
 
         // --- 商店 & 宠物 ---
         function openStore() { ui.modalStore.classList.add('open'); renderShopItems(); renderAquarium(); }
@@ -885,19 +1007,27 @@
             }
         }
 
-        // --- 专注逻辑 ---
+        // --- 专注逻辑 (增强版) ---
         function toggleFocus() { state.isFocusing ? stopFocus() : startFocus(); }
         function startFocus() {
             let m = parseInt(ui.customInput.value) || 25;
             state.timeLeft = m * 60; state.initialTime = state.timeLeft; state.elapsedFocusTime = 0; state.isFocusing = true;
+            
+            // 获取并保存当前 Tag
+            state.currentFocusTag = ui.focusTagInput.value.trim() || "默认";
+            
             ui.focusBtn.innerText = "停止专注"; ui.focusBtn.classList.add('active-state'); ui.timeSetterBox.style.display = 'none';
+            ui.focusTagInput.style.display = 'none'; // Hide input during focus
+
             ui.statusText.innerText = "Cipher 将沙漏倒置...";
             initAudioContext(); ui.bgm.play().catch(e=>{});
-            addMessage(`明白了，${m}分钟。每专注1分钟可获得一枚金币。`, "bartender");
+            addMessage(`明白了，${m}分钟 (${state.currentFocusTag})。`, "bartender");
+            
             state.timerId = setInterval(() => {
                 state.timeLeft--; state.elapsedFocusTime++;
                 let min = Math.floor(state.timeLeft/60), sec = state.timeLeft%60;
                 ui.timerDisplay.innerText = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+                
                 // 1分钟1金币
                 if (state.elapsedFocusTime>0 && state.elapsedFocusTime%60===0) {
                     playerData.coins++; updateCoinUI(); triggerAlert("获得专注奖励：1 金币", false);
@@ -911,14 +1041,113 @@
             clearInterval(state.timerId); state.isFocusing=false; resetUI();
             triggerAlert("时间到了。辛苦了。", true);
             ui.statusText.innerText = "Cipher 递给您温水...";
+            
+            const durationMins = state.initialTime/60;
             const now=new Date(); const tStr=now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
-            const li=document.createElement('li'); li.innerHTML=`<span>${tStr} 专注时刻</span><span>${state.initialTime/60}分钟</span>`;
+            
+            // 保存历史 (带Tag)
+            const historyItem = { timestamp: Date.now(), duration: durationMins, tag: state.currentFocusTag };
+            if(!playerData.focusHistory) playerData.focusHistory = [];
+            playerData.focusHistory.push(historyItem);
+
+            const li=document.createElement('li'); 
+            li.innerHTML=`<span>${tStr} [${state.currentFocusTag}]</span><span>${durationMins}分钟</span>`;
             ui.historyList.insertBefore(li, ui.historyList.firstChild);
+            
             state.completedCount++; ui.totalSessions.innerText=`累计专注: ${state.completedCount} 次`;
             ui.bgm.pause(); saveData();
         }
-        function resetUI() { ui.focusBtn.innerText="开始专注"; ui.focusBtn.classList.remove('active-state'); ui.timeSetterBox.style.display='flex'; }
+        function resetUI() { 
+            ui.focusBtn.innerText="开始专注"; 
+            ui.focusBtn.classList.remove('active-state'); 
+            ui.timeSetterBox.style.display='flex';
+            ui.focusTagInput.style.display = 'block'; 
+        }
         function updateCoinUI() { ui.coinCount.innerText=playerData.coins; ui.storeCoinCount.innerText=playerData.coins; }
+
+        // --- 账单 & 统计逻辑 (Pie Chart) ---
+        function openHistory() { 
+            ui.modalBill.classList.add('open'); 
+            renderPieChart();
+        }
+        function closeHistory() { ui.modalBill.classList.remove('open'); }
+        
+        function renderPieChart() {
+            // 简单统计今日数据
+            if(!playerData.focusHistory || playerData.focusHistory.length === 0) {
+                ui.pieChart.style.display = 'none';
+                ui.chartLegend.innerHTML = '暂无今日数据';
+                return;
+            }
+
+            const today = new Date().setHours(0,0,0,0);
+            const todayLogs = playerData.focusHistory.filter(h => h.timestamp >= today);
+
+            if(todayLogs.length === 0) {
+                 ui.pieChart.style.display = 'none';
+                 ui.chartLegend.innerHTML = '暂无今日数据';
+                 return;
+            }
+            
+            ui.pieChart.style.display = 'block';
+
+            // Group by tag
+            const stats = {};
+            let totalMins = 0;
+            todayLogs.forEach(log => {
+                if(!stats[log.tag]) stats[log.tag] = 0;
+                stats[log.tag] += log.duration;
+                totalMins += log.duration;
+            });
+
+            // Draw Pie
+            let accumulatedAngle = 0;
+            ui.pieChart.innerHTML = '';
+            ui.chartLegend.innerHTML = '';
+            
+            const colors = ['#d4af37', '#ff6b81', '#4cd964', '#5ac8fa', '#ffcc00', '#8e8e93'];
+            let colorIdx = 0;
+
+            for (const [tag, mins] of Object.entries(stats)) {
+                const percentage = mins / totalMins;
+                const angle = percentage * 360;
+                
+                // SVG Path Logic
+                const x1 = Math.cos(2 * Math.PI * accumulatedAngle / 360);
+                const y1 = Math.sin(2 * Math.PI * accumulatedAngle / 360);
+                const x2 = Math.cos(2 * Math.PI * (accumulatedAngle + angle) / 360);
+                const y2 = Math.sin(2 * Math.PI * (accumulatedAngle + angle) / 360);
+                
+                // Create SVG element
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const largeArc = angle > 180 ? 1 : 0;
+                
+                // If it's a full circle (one item)
+                let d = "";
+                if (Math.abs(angle - 360) < 0.1) {
+                    d = `M 1 0 A 1 1 0 1 1 -1 0 A 1 1 0 1 1 1 0`; // Simplified full circle approximation for SVG path or use <circle>
+                    // Actually clearer to just use Circle if 100%
+                    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    circle.setAttribute("cx", "0"); circle.setAttribute("cy", "0"); circle.setAttribute("r", "1");
+                    circle.setAttribute("fill", colors[colorIdx % colors.length]);
+                    ui.pieChart.appendChild(circle);
+                } else {
+                    d = `M 0 0 L ${x1} ${y1} A 1 1 0 ${largeArc} 1 ${x2} ${y2} Z`;
+                    path.setAttribute("d", d);
+                    path.setAttribute("fill", colors[colorIdx % colors.length]);
+                    ui.pieChart.appendChild(path);
+                }
+
+                // Legend
+                const legItem = document.createElement('div');
+                legItem.className = 'legend-item';
+                legItem.innerHTML = `<span class="legend-color" style="background:${colors[colorIdx % colors.length]}"></span> ${tag} (${Math.round(percentage*100)}%)`;
+                ui.chartLegend.appendChild(legItem);
+
+                accumulatedAngle += angle;
+                colorIdx++;
+            }
+        }
 
         // --- 对话 & 饮品 ---
         function chatWithBartender() {
@@ -1011,10 +1240,7 @@
         function addMessage(text, type) { const div = document.createElement('div'); div.className = `message msg-${type}`; div.innerHTML = text; ui.chatBox.appendChild(div); requestAnimationFrame(() => ui.chatBox.scrollTop = ui.chatBox.scrollHeight); }
         
         // 模态框通用关闭
-        function openHistory() { ui.modalBill.classList.add('open'); }
-        function closeHistory() { ui.modalBill.classList.remove('open'); }
-        function openTodoModal() { ui.modalTodo.classList.add('open'); setTimeout(()=>ui.todoInput.focus(),100); }
-        function closeTodoModal() { ui.modalTodo.classList.remove('open'); ui.todoInput.value = ''; }
+        [ui.modalBill, ui.modalTodo, ui.modalStore, ui.modalPeriod, ui.modalDiary].forEach(m => { m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); }); });
         function confirmTodo() {
             const val = ui.todoInput.value.trim(); if(!val) { closeTodoModal(); return; }
             const li = document.createElement('li'); li.className = 'list-item';
@@ -1022,8 +1248,9 @@
             ui.todoList.appendChild(li); closeTodoModal();
         }
         ui.todoInput.addEventListener('keypress', (e)=>{ if(e.key==='Enter') confirmTodo(); });
-        [ui.modalBill, ui.modalTodo, ui.modalStore, ui.modalPeriod, ui.modalDiary].forEach(m => { m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); }); });
+        function openTodoModal() { ui.modalTodo.classList.add('open'); setTimeout(()=>ui.todoInput.focus(),100); }
+        function closeTodoModal() { ui.modalTodo.classList.remove('open'); ui.todoInput.value = ''; }
 
     </script>
 </body>
-    </html>
+</html>
