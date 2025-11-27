@@ -87,7 +87,7 @@
         }
         .theme-toggle-btn {
             position: absolute; left: 15px; top: 15px;
-            background: transparent; border: none; font-size: 1.2em; cursor: pointer; opacity: 0.7;
+            background: transparent; border: none; font-size: 1.2em; cursor: pointer; opacity: 0.7; z-index: 2;
         }
         .realtime-clock {
             font-size: 2.4em; color: var(--accent-color);
@@ -110,6 +110,7 @@
             display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
             margin-top: 15px; padding-top: 12px;
             border-top: 1px solid var(--glass-border);
+            position: relative; z-index: 10;
         }
         .nav-btn {
             background: transparent;
@@ -117,11 +118,12 @@
             color: var(--text-dim);
             padding: 6px 12px; border-radius: 4px; font-size: 0.85em;
             cursor: pointer; transition: all 0.2s; font-family: inherit; letter-spacing: 1px;
+            pointer-events: auto; /* 确保可点击 */
         }
         .nav-btn:hover { color: var(--accent-color); border-color: var(--accent-color); background: rgba(255,255,255,0.05); }
         .nav-btn.special { color: var(--period-color); border-color: rgba(255, 107, 129, 0.3); }
 
-        /* 2. Chat (Expanded) */
+        /* 2. Chat */
         .chat-area {
             flex: 1; overflow-y: auto; padding: 15px;
             display: flex; flex-direction: column; gap: 12px;
@@ -175,7 +177,7 @@
         }
         .modal-overlay.open { display: block; opacity: 1; }
 
-        /* 输入弹窗基础样式 (用于 商店、待办、标签、生理期) */
+        /* 输入弹窗基础样式 */
         .input-modal {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 90%; max-width: 360px; background: var(--card-bg); border: 1px solid #444;
@@ -183,7 +185,6 @@
             box-shadow: 0 10px 40px var(--shadow-color); animation: modal-in 0.3s ease-out; text-align: center;
         }
         .input-modal h3 { margin: 0 0 15px 0; color: var(--accent-color); font-weight: normal; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center;}
-        
         .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 15px;}
         .modal-btn { flex: 1; padding: 10px 0; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; }
         .modal-btn.confirm { background: var(--accent-color); color: #000; font-weight: bold; }
@@ -202,8 +203,6 @@
         .history-date-header { font-weight: bold; font-size: 0.85em; margin-top: 10px; padding-bottom: 2px; border-bottom: 1px solid #ccc; color: #555; }
         .receipt-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; border-bottom: 2px dashed #999; font-size: 0.9em; }
         .history-item { display: flex; justify-content: space-between; margin-bottom: 4px; padding: 2px 0; }
-        .history-item span:first-child { color: #444; }
-        .history-item span:last-child { font-weight: bold; }
         .data-controls { margin-top: 15px; display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
         .data-btn { font-size: 0.75em; background: #ddd; border: 1px solid #999; padding: 4px 8px; cursor: pointer; color: #333; margin-bottom: 5px; }
         .chart-container { margin: 15px 0; text-align: center; }
@@ -224,19 +223,16 @@
         .item-desc { font-size: 0.75em; color: var(--text-dim); margin-top: 3px; }
         .buy-btn { background: #333; color: #ffdb4d; border: 1px solid #555; padding: 5px 12px; border-radius: 4px; font-size: 0.85em; cursor: pointer; white-space: nowrap; }
         
-        /* 待办清单列表 */
+        /* 待办清单 */
         .todo-list-container { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; text-align: left; margin-bottom: 15px; }
         .todo-item { display: flex; align-items: center; padding: 8px 0; font-size: 0.95em; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .todo-item.completed span { text-decoration: line-through; color: var(--text-dim); }
         .todo-item input[type="checkbox"] { margin-right: 10px; accent-color: var(--accent-color); }
         .todo-del { margin-left: auto; background: transparent; border: none; color: #d9534f; cursor: pointer; font-size: 1.2em; }
 
-        /* 专注标签选择 */
+        /* 标签选择 */
         .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-        .tag-chip {
-            background: rgba(255,255,255,0.1); border: 1px solid #555; color: var(--text-dim);
-            padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9em; position: relative;
-        }
+        .tag-chip { background: rgba(255,255,255,0.1); border: 1px solid #555; color: var(--text-dim); padding: 6px 12px; border-radius: 15px; cursor: pointer; font-size: 0.9em; position: relative; }
         .tag-chip:hover { background: rgba(255,255,255,0.2); color: var(--text-main); }
         .tag-chip.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
         .tag-del { position: absolute; right: -5px; top: -5px; background: #d9534f; color: #fff; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: flex; justify-content: center; align-items: center; display: none;}
@@ -320,7 +316,7 @@
                 <span class="coin-status">🪙 <span id="coin-count">0</span></span>
             </div>
             
-            <!-- 导航行 (含待办和内容) -->
+            <!-- 导航行 -->
             <div class="nav-row">
                 <button class="nav-btn" onclick="openDiary()">日记</button>
                 <button class="nav-btn" onclick="openTodoModal()">待办</button>
@@ -364,13 +360,13 @@
         </div>
     </div>
 
-    <!-- 弹窗：专注内容选择 (新) -->
+    <!-- 弹窗：专注内容选择 -->
     <div id="modal-tags" class="modal-overlay">
         <div class="input-modal">
             <h3>选择专注内容</h3>
             <div id="tags-list" class="tags-container"></div>
             <div style="display:flex; gap:5px;">
-                <input type="text" class="input-field" id="new-tag-input" placeholder="新标签..." style="margin-bottom:0;">
+                <input type="text" class="input-field" id="new-tag-input" placeholder="新标签..." style="margin-bottom:0;" autocomplete="off">
                 <button class="buy-btn" onclick="addNewTag()">添加</button>
             </div>
             <div class="modal-actions">
@@ -379,13 +375,11 @@
         </div>
     </div>
 
-    <!-- 弹窗：待办清单 (新) -->
+    <!-- 弹窗：待办清单 -->
     <div id="modal-todo" class="modal-overlay">
         <div class="input-modal">
             <h3>待办清单</h3>
-            <ul id="todo-list" class="todo-list-container">
-                <!-- JS Fill -->
-            </ul>
+            <ul id="todo-list" class="todo-list-container"></ul>
             <div style="display:flex; gap:5px; margin-top:10px;">
                 <input type="text" class="input-field" id="todo-input-field" placeholder="添加新任务..." style="margin-bottom:0;" autocomplete="off">
                 <button class="buy-btn" onclick="confirmTodo()">添加</button>
@@ -404,16 +398,12 @@
                 <p>Bar Driftwood</p>
                 <p id="total-sessions" style="font-size: 0.8em; margin-top:5px;">累计专注: 0 次</p>
             </div>
-
-            <!-- 扇形统计图区 -->
             <div class="chart-container">
                 <div style="font-size: 0.8em; color: #888; margin-bottom: 5px;">今日专注分布</div>
                 <svg id="pie-chart" class="chart-svg" viewBox="-1 -1 2 2"></svg>
                 <div id="chart-legend" class="chart-legend"></div>
             </div>
-
             <ul id="history-list" class="receipt-list"></ul>
-            
             <div style="margin-top: 15px; border-top: 1px dashed #999; padding-top: 10px; text-align: center;">
                 <p style="font-size: 0.8em; color: #666; margin-bottom: 5px;">数据备份</p>
                 <div class="data-controls">
@@ -459,12 +449,10 @@
                 <div class="calendar-day-label">六</div>
             </div>
             <div id="calendar-days-container" class="calendar-grid"></div>
-            
             <div class="period-controls">
                 <button class="period-btn-action btn-start-period" onclick="logPeriodStart()">姨妈来了</button>
                 <button class="period-btn-action btn-end-period" onclick="logPeriodEnd()">姨妈走了</button>
             </div>
-            
             <div class="period-history-list" id="period-history-list"></div>
             <div class="period-add-row">
                 <span>补录:</span>
@@ -472,7 +460,6 @@
                 <button class="data-btn" onclick="retroAddPeriodStart()">始</button>
                 <button class="data-btn" onclick="retroAddPeriodEnd()">终</button>
             </div>
-
             <div class="modal-actions"><button class="modal-btn cancel" onclick="closePeriodModal()">关闭</button></div>
         </div>
     </div>
@@ -622,11 +609,11 @@
             coins: 0,
             inventory: { fishFood: 0 },
             ownedFish: [],
-            periodLogs: [],
+            periodLogs: [], // { startDate: timestamp, endDate: timestamp }
             diaryEntries: [],
-            focusHistory: [],
+            focusHistory: [], // { timestamp: number, duration: number, tag: string }
             isDayMode: false,
-            tags: ["阅读", "代码", "写作", "设计", "发呆"],
+            tags: ["阅读", "代码", "写作", "设计", "发呆"], // Default tags
             todoList: [] // {id, text, completed}
         };
 
@@ -648,6 +635,7 @@
             startBartenderAI();
             updateCoinUI();
             
+            // 防切屏检测
             document.addEventListener("visibilitychange", () => {
                 if (document.hidden && state.isFocusing) {
                     addMessage("Cipher 皱了皱眉：“你刚才去哪了？时钟可是不会等人的。”", "bartender");
@@ -655,6 +643,7 @@
             });
         };
         
+        // 主题切换
         function toggleTheme() {
             playerData.isDayMode = !playerData.isDayMode;
             if(playerData.isDayMode) {
@@ -711,12 +700,14 @@
         function loadData() {
             const saved = localStorage.getItem('driftwood_v2_data');
             if (saved) {
-                playerData = JSON.parse(saved);
-                if (!playerData.periodLogs) playerData.periodLogs = [];
-                if (!playerData.diaryEntries) playerData.diaryEntries = [];
-                if (!playerData.focusHistory) playerData.focusHistory = [];
-                if (!playerData.tags) playerData.tags = ["阅读", "代码", "写作", "设计", "发呆"];
-                if (!playerData.todoList) playerData.todoList = [];
+                try {
+                    playerData = JSON.parse(saved);
+                    if (!playerData.periodLogs) playerData.periodLogs = [];
+                    if (!playerData.diaryEntries) playerData.diaryEntries = [];
+                    if (!playerData.focusHistory) playerData.focusHistory = [];
+                    if (!playerData.tags) playerData.tags = ["阅读", "代码", "写作", "设计", "发呆"];
+                    if (!playerData.todoList) playerData.todoList = [];
+                } catch(e) { console.error("Data Parse Error", e); }
             } else {
                 const oldData = localStorage.getItem('driftwood_data');
                 if (oldData) {
@@ -831,7 +822,7 @@
         
         function renderTodoList() {
             ui.todoList.innerHTML = '';
-            if(playerData.todoList.length === 0) {
+            if(!playerData.todoList || playerData.todoList.length === 0) {
                 ui.todoList.innerHTML = '<li style="text-align:center; color:#888; padding:10px;">暂无待办事项</li>';
                 return;
             }
@@ -875,7 +866,9 @@
             state.timeLeft = m * 60; state.initialTime = state.timeLeft; state.elapsedFocusTime = 0; state.isFocusing = true;
             
             ui.focusBtn.innerText = "停止专注"; ui.focusBtn.classList.add('active-state'); ui.timeSetterBox.style.display = 'none';
-            
+            // Hide the tag selector button during focus
+            document.querySelector('.focus-tag-btn').style.display = 'none';
+
             ui.statusText.innerText = "Cipher 将沙漏倒置...";
             initAudioContext(); ui.bgm.play().catch(e=>{});
             addMessage(`明白了，${m}分钟 (${state.currentFocusTag})。`, "bartender");
@@ -904,13 +897,14 @@
             if(!playerData.focusHistory) playerData.focusHistory = [];
             playerData.focusHistory.push(historyItem);
             
-            state.completedCount++; ui.totalSessions.innerText=`累计专注: ${state.completedCount} 次`;
+            state.completedCount++; 
             ui.bgm.pause(); saveData();
         }
         function resetUI() { 
             ui.focusBtn.innerText="开始专注"; 
             ui.focusBtn.classList.remove('active-state'); 
             ui.timeSetterBox.style.display='flex';
+            document.querySelector('.focus-tag-btn').style.display = 'block';
         }
         function updateCoinUI() { ui.coinCount.innerText=playerData.coins; ui.storeCoinCount.innerText=playerData.coins; }
 
@@ -1121,3 +1115,7 @@
     </script>
 </body>
 </html>
+    </script>
+</body>
+</html>
+
