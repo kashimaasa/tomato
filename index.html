@@ -984,7 +984,7 @@
 
             ui.statusText.innerText = "Cipher 将沙漏倒置...";
             initAudioContext(); ui.bgm.play().catch(e=>{});
-            addMessage(`明白了，${m}分钟 (${state.currentFocusTag})。`, "bartender");
+            addMessage(`明白了，${m}分钟的${state.currentFocusTag}，这是一杯热水，请慢用。`, "bartender");
             
             state.timerId = setInterval(() => {
                 state.timeLeft--; state.elapsedFocusTime++;
@@ -1405,3 +1405,4 @@
     </script>
 </body>
 </html>
+
