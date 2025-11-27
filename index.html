@@ -49,7 +49,25 @@
         --period-predict: #ff8fa3;
         --ovulation-color: #8e44ad;
     }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+        body {
+            background-color: #050505;
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: "Georgia", "Songti SC", "SimSun", serif;
+            margin: 0;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+            transition: background-image 0.5s ease, color 0.5s ease;
+        }
         /* 动态背景 Canvas */
     #bg-canvas {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -2398,6 +2416,7 @@
 </script>
 </body>
 </html>
+
 
 
 
