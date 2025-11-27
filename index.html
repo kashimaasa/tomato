@@ -24,38 +24,31 @@
             --locked-color: #333;
         }
 
-        /* 日间模式 */
-        body.day-mode {
-            --bg-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1920&auto=format&fit=crop');
-            --glass-bg: rgba(245, 245, 245, 0.6); 
-            --glass-border: rgba(0, 0, 0, 0.08);
-            --accent-color: #b08d55;
-            --text-main: #2c2c2c;
-            --text-dim: #666;
-            --card-bg: #ffffff;
-            --shadow-color: rgba(0,0,0,0.15);
-            --toast-bg: rgba(255, 255, 255, 0.95);
-            --locked-color: #e0e0e0;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background-color: #050505;
-            background-image: var(--bg-image);
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text-main);
-            font-family: "Georgia", "Songti SC", "SimSun", serif;
-            margin: 0;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            user-select: none;
-            transition: background-image 0.5s ease, color 0.5s ease;
-        }
+        /* 日间模式 (精心调优版) */
+    body.day-mode {
+        /* 背景图：保持那张明亮的咖啡馆图片 */
+        --bg-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1920&auto=format&fit=crop');
+        
+        /* 玻璃背景：高透的乳白色，像白天明亮的窗户 */
+        --glass-bg: rgba(255, 255, 255, 0.75);
+        --glass-border: rgba(255, 255, 255, 0.6);
+        
+        /* 配色：深灰与古铜金 */
+        --accent-color: #a67c52; /* 调深一点的古铜色，白底上更清晰 */
+        --text-main: #2c2c2c;     /* 近乎黑色的深灰，阅读不累 */
+        --text-dim: #666666;      /* 中灰色 */
+        
+        /* 卡片与组件 */
+        --card-bg: #fdfdfd;       /* 极亮的灰白，区分层级 */
+        --shadow-color: rgba(0,0,0,0.1); /* 柔和的投影 */
+        --toast-bg: rgba(255, 255, 255, 0.95);
+        --locked-color: #d1d1d1;
+        
+        /* 生理期颜色微调 (适应白底) */
+        --period-color: #ff4757;
+        --period-predict: #ff8fa3;
+        --ovulation-color: #8e44ad;
+    }
 
         /* 动态背景 Canvas */
     #bg-canvas {
@@ -599,6 +592,59 @@
         background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin: 8px 0;
         border: 1px solid #444;
     }
+
+        /* === 日间模式组件强制修正补丁 === */
+    
+    /* 1. 输入框与下拉菜单：变回浅色 */
+    body.day-mode .input-field,
+    body.day-mode select,
+    body.day-mode .time-input {
+        background: rgba(0, 0, 0, 0.05); /* 浅灰底 */
+        border-color: #ccc;
+        color: #333;
+    }
+    body.day-mode option { background: #fff; color: #333; }
+
+    /* 2. 列表项（商店、成就、日记）：去除深色背景 */
+    body.day-mode .store-item,
+    body.day-mode .achievement-item,
+    body.day-mode .drink-card,
+    body.day-mode .pet-card,
+    body.day-mode .config-item {
+        background: rgba(0, 0, 0, 0.04); /* 极浅的灰色块 */
+        border-color: rgba(0,0,0,0.1);
+        color: #333;
+    }
+    
+    /* 3. 聊天气泡：优化白底阅读体验 */
+    body.day-mode .ai-bubble.bot {
+        background: rgba(0, 0, 0, 0.05);
+        color: #333;
+        border-color: rgba(0,0,0,0.1);
+    }
+    body.day-mode .ai-bubble.user {
+        background: rgba(166, 124, 82, 0.15); /* 古铜色淡背景 */
+        color: #2a2a2a;
+        border-color: rgba(166, 124, 82, 0.2);
+    }
+    
+    /* 4. 按钮：增加可视度 */
+    body.day-mode .nav-btn:hover { background: rgba(0,0,0,0.1); }
+    body.day-mode .action-btn { background: rgba(0,0,0,0.05); border-color: #ccc; color: #555; }
+    body.day-mode .action-btn.primary { border-color: var(--accent-color); color: var(--accent-color); }
+    body.day-mode .action-btn.active-state { background: var(--accent-color); color: #fff; }
+    
+    /* 5. 设置面板 */
+    body.day-mode #ai-settings-panel {
+        background: #fdfdfd; border-color: #ddd; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    /* 6. 日历选中状态修复 */
+    body.day-mode .calendar-day.selected {
+        color: #fff !important; /* 保持白色文字 */
+        text-shadow: none;
+    }
+        
     </style>
 </head>
 <body class="">
@@ -2352,6 +2398,7 @@
 </script>
 </body>
 </html>
+
 
 
 
