@@ -823,25 +823,44 @@
             }, 1000);
         }
 
+        // --- 饮品逻辑 (Rich Drinks) ---
         function orderDrink() {
             if (state.isFocusing) return addMessage("（Cipher 摇摇头）专注时只提供白水。", "bartender");
             
-            // 生理期不建议喝冷饮
             if (isPeriodActive()) {
                 addMessage("请给我一杯随心饮。", "user");
+                const periodDrinks = [
+                    "（端来一杯冒着热气的红枣桂圆茶）“补气血的，喝完脸色会好很多。”",
+                    "（递给你一杯温热的牛奶，加了一勺蜂蜜）“甜味能欺骗大脑，让它以为世界没那么糟糕。”",
+                    "（准备了一杯玫瑰黑糖茶）“暖暖手，也暖暖胃。痛的时候告诉我。”",
+                    "（端上一杯热可可，上面漂浮着一颗棉花糖）“有时候我们需要一点幼稚的糖分来对抗成年人的痛苦。”",
+                    "（递来一杯温热的燕麦拿铁）“不含咖啡因。今晚好好睡一觉比什么都重要。”",
+                    "（倒了一杯温热的柠檬水）“简单的温存。我就在这里，随时叫我。”"
+                ];
                 setTimeout(() => {
-                    const hotDrinks = [
-                        "（端来一杯冒着热气的红枣茶）“今天喝这个吧，对身体好。”",
-                        "（递给你一杯温热的牛奶）“加了一点蜂蜜，能助眠。”",
-                        "（准备了一杯玫瑰花茶）“暖暖手。”"
-                    ];
-                    addMessage(hotDrinks[Math.floor(Math.random()*hotDrinks.length)], "bartender");
+                    const r = Math.floor(Math.random() * periodDrinks.length);
+                    addMessage(periodDrinks[r], "bartender");
                 }, 1000);
                 return;
             }
 
             addMessage("请给我一杯随心饮。", "user");
-            setTimeout(() => addMessage("请慢用。", "bartender"), 1000);
+            const normalDrinks = [
+                "（递上一杯「莫比乌斯环」）“苦涩是开始，回甘是结束。正如生活。”",
+                "（推过来一杯琥珀色的威士忌）“这杯叫「迷失东京」。适合在不想被任何人找到的夜晚。”",
+                "（调制了一杯蓝色的鸡尾酒）“「深海」。听说喝下它，能听见鲸鱼的低鸣。”",
+                "（递上一杯加了迷迭香的金酒）“「雨后空城」。清醒，冷冽，为了那些回不去的时间。”",
+                "（端来一杯冰美式）“「第25小时」。为了那些从睡眠里偷来的时间。”",
+                "（递上一杯色彩分层的果汁）“「日出印象」。无论今晚多漫长，太阳总会升起的。”",
+                "（倒了一杯加冰的苏打水）“「空白」。有时候，什么都不想才是最好的状态。”",
+                "（递上一杯冒着气泡的香槟）“「盖茨比的梦」。敬这虚妄又迷人的世界。”",
+                "（端上一杯热红酒，有着肉桂的香气）“「壁炉」。假设我们现在身处北欧的木屋里，窗外是大雪。”",
+                "（递上一杯辛辣的龙舌兰）“「一击即中」。如果不开心，就把它烧成灰烬吧。”"
+            ];
+            setTimeout(() => {
+                const r = Math.floor(Math.random() * normalDrinks.length);
+                addMessage(normalDrinks[r], "bartender");
+            }, 1000);
         }
 
         function startBartenderAI() {
@@ -895,4 +914,4 @@
 
     </script>
 </body>
-</html>
+    </html>
