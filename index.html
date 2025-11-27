@@ -27,7 +27,7 @@
         /* 日间模式 */
         body.day-mode {
             --bg-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1920&auto=format&fit=crop');
-            --glass-bg: rgba(10, 10, 10, 0.6);
+            --glass-bg: rgba(245, 245, 245, 0.6); 
             --glass-border: rgba(0, 0, 0, 0.08);
             --accent-color: #b08d55;
             --text-main: #2c2c2c;
@@ -2048,6 +2048,22 @@
 
     // 1. 基础操作
     function openAIChat() {
+        // --- 新增：专注拦截逻辑 ---
+        if (state.isFocusing) {
+            // 特殊对话库
+            const refusals = [
+                "Cipher 轻轻摇了摇头：“嘘……沙漏还没流完。现在的每一秒都属于你自己，我不便打扰。”",
+                "Cipher 指了指正在倒计时的时钟，微笑着做了一个噤声的手势。",
+                "“把心沉下来，”Cipher 低声说道，“故事可以等，但流逝的时间不会回头。”"
+            ];
+            const msg = refusals[Math.floor(Math.random() * refusals.length)];
+            
+            // 在主界面发送消息
+            addMessage(msg, "bartender");
+            return; // 阻止打开聊天窗口
+        }
+        // -------------------------
+
         document.getElementById('modal-ai-chat').classList.add('open');
         loadAllConfigs();
         
@@ -2057,12 +2073,11 @@
             if(!aiConfig.history) aiConfig.history = [];
             applyConfigToUI();
 
-            // 渲染历史 (带删除功能)
+            // 渲染历史
             const box = document.getElementById('ai-chat-history');
             box.innerHTML = '<div class="ai-msg-system">Cipher 正在擦拭高脚杯...</div>';
             
             aiConfig.history.forEach(msg => {
-                // 兼容旧数据
                 if(!msg.id) msg.id = Date.now() + Math.random().toString();
                 const uiRole = msg.role === 'assistant' ? 'bot' : 'user';
                 appendAIMessage(uiRole, msg.content, msg.id);
@@ -2337,5 +2352,6 @@
 </script>
 </body>
 </html>
+
 
 
