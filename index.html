@@ -55,7 +55,6 @@
             100% { transform: scale(1); }
         }
         .coin-anim { animation: coin-pop 0.3s ease-out; }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
 
         .vignette {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -76,7 +75,7 @@
 
         /* 1. Header */
         .header-area {
-            padding: 15px; text-align: center;
+            padding: 15px 15px 10px 15px; text-align: center;
             border-bottom: 1px solid var(--glass-border); flex-shrink: 0;
             position: relative;
         }
@@ -95,18 +94,35 @@
             display: flex; align-items: center; gap: 4px;
         }
 
-        .header-actions {
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-            display: flex; gap: 8px;
+        /* 新增：文字按钮导航行 */
+        .nav-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
-        .icon-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid #444; color: var(--accent-color);
-            width: 38px; height: 38px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 1.1em;
+        .nav-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #aaa;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            cursor: pointer;
             transition: all 0.2s;
+            font-family: inherit;
+            letter-spacing: 1px;
         }
-        .icon-btn:active { transform: scale(0.9); background: var(--accent-color); color: #000; }
-        .icon-btn.period-btn { color: var(--period-color); border-color: rgba(255, 107, 129, 0.3); }
+        .nav-btn:hover {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+            background: rgba(255,255,255,0.05);
+        }
+        .nav-btn:active { transform: scale(0.96); }
+        .nav-btn.special { color: #ff8fa3; border-color: rgba(255, 107, 129, 0.2); }
+        .nav-btn.special:hover { border-color: var(--period-color); color: var(--period-color); }
 
         /* 2. Chat */
         .chat-area {
@@ -234,7 +250,7 @@
         .btn-end-period { background: #333; border: 1px solid #555; }
         .period-status-text { font-size: 0.9em; color: var(--period-predict); margin-bottom: 10px; min-height: 1.2em;}
 
-        /* === 日记本样式 (新增) === */
+        /* 日记本样式 */
         .diary-modal-content {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 90%; max-width: 400px; height: 600px; max-height: 85vh;
@@ -243,33 +259,24 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
             animation: modal-in 0.3s ease-out;
             display: flex; flex-direction: column;
-            font-family: "KaiTi", "STKaiti", "楷体", "Georgia", serif; /* 字体美化 */
+            font-family: "KaiTi", "STKaiti", "楷体", "Georgia", serif;
         }
         .diary-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dcd3b8; padding-bottom: 10px; margin-bottom: 15px; flex-shrink: 0; }
         .diary-title { font-size: 1.4em; font-weight: bold; color: #5a4a42; letter-spacing: 2px; }
         .diary-btn { background: transparent; border: 1px solid #8c7b70; color: #5a4a42; padding: 4px 10px; border-radius: 20px; font-family: inherit; cursor: pointer; font-size: 0.9em; transition: all 0.2s; }
         .diary-btn:hover { background: #8c7b70; color: #fff; }
-        
         .diary-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
         .diary-list::-webkit-scrollbar { width: 5px; }
         .diary-list::-webkit-scrollbar-thumb { background: #dcd3b8; border-radius: 2px; }
-        
-        .diary-entry-item { 
-            padding: 12px 0; border-bottom: 1px dashed #dcd3b8; cursor: pointer; 
-            transition: padding-left 0.2s; 
-        }
+        .diary-entry-item { padding: 12px 0; border-bottom: 1px dashed #dcd3b8; cursor: pointer; transition: padding-left 0.2s; }
         .diary-entry-item:hover { padding-left: 5px; }
         .diary-date { font-size: 0.85em; color: #8c7b70; font-weight: bold; margin-bottom: 4px; }
         .diary-preview { font-size: 1em; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* 编辑器部分 (纸张效果) */
         .diary-editor-container { flex: 1; display: none; flex-direction: column; }
         .diary-textarea {
-            flex: 1; width: 100%; border: none; outline: none; resize: none;
-            background: transparent;
+            flex: 1; width: 100%; border: none; outline: none; resize: none; background: transparent;
             font-family: inherit; font-size: 1.1em; line-height: 30px;
-            background-image: linear-gradient(transparent 29px, #dcd3b8 30px);
-            background-size: 100% 30px;
+            background-image: linear-gradient(transparent 29px, #dcd3b8 30px); background-size: 100% 30px;
             color: #2c2c2c; padding-top: 5px;
         }
         .diary-toolbar { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; flex-shrink: 0; }
@@ -295,11 +302,13 @@
                 <span id="status-text">Cipher 正在擦拭高脚杯...</span>
                 <span class="coin-status">🪙 <span id="coin-count">0</span></span>
             </div>
-            <div class="header-actions">
-                <button class="icon-btn" onclick="openDiary()" title="心情日记">📓</button>
-                <button class="icon-btn period-btn" onclick="openPeriodModal()" title="生理期记录">🌺</button>
-                <button class="icon-btn" onclick="openStore()" title="杂货铺">🛍️</button>
-                <button class="icon-btn" onclick="openHistory()" title="时光账单">📜</button>
+            
+            <!-- 新增：文字导航行 -->
+            <div class="nav-row">
+                <button class="nav-btn" onclick="openDiary()">日记</button>
+                <button class="nav-btn special" onclick="openPeriodModal()">生理期</button>
+                <button class="nav-btn" onclick="openStore()">杂货铺</button>
+                <button class="nav-btn" onclick="openHistory()">账单</button>
             </div>
         </div>
 
@@ -416,7 +425,7 @@
         </div>
     </div>
 
-    <!-- 弹窗：心情日记 (新增) -->
+    <!-- 弹窗：心情日记 -->
     <div id="modal-diary" class="modal-overlay">
         <div class="diary-modal-content">
             <div class="diary-header">
@@ -424,13 +433,7 @@
                 <button class="diary-btn" id="new-diary-btn" onclick="showDiaryEditor()">+ 提笔</button>
                 <button class="diary-btn" id="back-diary-btn" onclick="showDiaryList()" style="display:none;">返回</button>
             </div>
-            
-            <!-- 列表视图 -->
-            <ul class="diary-list" id="diary-list-view">
-                <!-- 动态生成 -->
-            </ul>
-
-            <!-- 编辑视图 -->
+            <ul class="diary-list" id="diary-list-view"></ul>
             <div class="diary-editor-container" id="diary-editor-view">
                 <textarea class="diary-textarea" id="diary-text" placeholder="今天发生了什么..."></textarea>
                 <div class="diary-toolbar">
@@ -438,7 +441,6 @@
                     <button class="diary-btn" onclick="saveDiaryEntry()">保存</button>
                 </div>
             </div>
-
             <div class="modal-actions" style="margin-top: auto; padding-top: 10px; border-top: 1px solid #dcd3b8;">
                 <button class="modal-btn cancel" style="background: #8c7b70; color:#fff" onclick="closeDiary()">合上日记</button>
             </div>
@@ -549,15 +551,15 @@
         // --- 状态数据 ---
         let state = {
             isFocusing: false, timeLeft: 0, initialTime: 0, timerId: null, audioContext: null, mood: 'calm', completedCount: 0, elapsedFocusTime: 0,
-            currentDiaryId: null // 编辑日记ID
+            currentDiaryId: null
         };
 
         let playerData = {
             coins: 0,
             inventory: { fishFood: 0 },
             ownedFish: [],
-            periodLogs: [], // { startDate: timestamp, endDate: timestamp }
-            diaryEntries: [] // { id: ts, dateStr: string, text: string }
+            periodLogs: [],
+            diaryEntries: []
         };
 
         // --- 初始化与加载 ---
@@ -692,85 +694,53 @@
             input.value = '';
         }
 
-        // --- 心情日记逻辑 (新增) ---
+        // --- 心情日记逻辑 ---
         function openDiary() { ui.modalDiary.classList.add('open'); showDiaryList(); }
         function closeDiary() { ui.modalDiary.classList.remove('open'); }
-        
         function showDiaryList() {
-            ui.diaryListView.style.display = 'block';
-            ui.diaryEditorView.style.display = 'none';
-            ui.newDiaryBtn.style.display = 'block';
-            ui.backDiaryBtn.style.display = 'none';
-            
+            ui.diaryListView.style.display = 'block'; ui.diaryEditorView.style.display = 'none';
+            ui.newDiaryBtn.style.display = 'block'; ui.backDiaryBtn.style.display = 'none';
             ui.diaryListView.innerHTML = '';
-            // 按时间倒序
             const entries = playerData.diaryEntries.sort((a,b) => b.id - a.id);
             if (entries.length === 0) {
                 ui.diaryListView.innerHTML = '<li style="padding:20px; text-align:center; color:#8c7b70; font-style:italic;">纸页空白，等待落笔。</li>';
             } else {
                 entries.forEach(entry => {
-                    const li = document.createElement('li');
-                    li.className = 'diary-entry-item';
-                    li.innerHTML = `
-                        <div class="diary-date">${entry.dateStr}</div>
-                        <div class="diary-preview">${entry.text.substring(0, 20)}${entry.text.length>20?'...':''}</div>
-                    `;
+                    const li = document.createElement('li'); li.className = 'diary-entry-item';
+                    li.innerHTML = `<div class="diary-date">${entry.dateStr}</div><div class="diary-preview">${entry.text.substring(0, 20)}${entry.text.length>20?'...':''}</div>`;
                     li.onclick = () => showDiaryEditor(entry.id);
                     ui.diaryListView.appendChild(li);
                 });
             }
         }
-
         function showDiaryEditor(id = null) {
-            ui.diaryListView.style.display = 'none';
-            ui.diaryEditorView.style.display = 'flex';
-            ui.newDiaryBtn.style.display = 'none';
-            ui.backDiaryBtn.style.display = 'block';
-            
+            ui.diaryListView.style.display = 'none'; ui.diaryEditorView.style.display = 'flex';
+            ui.newDiaryBtn.style.display = 'none'; ui.backDiaryBtn.style.display = 'block';
             state.currentDiaryId = id;
             if (id) {
                 const entry = playerData.diaryEntries.find(e => e.id === id);
                 ui.diaryText.value = entry ? entry.text : '';
-            } else {
-                ui.diaryText.value = ''; // 新建
-            }
+            } else { ui.diaryText.value = ''; }
             ui.diaryText.focus();
         }
-
         function saveDiaryEntry() {
             const text = ui.diaryText.value.trim();
-            if (!text) {
-                alert("内容为空。");
-                return;
-            }
-            
+            if (!text) { alert("内容为空。"); return; }
             if (state.currentDiaryId) {
-                // 更新
                 const entry = playerData.diaryEntries.find(e => e.id === state.currentDiaryId);
                 if (entry) entry.text = text;
             } else {
-                // 新建
                 const now = new Date();
                 const dateStr = now.toLocaleString('zh-CN', {month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'});
-                playerData.diaryEntries.push({
-                    id: Date.now(),
-                    dateStr: dateStr,
-                    text: text
-                });
+                playerData.diaryEntries.push({ id: Date.now(), dateStr: dateStr, text: text });
             }
-            saveData();
-            showDiaryList();
+            saveData(); showDiaryList();
         }
-
         function deleteCurrentEntry() {
-            if (!state.currentDiaryId) {
-                showDiaryList();
-                return;
-            }
+            if (!state.currentDiaryId) { showDiaryList(); return; }
             if (confirm("确定要撕掉这一页吗？")) {
                 playerData.diaryEntries = playerData.diaryEntries.filter(e => e.id !== state.currentDiaryId);
-                saveData();
-                showDiaryList();
+                saveData(); showDiaryList();
             }
         }
 
@@ -923,12 +893,13 @@
             ui.focusBtn.innerText = "停止专注"; ui.focusBtn.classList.add('active-state'); ui.timeSetterBox.style.display = 'none';
             ui.statusText.innerText = "Cipher 将沙漏倒置...";
             initAudioContext(); ui.bgm.play().catch(e=>{});
-            addMessage(`明白了，${m}分钟。`, "bartender");
+            addMessage(`明白了，${m}分钟。每专注1分钟可获得一枚金币。`, "bartender");
             state.timerId = setInterval(() => {
                 state.timeLeft--; state.elapsedFocusTime++;
                 let min = Math.floor(state.timeLeft/60), sec = state.timeLeft%60;
                 ui.timerDisplay.innerText = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-                if (state.elapsedFocusTime>0 && state.elapsedFocusTime%300===0) {
+                // 1分钟1金币
+                if (state.elapsedFocusTime>0 && state.elapsedFocusTime%60===0) {
                     playerData.coins++; updateCoinUI(); triggerAlert("获得专注奖励：1 金币", false);
                     ui.coinCount.classList.add('coin-anim'); setTimeout(()=>ui.coinCount.classList.remove('coin-anim'),300); saveData();
                 }
@@ -1055,4 +1026,4 @@
 
     </script>
 </body>
-</html>
+    </html>
