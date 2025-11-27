@@ -1091,28 +1091,578 @@
             }, 30000);
         }
 
+        // --- 商店系统 ---
+        function openStore() {
+            ui.modalStore.classList.add('open');
+            renderShopItems();
+            renderPetTab();
+        }
+        
+        function closeStore() { ui.modalStore.classList.remove('open'); }
+        
+        function switchStoreTab(tabName) {
+            // 更新标签
+            document.querySelectorAll('.store-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.store-tab[onclick*="${tabName}"]`).classList.add('active');
+            
+            // 更新内容
+            ui.tabShop.style.display = tabName === 'shop' ? 'block' : 'none';
+            ui.tabPet.style.display = tabName === 'pet' ? 'block' : 'none';
+            
+            if (tabName === 'pet') {
+                renderPetTab();
+            }
+        }
+        
+        function renderShopItems() {
+            ui.tabShop.innerHTML = '';
+            
+            // 添加鱼粮
+            const foodItem = document.createElement('div');
+            foodItem.className = 'store-item';
+            foodItem.innerHTML = `
+                <div class="item-info">
+                    <div class="item-name">🐟 鱼粮 (10份)</div>
+                    <div class="item-desc">喂食你的小鱼，保持它们的活力</div>
+                </div>
+                <button class="buy-btn" onclick="buyFishFood()">🪙 5</button>
+            `;
+            ui.tabShop.appendChild(foodItem);
+            
+            // 添加各种鱼
+            Object.entries(FISH_TYPES).forEach(([type, fish]) => {
+                const item = document.createElement('div');
+                item.className = 'store-item';
+                const canAfford = playerData.coins >= fish.price;
+                if (!canAfford) item.classList.add('disabled');
+                
+                item.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${fish.icon} ${fish.name}</div>
+                        <div class="item-desc">${fish.desc}</div>
+                    </div>
+                    <button class="buy-btn" onclick="buyFish('${type}')" ${!canAfford ? 'disabled' : ''}>🪙 ${fish.price}</button>
+                `;
+                ui.tabShop.appendChild(item);
+            });
+        }
+        
+        function buyFishFood() {
+            if (playerData.coins >= 5) {
+                playerData.coins -= 5;
+                playerData.inventory.fishFood += 10;
+                updateCoinUI();
+                saveData();
+                renderShopItems();
+                addMessage("购买了鱼粮。", "event");
+            } else {
+                addMessage("金币不足。", "bartender");
+            }
+        }
+        
+        function buyFish(fishType, free = false) {
+            const fish = FISH_TYPES[fishType];
+            if (!fish) return;
+            
+            if (!free && playerData.coins < fish.price) {
+                addMessage("金币不足。", "bartender");
+                return;
+            }
+            
+            if (!free) {
+                playerData.coins -= fish.price;
+            }
+            
+            const newFish = {
+                id: Date.now().toString(),
+                type: fishType,
+                name: fish.name,
+                icon: fish.icon,
+                hunger: 100,
+                happiness: 100,
+                lastFed: Date.now(),
+                lastPlayed: Date.now()
+            };
+            
+            playerData.ownedFish.push(newFish);
+            updateCoinUI();
+            saveData();
+            renderShopItems();
+            renderPetTab();
+            
+            if (!free) {
+                addMessage(`获得了新的 ${fish.icon} ${fish.name}！`, "event");
+            }
+        }
+        
+        function renderPetTab() {
+            ui.foodCount.innerText = playerData.inventory.fishFood;
+            
+            if (playerData.ownedFish.length === 0) {
+                ui.petEmptyMsg.style.display = 'block';
+                ui.petListContainer.innerHTML = '';
+                return;
+            }
+            
+            ui.petEmptyMsg.style.display = 'none';
+            ui.petListContainer.innerHTML = '';
+            
+            playerData.ownedFish.forEach(fish => {
+                const petCard = document.createElement('div');
+                petCard.className = 'pet-card';
+                
+                // 计算饥饿度和快乐度
+                const hoursSinceFed = (Date.now() - fish.lastFed) / (1000 * 60 * 60);
+                const hoursSincePlayed = (Date.now() - fish.lastPlayed) / (1000 * 60 * 60);
+                
+                let hunger = Math.max(0, fish.hunger - hoursSinceFed * 5);
+                let happiness = Math.max(0, fish.happiness - hoursSincePlayed * 3);
+                
+                petCard.innerHTML = `
+                    <div class="pet-icon">${fish.icon}</div>
+                    <div class="pet-stats">
+                        <div class="pet-name">${fish.name}</div>
+                        <div class="stat-row">
+                            <span>饥饿:</span>
+                            <div class="progress-bg">
+                                <div class="progress-fill" style="width: ${hunger}%; background: ${hunger > 50 ? '#4cd964' : hunger > 20 ? '#ffcc00' : '#ff3b30'}"></div>
+                            </div>
+                            <button class="feed-btn-small" onclick="feedFish('${fish.id}')" ${playerData.inventory.fishFood > 0 ? '' : 'disabled'}>喂食</button>
+                        </div>
+                        <div class="stat-row">
+                            <span>快乐:</span>
+                            <div class="progress-bg">
+                                <div class="progress-fill" style="width: ${happiness}%; background: ${happiness > 50 ? '#4cd964' : happiness > 20 ? '#ffcc00' : '#ff3b30'}"></div>
+                            </div>
+                            <button class="feed-btn-small" onclick="playWithFish('${fish.id}')">玩耍</button>
+                        </div>
+                    </div>
+                `;
+                ui.petListContainer.appendChild(petCard);
+            });
+        }
+        
+        function feedFish(fishId) {
+            if (playerData.inventory.fishFood <= 0) {
+                addMessage("没有鱼粮了。", "bartender");
+                return;
+            }
+            
+            const fish = playerData.ownedFish.find(f => f.id === fishId);
+            if (fish) {
+                fish.hunger = Math.min(100, fish.hunger + 30);
+                fish.lastFed = Date.now();
+                playerData.inventory.fishFood--;
+                saveData();
+                renderPetTab();
+                addMessage(`喂食了 ${fish.icon} ${fish.name}。`, "event");
+            }
+        }
+        
+        function playWithFish(fishId) {
+            const fish = playerData.ownedFish.find(f => f.id === fishId);
+            if (fish) {
+                fish.happiness = Math.min(100, fish.happiness + 25);
+                fish.lastPlayed = Date.now();
+                saveData();
+                renderPetTab();
+                addMessage(`和 ${fish.icon} ${fish.name} 玩耍了一会儿。`, "event");
+            }
+        }
+        
+        function updatePetStatsLoop() {
+            // 每5分钟自动更新一次宠物状态
+            if (Date.now() % (5 * 60 * 1000) < 1000) {
+                playerData.ownedFish.forEach(fish => {
+                    const hoursSinceFed = (Date.now() - fish.lastFed) / (1000 * 60 * 60);
+                    const hoursSincePlayed = (Date.now() - fish.lastPlayed) / (1000 * 60 * 60);
+                    
+                    fish.hunger = Math.max(0, fish.hunger - hoursSinceFed * 5);
+                    fish.happiness = Math.max(0, fish.happiness - hoursSincePlayed * 3);
+                    fish.lastFed = Date.now();
+                    fish.lastPlayed = Date.now();
+                });
+                saveData();
+                
+                if (document.querySelector('.store-tab.active').getAttribute('onclick').includes('pet')) {
+                    renderPetTab();
+                }
+            }
+        }
+
+        // --- 生理期系统 ---
+        function openPeriodModal() {
+            ui.modalPeriod.classList.add('open');
+            renderPeriodCalendar();
+            updatePeriodStatus();
+            renderPeriodHistory();
+        }
+        
+        function closePeriodModal() { ui.modalPeriod.classList.remove('open'); }
+        
+        function isPeriodActive() {
+            if (!playerData.periodLogs.length) return false;
+            const lastLog = playerData.periodLogs[playerData.periodLogs.length - 1];
+            return lastLog.endDate === null;
+        }
+        
+        function updatePeriodStatus() {
+            if (isPeriodActive()) {
+                ui.periodStatus.innerText = "当前处于生理期中";
+                ui.periodStatus.style.color = "var(--period-color)";
+            } else {
+                ui.periodStatus.innerText = "当前未在生理期";
+                ui.periodStatus.style.color = "var(--text-dim)";
+            }
+        }
+        
+        function renderPeriodCalendar() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            
+            // 设置月份标签
+            ui.calMonthLabel.innerText = `${year}年${month + 1}月`;
+            
+            // 获取当月第一天和最后一天
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            
+            // 清空日历容器
+            ui.calDaysContainer.innerHTML = '';
+            
+            // 添加空白日期（从周几开始）
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                ui.calDaysContainer.appendChild(emptyDay);
+            }
+            
+            // 添加日期
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.innerText = day;
+                
+                const currentDate = new Date(year, month, day);
+                
+                // 标记今天
+                if (day === now.getDate() && month === now.getMonth() && year === now.getFullYear()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // 标记生理期
+                playerData.periodLogs.forEach(log => {
+                    const start = new Date(log.startDate);
+                    const end = log.endDate ? new Date(log.endDate) : new Date();
+                    
+                    if (currentDate >= start && currentDate <= end) {
+                        dayElement.classList.add('active-period');
+                    }
+                });
+                
+                ui.calDaysContainer.appendChild(dayElement);
+            }
+        }
+        
+        function renderPeriodHistory() {
+            ui.periodHistoryList.innerHTML = '';
+            
+            if (playerData.periodLogs.length === 0) {
+                ui.periodHistoryList.innerHTML = '<div style="text-align:center; color:#888; padding:10px;">暂无记录</div>';
+                return;
+            }
+            
+            playerData.periodLogs.slice().reverse().forEach((log, index) => {
+                const startDate = new Date(log.startDate);
+                const endDate = log.endDate ? new Date(log.endDate) : null;
+                
+                const item = document.createElement('div');
+                item.className = 'period-history-item';
+                
+                const duration = endDate ? 
+                    Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + '天' : 
+                    '进行中';
+                
+                item.innerHTML = `
+                    <span>${startDate.toLocaleDateString()} ${endDate ? `- ${endDate.toLocaleDateString()}` : ''}</span>
+                    <span>${duration}</span>
+                    <span class="period-del-btn" onclick="deletePeriodLog(${playerData.periodLogs.length - 1 - index})">×</span>
+                `;
+                
+                ui.periodHistoryList.appendChild(item);
+            });
+        }
+        
+        function logPeriodStart() {
+            if (isPeriodActive()) {
+                addMessage("已经在生理期记录中了。", "bartender");
+                return;
+            }
+            
+            playerData.periodLogs.push({
+                startDate: Date.now(),
+                endDate: null
+            });
+            
+            saveData();
+            updatePeriodStatus();
+            renderPeriodCalendar();
+            renderPeriodHistory();
+            addMessage("记录了生理期开始。多注意休息。", "bartender");
+        }
+        
+        function logPeriodEnd() {
+            if (!isPeriodActive()) {
+                addMessage("当前没有活跃的生理期记录。", "bartender");
+                return;
+            }
+            
+            const activeLog = playerData.periodLogs[playerData.periodLogs.length - 1];
+            activeLog.endDate = Date.now();
+            
+            saveData();
+            updatePeriodStatus();
+            renderPeriodCalendar();
+            renderPeriodHistory();
+            addMessage("记录了生理期结束。", "bartender");
+        }
+        
+        function deletePeriodLog(index) {
+            if (confirm("确定要删除这条记录吗？")) {
+                playerData.periodLogs.splice(index, 1);
+                saveData();
+                renderPeriodHistory();
+                renderPeriodCalendar();
+                updatePeriodStatus();
+            }
+        }
+        
+        function retroAddPeriodStart() {
+            const dateStr = ui.periodAddDate.value;
+            if (!dateStr) {
+                addMessage("请选择日期。", "bartender");
+                return;
+            }
+            
+            const date = new Date(dateStr);
+            playerData.periodLogs.push({
+                startDate: date.getTime(),
+                endDate: null
+            });
+            
+            saveData();
+            updatePeriodStatus();
+            renderPeriodCalendar();
+            renderPeriodHistory();
+            addMessage("补录了生理期开始。", "bartender");
+        }
+        
+        function retroAddPeriodEnd() {
+            const dateStr = ui.periodAddDate.value;
+            if (!dateStr) {
+                addMessage("请选择日期。", "bartender");
+                return;
+            }
+            
+            if (!isPeriodActive()) {
+                addMessage("当前没有活跃的生理期记录。", "bartender");
+                return;
+            }
+            
+            const date = new Date(dateStr);
+            const activeLog = playerData.periodLogs[playerData.periodLogs.length - 1];
+            activeLog.endDate = date.getTime();
+            
+            saveData();
+            updatePeriodStatus();
+            renderPeriodCalendar();
+            renderPeriodHistory();
+            addMessage("补录了生理期结束。", "bartender");
+        }
+
+        // --- 日记系统 ---
+        function openDiary() {
+            ui.modalDiary.classList.add('open');
+            showDiaryList();
+        }
+        
+        function closeDiary() { 
+            ui.modalDiary.classList.remove('open'); 
+            showDiaryList(); // 重置到列表视图
+        }
+        
+        function showDiaryList() {
+            ui.diaryListView.style.display = 'block';
+            ui.diaryEditorView.style.display = 'none';
+            ui.newDiaryBtn.style.display = 'block';
+            ui.backDiaryBtn.style.display = 'none';
+            
+            renderDiaryList();
+        }
+        
+        function showDiaryEditor() {
+            ui.diaryListView.style.display = 'none';
+            ui.diaryEditorView.style.display = 'flex';
+            ui.newDiaryBtn.style.display = 'none';
+            ui.backDiaryBtn.style.display = 'block';
+            
+            // 清空编辑器，准备新日记
+            state.currentDiaryId = null;
+            ui.diaryText.value = '';
+        }
+        
+        function renderDiaryList() {
+            ui.diaryListView.innerHTML = '';
+            
+            if (playerData.diaryEntries.length === 0) {
+                ui.diaryListView.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">暂无日记，点击"提笔"开始记录</div>';
+                return;
+            }
+            
+            playerData.diaryEntries.slice().reverse().forEach(entry => {
+                const item = document.createElement('li');
+                item.className = 'diary-entry-item';
+                item.onclick = () => editDiaryEntry(entry.id);
+                
+                const date = new Date(entry.timestamp);
+                const preview = entry.content.length > 50 ? 
+                    entry.content.substring(0, 50) + '...' : 
+                    entry.content;
+                
+                item.innerHTML = `
+                    <div class="diary-date">${date.toLocaleDateString()} ${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    <div class="diary-preview">${preview}</div>
+                `;
+                
+                ui.diaryListView.appendChild(item);
+            });
+        }
+        
+        function editDiaryEntry(entryId) {
+            const entry = playerData.diaryEntries.find(e => e.id === entryId);
+            if (entry) {
+                state.currentDiaryId = entryId;
+                ui.diaryText.value = entry.content;
+                
+                ui.diaryListView.style.display = 'none';
+                ui.diaryEditorView.style.display = 'flex';
+                ui.newDiaryBtn.style.display = 'none';
+                ui.backDiaryBtn.style.display = 'block';
+            }
+        }
+        
+        function saveDiaryEntry() {
+            const content = ui.diaryText.value.trim();
+            if (!content) {
+                addMessage("日记内容不能为空。", "bartender");
+                return;
+            }
+            
+            if (state.currentDiaryId) {
+                // 更新现有日记
+                const entry = playerData.diaryEntries.find(e => e.id === state.currentDiaryId);
+                if (entry) {
+                    entry.content = content;
+                    entry.timestamp = Date.now();
+                }
+            } else {
+                // 创建新日记
+                playerData.diaryEntries.push({
+                    id: Date.now().toString(),
+                    content: content,
+                    timestamp: Date.now()
+                });
+            }
+            
+            saveData();
+            showDiaryList();
+            addMessage("日记已保存。", "event");
+        }
+        
+        function deleteCurrentEntry() {
+            if (!state.currentDiaryId) {
+                addMessage("没有可删除的日记。", "bartender");
+                return;
+            }
+            
+            if (confirm("确定要删除这篇日记吗？")) {
+                playerData.diaryEntries = playerData.diaryEntries.filter(e => e.id !== state.currentDiaryId);
+                saveData();
+                showDiaryList();
+                addMessage("日记已删除。", "event");
+            }
+        }
+
         // --- 工具 ---
-        function initAudioContext() { if (!state.audioContext) state.audioContext = new (window.AudioContext || window.webkitAudioContext)(); if (state.audioContext.state === 'suspended') state.audioContext.resume(); }
+        function initAudioContext() { 
+            if (!state.audioContext) {
+                state.audioContext = new (window.AudioContext || window.webkitAudioContext)(); 
+            }
+            if (state.audioContext.state === 'suspended') {
+                state.audioContext.resume();
+            }
+        }
+        
         function triggerAlert(text, isFinish) {
             if(state.audioContext) {
-                const ctx = state.audioContext; const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                osc.type = 'sine'; osc.frequency.setValueAtTime(isFinish?523:880, ctx.currentTime);
-                gain.gain.setValueAtTime(0.05, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-                osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.5);
+                const ctx = state.audioContext; 
+                const osc = ctx.createOscillator(); 
+                const gain = ctx.createGain();
+                osc.type = 'sine'; 
+                osc.frequency.setValueAtTime(isFinish?523:880, ctx.currentTime);
+                gain.gain.setValueAtTime(0.05, ctx.currentTime); 
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+                osc.connect(gain); 
+                gain.connect(ctx.destination); 
+                osc.start(); 
+                osc.stop(ctx.currentTime + 0.5);
             }
-            if (isFinish) { ui.container.classList.add('flash-active'); setTimeout(() => ui.container.classList.remove('flash-active'), 3000); }
+            if (isFinish) { 
+                ui.container.classList.add('flash-active'); 
+                setTimeout(() => ui.container.classList.remove('flash-active'), 3000); 
+            }
             addMessage(text, "bartender");
         }
-        function changeNoise() { const src = sounds[ui.noiseSelector.value]; if (ui.bgm.src !== src) { const p=!ui.bgm.paused; ui.bgm.src=src; if(p||state.isFocusing)ui.bgm.play(); } }
+        
+        function changeNoise() { 
+            const src = sounds[ui.noiseSelector.value]; 
+            if (ui.bgm.src !== src) { 
+                const p=!ui.bgm.paused; 
+                ui.bgm.src=src; 
+                if(p||state.isFocusing) {
+                    ui.bgm.play().catch(e => console.log("Audio play failed:", e));
+                } 
+            } 
+        }
+        
         function adjustVolume() { ui.bgm.volume = ui.volumeSlider.value; }
-        function addMessage(text, type) { const div = document.createElement('div'); div.className = `message msg-${type}`; div.innerHTML = text; ui.chatBox.appendChild(div); requestAnimationFrame(() => ui.chatBox.scrollTop = ui.chatBox.scrollHeight); }
+        
+        function addMessage(text, type) { 
+            const div = document.createElement('div'); 
+            div.className = `message msg-${type}`; 
+            div.innerHTML = text; 
+            ui.chatBox.appendChild(div); 
+            requestAnimationFrame(() => ui.chatBox.scrollTop = ui.chatBox.scrollHeight); 
+        }
         
         // 模态框通用关闭
-        [ui.modalBill, ui.modalTodo, ui.modalStore, ui.modalPeriod, ui.modalDiary, ui.modalTags].forEach(m => { m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); }); });
+        [ui.modalBill, ui.modalTodo, ui.modalStore, ui.modalPeriod, ui.modalDiary, ui.modalTags].forEach(m => { 
+            m.addEventListener('click', (e) => { 
+                if (e.target === m) m.classList.remove('open'); 
+            }); 
+        });
         
         // Input Keypress
         ui.todoInput.addEventListener('keypress', (e)=>{ if(e.key==='Enter') confirmTodo(); });
         ui.newTagInput.addEventListener('keypress', (e)=>{ if(e.key==='Enter') addNewTag(); });
+        ui.diaryText.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveDiaryEntry();
+            }
+        });
 
     </script>
 </body>
