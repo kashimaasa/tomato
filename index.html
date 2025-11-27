@@ -316,23 +316,146 @@
         .progress-fill { height: 100%; transition: width 0.5s; }
         .feed-btn-small { background: rgba(255,255,255,0.1); border: none; color: var(--text-main); font-size: 0.8em; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
 
-        /* 生理期日历 */
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: var(--text-dim); }
-        .calendar-nav-btn { background: transparent; border: 1px solid var(--glass-border); color: var(--text-dim); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 15px; font-size: 0.85em; }
-        .calendar-day-label { text-align: center; color: var(--text-dim); font-size: 0.75em; padding-bottom: 5px; }
-        
-        .calendar-day { 
-            aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
-            border-radius: 50%; /* 改为圆形更柔和 */
-            background: rgba(255,255,255,0.02); color: var(--text-dim); position: relative; cursor: pointer;
-            transition: all 0.2s;
-            font-family: tabular-nums;
-        }
-        .calendar-day:active { transform: scale(0.9); }
-        .calendar-day.today { border: 1px solid var(--text-main); font-weight: bold; }
-        .calendar-day.selected { box-shadow: 0 0 0 2px var(--accent-color); z-index: 2; color: #fff; background: rgba(212, 175, 55, 0.2); }
-        
+        /* === 生理期日历 === */
+    
+    /* 头部月份导航 */
+    .calendar-header { 
+        display: flex; justify-content: space-between; align-items: center; 
+        margin-bottom: 20px; padding: 0 10px;
+    }
+    .calendar-nav-btn { 
+        background: rgba(255,255,255,0.1); border: none; 
+        color: var(--accent-color); border-radius: 50%; width: 32px; height: 32px;
+        cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+    }
+    .calendar-nav-btn:hover { background: var(--accent-color); color: #000; }
+    #cal-month-label { font-size: 1.1em; letter-spacing: 1px; color: var(--text-main); font-family: serif; font-weight: bold; }
+
+    /* 预测信息面板 - 玻璃拟态 */
+    .period-info-panel { 
+        text-align: left; 
+        background: rgba(255, 255, 255, 0.03); 
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 15px; border-radius: 12px; margin-bottom: 20px; 
+        font-size: 0.9em; color: var(--text-dim); line-height: 1.8;
+        position: relative; overflow: hidden;
+    }
+    /* 装饰用的小光晕 */
+    .period-info-panel::before {
+        content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .period-info-highlight { color: var(--period-predict); font-weight: bold; font-size: 1.1em; margin: 0 4px; }
+
+    /* 日历网格 */
+    .calendar-grid { 
+        display: grid; grid-template-columns: repeat(7, 1fr); 
+        gap: 8px 4px; /* 行间距8px，列间距4px */
+        margin-bottom: 20px; font-size: 0.9em; 
+    }
+    .calendar-day-label { 
+        text-align: center; color: #666; font-size: 0.75em; padding-bottom: 8px; font-weight: bold;
+    }
+    
+    /* 单个日期格子 */
+    .calendar-day { 
+        aspect-ratio: 1; display: flex; align-items: center; justify-content: center; 
+        border-radius: 50%; /* 圆形 */
+        background: transparent; 
+        color: var(--text-main); 
+        position: relative; cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+        font-family: tabular-nums;
+        font-size: 0.95em;
+        border: 1px solid transparent; /* 预留边框防抖动 */
+    }
+    
+    .calendar-day:hover { background: rgba(255,255,255,0.1); }
+    
+    /* 今天 */
+    .calendar-day.today { color: var(--accent-color); border-color: var(--accent-color); font-weight: bold; }
+    .calendar-day.today::after {
+        content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+        width: 4px; height: 4px; background: var(--accent-color); border-radius: 50%;
+    }
+
+    /* 选中状态 (最高优先级) */
+    .calendar-day.selected { 
+        background: var(--text-main); color: #000; 
+        font-weight: bold; box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        z-index: 10; transform: scale(1.1);
+        border: none;
+    }
+    
+    /* 经期状态 */
+    .calendar-day.active-period { 
+        background: rgba(255, 107, 129, 0.85); /* 提高不透明度 */
+        color: #fff; /* 白色文字 */
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        border-radius: 0; /* 默认直角 */
+    }
+    .calendar-day.active-period.start { border-radius: 50% 0 0 50%; margin-right: -2px; z-index: 2; }
+    .calendar-day.active-period.end { border-radius: 0 50% 50% 0; margin-left: -2px; z-index: 2; }
+    .calendar-day.active-period.middle { margin: 0 -2px; z-index: 1; }
+    /* 单日经期 */
+    .calendar-day.active-period.start.end { border-radius: 50%; margin: 0; }
+
+    /* 预测与排卵 */
+    .calendar-day.predicted { 
+        border: 1px dashed var(--period-color); 
+        color: var(--period-predict); 
+        background: rgba(255, 107, 129, 0.1);
+    }
+    .calendar-day.ovulation { 
+        background: rgba(162, 155, 254, 0.2); 
+        border: 1px solid var(--ovulation-color); 
+        color: #fff;
+    }
+    .calendar-day.fertile { 
+        background: rgba(162, 155, 254, 0.1); 
+        font-size: 0.9em;
+    }
+
+    /* 底部操作区 */
+    .period-control-area {
+        border-top: 1px solid rgba(255,255,255,0.1); 
+        padding-top: 15px; margin-top: 10px;
+    }
+    .selected-date-info {
+        font-size: 0.85em; color: var(--text-dim); margin-bottom: 12px; text-align: center;
+    }
+    
+    .period-controls { 
+        display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
+    }
+    .period-btn-action { 
+        padding: 12px 0; border-radius: 20px; /* 药丸形状 */
+        border: 1px solid rgba(255,255,255,0.1); 
+        background: rgba(255,255,255,0.03); 
+        color: var(--text-dim); 
+        cursor: pointer; font-size: 0.85em; transition: all 0.2s;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    }
+    .period-btn-action:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+    .period-btn-action:active { transform: translateY(0); }
+
+    /* 按钮颜色区分 */
+    .period-btn-action.btn-start { color: #ff6b81; border-color: rgba(255, 107, 129, 0.3); }
+    .period-btn-action.btn-start:hover { background: rgba(255, 107, 129, 0.15); }
+    
+    .period-btn-action.btn-end { color: #a29bfe; border-color: rgba(162, 155, 254, 0.3); }
+    .period-btn-action.btn-end:hover { background: rgba(162, 155, 254, 0.15); }
+
+    .period-btn-action.btn-clear { color: #e0e0e0; opacity: 0.6; }
+    .period-btn-action.btn-clear:hover { opacity: 1; color: #ff4757; background: rgba(255, 71, 87, 0.1); }
+
+    /* 图例 */
+    .period-legend { 
+        display: flex; justify-content: center; gap: 12px; 
+        font-size: 0.7em; color: #555; margin-top: 15px; flex-wrap: wrap;
+    }
+    .legend-dot { width: 6px; height: 6px; display: inline-block; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
         /* 状态样式 */
         .calendar-day.active-period { background: var(--period-color); color: #000; font-weight: bold; box-shadow: 0 0 5px var(--period-color); }
         .calendar-day.active-period.start { border-radius: 50% 0 0 50%; margin-right: -3px; z-index: 1;} /* 连体效果左 */
@@ -551,25 +674,25 @@
         <div class="modal-actions"><button class="modal-btn cancel" onclick="closeStore()">离开</button></div>
     </div>
 </div>
-
+    
 <!-- 弹窗：生理期 -->
 <div id="modal-period" class="modal-overlay">
-    <div class="input-modal">
+    <div class="input-modal" style="max-width: 400px;"> <!--稍微加宽一点点-->
         <h3>
             <span>周期记录</span>
-            <span style="font-size:0.7em; color:var(--period-color)">🌺</span>
+            <span style="font-size:0.7em; opacity:0.8">🌺</span>
         </h3>
         
-        <!-- 预测信息面板 -->
+        <!-- 预测信息面板 (美化后) -->
         <div class="period-info-panel">
-            <div id="period-status-text">状态: ...</div>
+            <div id="period-status-text" style="margin-bottom: 5px;">状态: 计算中...</div>
             <div id="period-prediction-text">预测: ...</div>
         </div>
 
         <!-- 日历控制 -->
         <div class="calendar-header">
             <button class="calendar-nav-btn" onclick="changePeriodMonth(-1)">◀</button>
-            <span id="cal-month-label" style="font-weight:bold; color:var(--text-main)">Month</span>
+            <span id="cal-month-label">Month</span>
             <button class="calendar-nav-btn" onclick="changePeriodMonth(1)">▶</button>
         </div>
 
@@ -582,23 +705,32 @@
         </div>
         <div id="calendar-days-container" class="calendar-grid"></div>
 
-        <!-- 选中日期操作区 -->
-        <div style="border-top: 1px solid #444; padding-top: 10px; margin-top: 5px;">
-            <div style="font-size: 0.8em; color: #888; margin-bottom: 5px;">
-                选中: <span id="selected-date-label" style="color: var(--accent-color)">今天</span>
+        <!-- 操作区域 (美化后) -->
+        <div class="period-control-area">
+            <div class="selected-date-info">
+                当前选中: <span id="selected-date-label" style="color: var(--accent-color); font-weight:bold; margin-left:5px;">...</span>
             </div>
             <div class="period-controls">
-                <button class="period-btn-action btn-start" onclick="setPeriodAction('start')">设为开始</button>
-                <button class="period-btn-action btn-end" onclick="setPeriodAction('end')">设为结束</button>
-                <button class="period-btn-action btn-clear" onclick="setPeriodAction('clear')">清除状态</button>
+                <button class="period-btn-action btn-start" onclick="setPeriodAction('start')">
+                    <span style="font-size:1.2em">🩸</span>
+                    <span>经期开始</span>
+                </button>
+                <button class="period-btn-action btn-end" onclick="setPeriodAction('end')">
+                    <span style="font-size:1.2em">✨</span>
+                    <span>经期结束</span>
+                </button>
+                <button class="period-btn-action btn-clear" onclick="setPeriodAction('clear')">
+                    <span style="font-size:1.2em">🗑️</span>
+                    <span>清除</span>
+                </button>
             </div>
         </div>
 
         <!-- 图例 -->
         <div class="period-legend">
-            <span><span class="legend-dot" style="background:var(--period-color)"></span>经期</span>
-            <span><span class="legend-dot" style="border:1px dashed var(--period-color)"></span>预测</span>
-            <span><span class="legend-dot" style="background:var(--ovulation-color)"></span>排卵日</span>
+            <span><span class="legend-dot" style="background:#ff6b81"></span>经期</span>
+            <span><span class="legend-dot" style="border:1px dashed #ffb8c1"></span>预测</span>
+            <span><span class="legend-dot" style="background:#a29bfe"></span>排卵</span>
             <span><span class="legend-dot" style="background:rgba(162, 155, 254, 0.3)"></span>易孕</span>
         </div>
 
@@ -607,7 +739,7 @@
         </div>
     </div>
 </div>
-
+    
 <!-- 弹窗：心情日记 -->
 <div id="modal-diary" class="modal-overlay">
     <div class="diary-modal-content">
@@ -1407,19 +1539,32 @@
 
             // 3. 标记历史/当前记录 (实心红)
             let isLog = false;
-            playerData.periodLogs.forEach(l => {
-                const start = new Date(l.startDate).setHours(0,0,0,0);
-                const end = l.endDate ? new Date(l.endDate).setHours(0,0,0,0) : (isPeriodOngoing(l) ? today.getTime() : start); 
+            // 增加一个辅助函数检查某天是否在经期内
+            const checkDateInLog = (ts) => {
+                return playerData.periodLogs.some(l => {
+                    const s = new Date(l.startDate).setHours(0,0,0,0);
+                    const e = l.endDate ? new Date(l.endDate).setHours(0,0,0,0) : (isPeriodOngoing(l) ? today.getTime() : s);
+                    return ts >= s && ts <= e;
+                });
+            };
+
+            const isCurrentInPeriod = checkDateInLog(timeStr);
+            
+            if (isCurrentInPeriod) {
+                isLog = true;
+                div.classList.add('active-period');
                 
-                if (timeStr >= start && timeStr <= end) {
-                    isLog = true;
-                    div.classList.add('active-period');
-                    // 连体样式处理
-                    if(timeStr === start && timeStr !== end) div.classList.add('start');
-                    else if(timeStr === end && timeStr !== start) div.classList.add('end');
-                    else if(timeStr > start && timeStr < end) div.classList.add('middle');
-                }
-            });
+                // 连体效果逻辑：检查昨天和明天是否也是经期
+                const yesterday = timeStr - 86400000;
+                const tomorrow = timeStr + 86400000;
+                const isPrevActive = checkDateInLog(yesterday);
+                const isNextActive = checkDateInLog(tomorrow);
+
+                if (!isPrevActive && isNextActive) div.classList.add('start');
+                else if (isPrevActive && !isNextActive) div.classList.add('end');
+                else if (isPrevActive && isNextActive) div.classList.add('middle');
+                else if (!isPrevActive && !isNextActive) div.classList.add('start', 'end'); // 单日
+            }
 
             // 4. 标记预测 (如果不是实心记录)
             if (!isLog && predictions) {
@@ -1667,3 +1812,4 @@
 </script>
 </body>
 </html>
+
