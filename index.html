@@ -710,6 +710,28 @@
     body.day-mode #tab-pet div[style*="color: #888"] {
         color: #555 !important; /* 文字变深灰 */
     }
+        /* === 新增：账单日历与删除样式 === */
+    .calendar-day.has-record {
+        position: relative;
+        font-weight: bold;
+    }
+    .calendar-day.has-record::after {
+        content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+        width: 4px; height: 4px; background: var(--accent-color); border-radius: 50%;
+    }
+    /* 选中日期的样式覆盖 */
+    .calendar-day.history-selected {
+        background: var(--accent-color) !important;
+        color: #fff !important;
+        border-radius: 50%;
+    }
+    /* 删除按钮样式 */
+    .del-history-btn {
+        background: transparent; border: none; color: #d9534f; 
+        font-size: 1.1em; cursor: pointer; margin-left: 10px;
+        padding: 0 5px;
+    }
+    .del-history-btn:hover { color: #ff0000; transform: scale(1.1); }
     </style>
 </head>
 <body class="">
@@ -822,7 +844,7 @@
         <div class="modal-actions"><button class="modal-btn cancel" onclick="closeHandbook()">关闭</button></div>
     </div>
 </div>
-
+    
 <!-- 弹窗：时光账单 & 统计 -->
 <div id="modal-bill" class="modal-overlay">
     <div class="receipt-modal">
@@ -831,12 +853,32 @@
             <p>Bar Driftwood</p>
             <p id="total-sessions" style="font-size: 0.8em; margin-top:5px;">累计专注: 0 次</p>
         </div>
+
+        <!-- 新增：历史日历区域 -->
+        <div class="calendar-header" style="margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
+            <button class="calendar-nav-btn" onclick="changeHistoryMonth(-1)" style="color:#333;">◀</button>
+            <span id="history-month-label" style="font-weight:bold; font-size:1em;">Month</span>
+            <button class="calendar-nav-btn" onclick="changeHistoryMonth(1)" style="color:#333;">▶</button>
+        </div>
+        <div class="calendar-grid" style="margin-bottom:5px">
+            <div class="calendar-day-label">日</div><div class="calendar-day-label">一</div>
+            <div class="calendar-day-label">二</div><div class="calendar-day-label">三</div>
+            <div class="calendar-day-label">四</div><div class="calendar-day-label">五</div>
+            <div class="calendar-day-label">六</div>
+        </div>
+        <div id="history-calendar-days" class="calendar-grid" style="border-bottom: 2px dashed #999; padding-bottom: 10px; margin-bottom: 10px;"></div>
+        
+        <!-- 统计图表 -->
         <div class="chart-container">
-            <div style="font-size: 0.8em; color: #888; margin-bottom: 5px;">今日专注分布</div>
+            <div id="history-date-title" style="font-size: 0.9em; color: #333; font-weight: bold; margin-bottom: 5px;">今日数据</div>
             <svg id="pie-chart" class="chart-svg" viewBox="-1 -1 2 2"></svg>
             <div id="chart-legend" class="chart-legend"></div>
         </div>
+
+        <!-- 列表 -->
         <ul id="history-list" class="receipt-list"></ul>
+
+        <!-- 底部数据操作 -->
         <div style="margin-top: 15px; border-top: 1px dashed #999; padding-top: 10px; text-align: center;">
             <p style="font-size: 0.8em; color: #666; margin-bottom: 5px;">数据备份</p>
             <div class="data-controls">
@@ -1196,6 +1238,8 @@
         currentFocusTag: "默认",
         calendarOffset: 0,
         selectedDateObj: null
+        historyCalOffset: 0, 
+    historySelectedDate: new Date() 
     };
 
     let playerData = {
@@ -2063,40 +2107,203 @@
         updatePeriodInfoPanel();
     }
     
-    // 账单
-    function openHistory() { ui.modalBill.classList.add('open'); renderHistoryList(); renderPieChart(); }
+    // --- 账单 & 历史记录系统 (新版) ---
+    
+    function openHistory() { 
+        ui.modalBill.classList.add('open'); 
+        state.historyCalOffset = 0; // 重置月份偏移
+        state.historySelectedDate = new Date(); // 默认选中今天
+        state.historySelectedDate.setHours(0,0,0,0);
+        
+        renderHistoryCalendar();
+        renderHistoryView(); // 渲染列表和饼图
+    }
+
     function closeHistory() { ui.modalBill.classList.remove('open'); }
-    function renderHistoryList() {
-        ui.historyList.innerHTML = '';
-        const sorted = playerData.focusHistory.slice().sort((a,b)=>b.timestamp-a.timestamp);
-        let ld = '';
-        sorted.forEach(h => {
-            const d = new Date(h.timestamp); const ds = d.toLocaleDateString();
-            if(ds!==ld) { ui.historyList.innerHTML += `<div class="history-date-header">${ds}</div>`; ld=ds; }
-            ui.historyList.innerHTML += `<li class="history-item"><span>${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} [${h.tag||'默认'}]</span><span>${h.duration}分</span></li>`;
+
+    function changeHistoryMonth(offset) {
+        state.historyCalOffset += offset;
+        renderHistoryCalendar();
+    }
+
+    // 渲染账单日历
+    function renderHistoryCalendar() {
+        const container = document.getElementById('history-calendar-days');
+        const monthLabel = document.getElementById('history-month-label');
+        if(!container) return;
+
+        container.innerHTML = '';
+        const now = new Date();
+        const displayDate = new Date(now.getFullYear(), now.getMonth() + state.historyCalOffset, 1);
+        const year = displayDate.getFullYear();
+        const month = displayDate.getMonth();
+
+        monthLabel.innerText = `${year}年 ${month + 1}月`;
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDayIndex = new Date(year, month, 1).getDay();
+
+        // 填充空白
+        for(let i=0; i<firstDayIndex; i++) {
+            container.appendChild(document.createElement('div'));
+        }
+
+        // 准备数据索引：哪些天有记录？
+        const recordMap = new Set();
+        playerData.focusHistory.forEach(h => {
+            const d = new Date(h.timestamp);
+            // 只有同年同月才记录
+            if(d.getFullYear() === year && d.getMonth() === month) {
+                recordMap.add(d.getDate());
+            }
         });
+
+        // 生成日期
+        for(let d=1; d<=daysInMonth; d++) {
+            const div = document.createElement('div');
+            div.className = 'calendar-day';
+            div.innerText = d;
+            
+            // 标记有记录的日子
+            if(recordMap.has(d)) {
+                div.classList.add('has-record');
+            }
+
+            // 标记当前选中的日子
+            const checkDate = new Date(year, month, d);
+            if(state.historySelectedDate && checkDate.getTime() === state.historySelectedDate.getTime()) {
+                div.classList.add('history-selected');
+            }
+
+            // 点击事件
+            div.onclick = () => {
+                state.historySelectedDate = new Date(year, month, d);
+                renderHistoryCalendar(); // 刷新日历选中状态
+                renderHistoryView();     // 刷新下方列表和饼图
+            };
+
+            container.appendChild(div);
+        }
+    }
+
+    // 统一渲染视图（列表+饼图）
+    function renderHistoryView() {
+        const selectedTs = state.historySelectedDate.getTime();
+        const dateTitle = document.getElementById('history-date-title');
+        
+        // 筛选出选中那一天的数据
+        const dayLogs = playerData.focusHistory.filter(h => {
+            const d = new Date(h.timestamp);
+            d.setHours(0,0,0,0);
+            return d.getTime() === selectedTs;
+        });
+
+        // 更新标题
+        const m = state.historySelectedDate.getMonth() + 1;
+        const d = state.historySelectedDate.getDate();
+        dateTitle.innerText = `${m}月${d}日 专注统计 (${dayLogs.length}次)`;
+
+        renderHistoryList(dayLogs);
+        renderPieChart(dayLogs);
+        
+        // 更新总计数据
         ui.totalSessions.innerText = `累计专注: ${playerData.focusHistory.length} 次 (${Math.round((playerData.totalFocusMinutes||0)/60)}小时)`;
     }
-    function renderPieChart() {
-        if(!playerData.focusHistory.length) return ui.pieChart.style.display='none';
-        ui.pieChart.style.display='block'; ui.chartLegend.innerHTML=''; ui.pieChart.innerHTML='';
-        const today = new Date().setHours(0,0,0,0);
-        const logs = playerData.focusHistory.filter(h=>h.timestamp>=today);
-        if(!logs.length) { ui.pieChart.style.display='none'; ui.chartLegend.innerHTML='暂无今日数据'; return; }
-        const stats={}; let total=0; logs.forEach(l=>{ stats[l.tag||'默认']=(stats[l.tag||'默认']||0)+l.duration; total+=l.duration; });
-        let acc=0; const colors=['#d4af37','#ff6b81','#4cd964','#5ac8fa','#ffcc00']; let ci=0;
+
+    function renderHistoryList(logs) {
+        ui.historyList.innerHTML = '';
+        if(logs.length === 0) {
+            ui.historyList.innerHTML = '<li style="text-align:center;color:#888;padding:10px;">当天无记录</li>';
+            return;
+        }
+
+        // 倒序排列
+        const sorted = logs.slice().sort((a,b) => b.timestamp - a.timestamp);
+        
+        sorted.forEach(h => {
+            const d = new Date(h.timestamp);
+            const timeStr = d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+            
+            const li = document.createElement('li');
+            li.className = "history-item";
+            li.innerHTML = `
+                <span>${timeStr} [${h.tag||'默认'}]</span>
+                <div style="display:flex; align-items:center;">
+                    <span>${h.duration}分</span>
+                    <button class="del-history-btn" onclick="deleteHistoryItem(${h.timestamp})">×</button>
+                </div>
+            `;
+            ui.historyList.appendChild(li);
+        });
+    }
+
+    function deleteHistoryItem(ts) {
+        if(!confirm("确定删除这条专注记录吗？(金币不会扣除)")) return;
+        
+        // 找到并删除
+        const idx = playerData.focusHistory.findIndex(h => h.timestamp === ts);
+        if(idx > -1) {
+            const duration = playerData.focusHistory[idx].duration;
+            playerData.focusHistory.splice(idx, 1);
+            
+            // 扣除累计时长（可选）
+            playerData.totalFocusMinutes = Math.max(0, (playerData.totalFocusMinutes || 0) - duration);
+            
+            saveData();
+            showToast("记录已删除");
+            
+            // 刷新界面
+            renderHistoryCalendar(); // 可能这一天没数据了，圆点要消失
+            renderHistoryView();
+        }
+    }
+
+    function renderPieChart(logs) {
+        if(!logs.length) { 
+            ui.pieChart.style.display='none'; 
+            ui.chartLegend.innerHTML='暂无数据'; 
+            return; 
+        }
+        
+        ui.pieChart.style.display='block'; 
+        ui.chartLegend.innerHTML=''; 
+        ui.pieChart.innerHTML='';
+        
+        const stats={}; 
+        let total=0; 
+        logs.forEach(l=>{ 
+            const tag = l.tag || '默认';
+            stats[tag] = (stats[tag]||0) + l.duration; 
+            total += l.duration; 
+        });
+        
+        let acc=0; 
+        const colors=['#d4af37','#ff6b81','#4cd964','#5ac8fa','#ffcc00', '#a29bfe']; 
+        let ci=0;
+        
         for(const [t,v] of Object.entries(stats)) {
-            const p = v/total; const ang = p*360;
+            const p = v/total; 
+            const ang = p*360;
             const x1=Math.cos(2*Math.PI*acc/360), y1=Math.sin(2*Math.PI*acc/360);
             const x2=Math.cos(2*Math.PI*(acc+ang)/360), y2=Math.sin(2*Math.PI*(acc+ang)/360);
             const la = ang>180?1:0;
+            
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("d", Math.abs(ang-360)<0.1 ? `M 0 0 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0` : `M 0 0 L ${x1} ${y1} A 1 1 0 ${la} 1 ${x2} ${y2} Z`);
-            path.setAttribute("fill", colors[ci%5]); ui.pieChart.appendChild(path);
-            ui.chartLegend.innerHTML += `<div class="legend-item"><span class="legend-color" style="background:${colors[ci%5]}"></span>${t}</div>`;
-            acc+=ang; ci++;
+            // 如果是100% (360度)，画一个圆
+            if (Math.abs(ang-360) < 0.1) {
+                path.setAttribute("d", `M 0 0 m -1 0 a 1 1 0 1 0 2 0 a 1 1 0 1 0 -2 0`);
+            } else {
+                path.setAttribute("d", `M 0 0 L ${x1} ${y1} A 1 1 0 ${la} 1 ${x2} ${y2} Z`);
+            }
+            
+            path.setAttribute("fill", colors[ci%colors.length]); 
+            ui.pieChart.appendChild(path);
+            
+            ui.chartLegend.innerHTML += `<div class="legend-item"><span class="legend-color" style="background:${colors[ci%colors.length]}"></span>${t} (${Math.round(p*100)}%)</div>`;
+            acc+=ang; 
+            ci++;
         }
-    }
+                }
 
     // --- 聊天/音频 ---
     function chatWithBartender() {
@@ -2463,6 +2670,7 @@
 </script>
 </body>
 </html>
+
 
 
 
