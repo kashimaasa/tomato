@@ -1587,7 +1587,7 @@ let workHistory = [];
         initAudioContext(); 
         ui.bgm.play().catch(e=>{});
         
-        addMessage(`开始专注。${m}分钟，祝您高效。`, "bartender");
+        addMessage(`我知道了，这${m}分钟我会一直陪伴您。`, "bartender");
         
         // 启动计时器
         if(state.timerId) clearInterval(state.timerId);
@@ -1618,7 +1618,7 @@ let workHistory = [];
         const btn = document.getElementById('btn-pause-focus');
         if(state.isPaused) {
             btn.innerText = "▶ 继续";
-            ui.statusText.innerText = "Cipher 暂时按住了沙漏...";
+            ui.statusText.innerText = "Cipher 暂时放下了沙漏中的隔板...";
             ui.bgm.pause();
         } else {
             btn.innerText = "⏸ 暂停";
@@ -3010,6 +3010,7 @@ function triggerReminder(item) {
 </script>
 </body>
 </html>
+
 
 
 
