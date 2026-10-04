@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bar Driftwood - 深巷浮木</title>
+    <meta name="theme-color" content="#121212">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="深巷浮木">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23191919'/%3E%3Ctext x='50' y='68' font-size='54' text-anchor='middle' fill='%23d4af37'%3E%E6%B5%AE%3C/text%3E%3C/svg%3E">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Bar%20Driftwood%20%E6%B7%B1%E5%B7%B7%E6%B5%AE%E6%9C%A8","short_name":"%E6%B7%B1%E5%B7%B7%E6%B5%AE%E6%9C%A8","start_url":".","display":"standalone","background_color":"%23121212","theme_color":"%23121212","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%23191919%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2754%27 text-anchor=%27middle%27 fill=%27%23d4af37%27%3E%E6%B5%AE%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml"}]}'>
     <style>
         :root {
             /* 夜间模式 (默认) */
@@ -153,7 +159,7 @@
 
         /* 2. Chat */
         .chat-area {
-            flex: 1; overflow-y: auto; padding: 15px;
+            flex: 1; overflow-y: auto; padding: 15px 15px 92px;
             display: flex; flex-direction: column; gap: 12px;
             overscroll-behavior: contain;
         }
@@ -632,6 +638,27 @@
     /* 鼠标悬停时显示删除叉号 */
     .ai-bubble:hover .bubble-del-btn { opacity: 1; }
 
+    /* --- Markdown 渲染 --- */
+    .md-body { display: block; }
+    .md-body .md-h { display: block; margin: 6px 0 3px; font-size: 1.02em; color: var(--accent-color); letter-spacing: 0.5px; }
+    .md-body .md-quote { display: block; padding-left: 9px; margin: 4px 0; border-left: 2px solid var(--accent-color); opacity: 0.78; font-style: italic; }
+    .md-body .md-li { display: block; padding-left: 4px; }
+    .md-body .md-hr { display: block; height: 1px; margin: 8px 0; background: var(--glass-border); }
+    .md-body .md-code {
+        display: inline; padding: 1px 5px; border-radius: 4px; font-family: Consolas, Monaco, 'Courier New', monospace;
+        font-size: 0.88em; background: rgba(0,0,0,0.28); color: #ffd479; word-break: break-all;
+    }
+    body.day-mode .md-body .md-code { background: rgba(0,0,0,0.07); color: #9a5b00; }
+    .md-body .md-pre {
+        display: block; margin: 7px 0; padding: 9px 11px; border-radius: 8px; overflow-x: auto;
+        background: rgba(0,0,0,0.36); color: #e8e8e8; border: 1px solid rgba(255,255,255,0.08);
+        font-family: Consolas, Monaco, 'Courier New', monospace; font-size: 0.82em; line-height: 1.55;
+        white-space: pre-wrap; word-break: break-word; text-align: left;
+    }
+    body.day-mode .md-body .md-pre { background: rgba(0,0,0,0.05); color: #2b2b2b; border-color: rgba(0,0,0,0.1); }
+    .md-caret { display: inline-block; width: 6px; height: 1em; margin-left: 2px; background: var(--accent-color); vertical-align: text-bottom; animation: md-blink 1s steps(2, start) infinite; }
+    @keyframes md-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
     .fetch-model-btn {
         background: var(--accent-color); color: #000; border: none;
         padding: 4px 12px; border-radius: 4px; font-size: 0.8em;
@@ -749,6 +776,169 @@
         border: 1px solid rgba(100, 149, 237, 0.3); /* 淡蓝色边框 */
         color: #e0e0e0;
     }
+
+        /* === v3 深化改造：新增样式 === */
+
+    /* 专注前置：标签 + 微目标 */
+    .focus-meta-row { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+    #quick-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .meta-chip {
+        background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: var(--text-dim);
+        padding: 5px 11px; border-radius: 15px; font-size: 0.78em; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .meta-chip:hover { border-color: var(--accent-color); color: var(--accent-color); }
+    .meta-chip.selected { background: var(--accent-color); color: #000; border-color: var(--accent-color); font-weight: bold; }
+    .goal-input {
+        flex: 1; min-width: 130px; background: rgba(0,0,0,0.2); border: 1px solid #555; color: var(--text-main);
+        padding: 6px 12px; border-radius: 15px; font-size: 0.78em; font-family: inherit; outline: none;
+    }
+    .goal-input:focus { border-color: var(--accent-color); }
+    body.day-mode .goal-input { background: rgba(0,0,0,0.04); border-color: #ccc; color: #333; }
+
+    /* 阶段徽章与番茄串 */
+    .phase-badge { font-size: 0.68em; letter-spacing: 2px; padding: 3px 10px; border-radius: 12px;
+        border: 1px solid var(--accent-color); color: var(--accent-color); white-space: nowrap; }
+    .phase-badge.break { border-color: #5ac8fa; color: #5ac8fa; }
+    .phase-badge.long { border-color: #a29bfe; color: #a29bfe; }
+    .session-strip { display: flex; align-items: center; gap: 4px; font-size: 0.8em; color: var(--text-dim); margin-bottom: 10px; flex-wrap: wrap; }
+    .tomato-dot { font-size: 0.95em; filter: grayscale(1); opacity: 0.3; }
+    .tomato-dot.done { filter: none; opacity: 1; }
+    .strip-note { margin-left: 6px; font-size: 0.85em; opacity: 0.8; }
+
+    /* 沉浸模式 */
+    .immersive-mode .nav-row, .immersive-mode .audio-row, .immersive-mode .time-setter-box,
+    .immersive-mode .focus-meta-row, .immersive-mode .session-strip { display: none !important; }
+    .immersive-mode .app-container { background: rgba(6,6,6,0.88); }
+    body.day-mode.immersive-mode .app-container { background: rgba(255,255,255,0.9); }
+    .immersive-mode .timer-display { font-size: 4.2em; }
+    .immersive-mode .chat-area { opacity: 0.35; }
+    .immersive-exit { position: absolute; right: 15px; top: 15px; z-index: 30; }
+
+    /* 复盘 */
+    .review-stat { display: flex; justify-content: space-between; font-size: 0.9em; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,0.12); }
+    .review-stat b { color: var(--accent-color); font-variant-numeric: tabular-nums; }
+    .purity-bar { height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin: 10px 0 4px; }
+    .purity-fill { height: 100%; background: var(--accent-color); transition: width 0.6s; }
+    .purity-note { font-size: 0.72em; color: var(--text-dim); text-align: right; }
+
+    /* 洞察面板（账单内） */
+    .insight-tabs { display: flex; border-bottom: 1px solid #ccc; margin-bottom: 12px; }
+    .insight-tab { flex: 1; padding: 8px; cursor: pointer; font-size: 0.85em; color: #777; border-bottom: 2px solid transparent; text-align: center; }
+    .insight-tab.active { color: #333; border-bottom-color: #8c7b70; font-weight: bold; }
+    .heatmap-grid { display: grid; grid-template-rows: repeat(7, 11px); grid-auto-flow: column; grid-auto-columns: 11px; gap: 3px; justify-content: start; overflow-x: auto; padding-bottom: 6px; }
+    .hm-cell { width: 11px; height: 11px; border-radius: 2px; background: #e8e4da; }
+    .hm-l1 { background: #f0dfa6; } .hm-l2 { background: #e3c469; } .hm-l3 { background: #c9a233; } .hm-l4 { background: #8a6a1c; }
+    .hourly-chart { display: flex; align-items: flex-end; gap: 2px; height: 64px; padding: 4px 0; }
+    .hourly-bar { flex: 1; background: #c9a233; border-radius: 1px 1px 0 0; min-height: 2px; transition: height 0.4s; }
+    .hourly-bar.zero { background: #ddd8cc; }
+    .hourly-labels { display: flex; gap: 2px; font-size: 0.5em; color: #999; }
+    .hourly-labels span { flex: 1; text-align: center; }
+    .trend-row { display: flex; align-items: center; gap: 8px; font-size: 0.78em; padding: 2px 0; }
+    .trend-label { width: 46px; color: #777; }
+    .trend-track { flex: 1; height: 9px; background: #e8e4da; border-radius: 5px; overflow: hidden; }
+    .trend-fill { height: 100%; background: #c9a233; border-radius: 5px; transition: width 0.5s; }
+    .trend-val { width: 34px; text-align: right; color: #555; font-variant-numeric: tabular-nums; }
+    .weekly-report { font-size: 0.85em; line-height: 1.85; color: #3a3a3a; white-space: pre-wrap; text-align: left;
+        background: rgba(0,0,0,0.04); padding: 12px; border-radius: 6px; max-height: 200px; overflow-y: auto; font-family: "KaiTi", "STKaiti", serif; }
+    .insight-hint { font-size: 0.65em; color: #999; margin: 4px 0 12px; }
+
+    /* 商店 v3 */
+    .store-cat-title { font-size: 0.7em; color: var(--text-dim); letter-spacing: 2px; margin: 14px 0 6px; padding-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.12); }
+    body.day-mode .store-cat-title { border-bottom-color: rgba(0,0,0,0.12); }
+    .store-item.owned { border: 1px solid rgba(212,175,55,0.5); background: rgba(212,175,55,0.06); }
+    .store-item.equipped { border-color: #5ac8fa; background: rgba(90,200,250,0.1); }
+    .owned-tag { font-size: 0.7em; color: var(--accent-color); }
+    .equip-btn { background: #333; color: #5ac8fa; border: 1px solid #555; padding: 5px 12px; border-radius: 4px; font-size: 0.85em; cursor: pointer; white-space: nowrap; }
+    .equip-btn.active { background: #5ac8fa; color: #000; border-color: #5ac8fa; }
+    .equip-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .ach-progress { height: 3px; background: #333; border-radius: 2px; margin-top: 7px; overflow: hidden; }
+    .ach-progress-fill { height: 100%; background: var(--accent-color); transition: width 0.5s; }
+    .ach-hint { font-size: 0.7em; color: var(--text-dim); margin-top: 4px; }
+    .drink-hint { font-size: 0.7em; color: var(--text-dim); margin-top: 4px; font-style: italic; }
+
+    /* 亲密度 */
+    .intimacy-row { display: flex; align-items: center; gap: 6px; font-size: 0.72em; color: var(--text-dim); margin-top: 6px; }
+    .intimacy-bar { flex: 1; max-width: 90px; height: 3px; background: #333; border-radius: 2px; overflow: hidden; }
+    .intimacy-fill { height: 100%; background: var(--accent-color); transition: width 0.6s; }
+
+    /* 待办进度 */
+    .todo-pomo-badge { font-size: 0.72em; color: var(--accent-color); border: 1px solid rgba(212,175,55,0.4);
+        border-radius: 10px; padding: 1px 7px; margin-right: 8px; white-space: nowrap; }
+    .todo-done-badge { font-size: 0.72em; color: #4cd964; margin-right: 8px; }
+    .todo-sub { font-size: 0.72em; color: var(--text-dim); margin-left: 4px; }
+
+    .kbd-hint { font-size: 0.62em; color: #777; text-align: center; margin-top: 8px; letter-spacing: 1px; }
+
+    /* === Cipher 的小人 === */
+    .chat-wrap { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .cipher-figure {
+        position: absolute; right: 8px; bottom: 8px; width: 72px; z-index: 15;
+        cursor: pointer; user-select: none; -webkit-user-select: none;
+    }
+    .cipher-svg { width: 100%; display: block; filter: drop-shadow(0 3px 7px rgba(0,0,0,0.45)); }
+    .cf-body { animation: cf-breathe 4.5s ease-in-out infinite; transform-origin: 50px 99px; }
+    @keyframes cf-breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.2px); } }
+    .cf-arm-wipe { animation: cf-wipe 2.8s ease-in-out infinite; transform-origin: 36px 58px; }
+    @keyframes cf-wipe { 0%,100% { transform: rotate(-6deg); } 50% { transform: rotate(7deg); } }
+    .cf-arm-book, .cf-arm-cup, .cf-glass { display: none; }
+    .cipher-figure.st-focus .cf-arm-wipe { display: none; }
+    .cipher-figure.st-focus .cf-arm-book { display: block; }
+    .cipher-figure.st-focus .cf-glass { display: block; }
+    .cipher-figure.st-break .cf-arm-wipe { display: none; }
+    .cipher-figure.st-break .cf-arm-cup { display: block; }
+    .cipher-figure.st-sleep .cf-arm-wipe { display: none; }
+    .cipher-figure.st-sleep .cf-zzz { opacity: 1; animation: cf-zz 3.2s ease-in-out infinite; }
+    .cipher-figure.st-sleep .cf-body { animation: cf-nod 4.4s ease-in-out infinite; }
+    .cipher-figure.st-sleep .cf-mouth { opacity: 0.35; }
+    @keyframes cf-zz { 0%,100% { opacity: 0.15; transform: translateY(0); } 50% { opacity: 0.85; transform: translateY(-4px); } }
+    @keyframes cf-nod { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(4deg); } }
+
+    .cipher-bubble {
+        position: absolute; right: 60px; bottom: 40px; width: 152px; max-width: 52vw;
+        background: var(--toast-bg); color: var(--text-main);
+        border: 1px solid var(--glass-border); border-radius: 10px;
+        padding: 8px 11px; font-size: 0.72em; line-height: 1.55;
+        opacity: 0; transform: translateY(6px); transition: opacity 0.35s, transform 0.35s;
+        pointer-events: none; box-shadow: 0 6px 18px var(--shadow-color);
+        z-index: 16; text-align: left;
+    }
+    .cipher-bubble.show { opacity: 1; transform: translateY(0); }
+    body.day-mode .cipher-bubble { color: #333; }
+    .cf-company { text-align: center; font-size: 0.56em; color: var(--text-dim); margin-top: 1px; letter-spacing: 0.5px; }
+    .immersive-mode .cipher-figure { width: 104px; right: 16px; bottom: 20px; }
+    .cipher-figure.poked { animation: cf-poke 0.5s ease; }
+    @keyframes cf-poke { 0%,100% { transform: translateY(0) scale(1); } 40% { transform: translateY(-4px) scale(1.05); } }
+    body.day-mode .cipher-figure .cipher-svg { filter: drop-shadow(0 3px 6px rgba(0,0,0,0.18)); }
+
+    /* 「看看他」弹窗 */
+    .cv-stage { display: flex; justify-content: center; align-items: flex-end; padding: 6px 0 2px; }
+    .cv-stage .cipher-figure { position: static; width: 132px; cursor: default; }
+    .cv-stage .cipher-bubble { position: static; width: auto; max-width: none; opacity: 1; transform: none; margin-bottom: 10px; text-align: left; }
+    .cv-line { font-size: 0.82em; color: var(--text-main); opacity: 0.9; line-height: 1.7; margin: 10px 2px 4px; min-height: 2.6em; }
+    .cv-stats { display: flex; justify-content: space-around; gap: 8px; margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--glass-border); }
+    .cv-stat { flex: 1; }
+    .cv-stat b { display: block; font-size: 1.05em; color: var(--accent-color); font-weight: 600; }
+    .cv-stat span { font-size: 0.62em; color: var(--text-dim); letter-spacing: 0.5px; }
+
+    /* 生理期弹窗底部按钮（原类名缺样式，补齐） */
+    .period-controls-area { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 10px; }
+    .selected-date-hint { font-size: 0.85em; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
+    .period-btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .period-big-btn {
+        padding: 12px 0; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.03); color: var(--text-dim); cursor: pointer; font-size: 0.85em;
+        font-family: inherit; transition: all 0.2s;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    }
+    .period-big-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+    .period-big-btn:active { transform: translateY(0); }
+    .period-big-btn.btn-start { color: #ff6b81; border-color: rgba(255,107,129,0.3); }
+    .period-big-btn.btn-start:hover { background: rgba(255,107,129,0.15); }
+    .period-big-btn.btn-end { color: #a29bfe; border-color: rgba(162,155,254,0.3); }
+    .period-big-btn.btn-end:hover { background: rgba(162,155,254,0.15); }
+    .period-big-btn.btn-clear { color: #e0e0e0; opacity: 0.6; }
+    .period-big-btn.btn-clear:hover { opacity: 1; color: #ff4757; background: rgba(255,71,87,0.1); }
+    body.day-mode .period-big-btn { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.15); color: #555; }
     </style>
 </head>
 <body class="">
@@ -761,11 +951,18 @@
     <!-- Header -->
     <div class="header-area">
         <button class="theme-toggle-btn" onclick="toggleTheme()">☀️/🌙</button>
+        <button class="theme-toggle-btn" id="notify-toggle-btn" style="left:52px;" onclick="toggleNotify()" title="到点提醒（桌面通知）">🔔</button>
+        <button class="nav-btn immersive-exit" id="immersive-exit" style="display:none;" onclick="toggleImmersive()">退出沉浸</button>
         <div class="realtime-clock" id="clock">00:00</div>
         <div class="bartender-status">
             <span class="mood-dot" id="mood-indicator"></span>
             <span id="status-text">Cipher 正在擦拭高脚杯...</span>
             <span class="coin-status">🪙 <span id="coin-count">0</span></span>
+        </div>
+        <div class="intimacy-row" style="justify-content:center;">
+            <span>熟悉度</span>
+            <div class="intimacy-bar"><div class="intimacy-fill" id="intimacy-fill" style="width:0%;"></div></div>
+            <span id="intimacy-label">初见</span>
         </div>
         
         <!-- 导航行 -->
@@ -779,11 +976,65 @@
             <button class="nav-btn gold-btn" onclick="openHandbook()">图鉴</button>
             <button class="nav-btn" onclick="openStore()">杂货铺</button>
             <button class="nav-btn" onclick="openHistory()">账单</button>
+            <button class="nav-btn gold-btn" onclick="openCipherView()">看看他</button>
+            <button class="nav-btn" onclick="toggleImmersive()">沉浸</button>
         </div>
     </div>
 
     <!-- Chat -->
-    <div class="chat-area" id="chat-box"></div>
+    <div class="chat-wrap">
+        <div class="chat-area" id="chat-box"></div>
+
+        <!-- Cipher 的小人：他就站在吧台后面 -->
+        <div id="cipher-figure" class="cipher-figure" onclick="pokeCipher()" ondblclick="openCipherView()" title="Cipher — 戳一下，或双击看看他">
+            <div id="cipher-bubble" class="cipher-bubble"></div>
+            <svg class="cipher-svg" viewBox="0 0 100 118" role="img" aria-label="Cipher">
+                <rect x="6" y="98" width="88" height="14" rx="3" fill="#191919"/>
+                <rect x="6" y="98" width="88" height="2" fill="#d4af37" opacity="0.5"/>
+
+                <g class="cf-body">
+                    <path d="M33 55 Q50 47 67 55 L72 99 L28 99 Z" fill="#242a33"/>
+                    <path d="M43 55 L50 69 L57 55 Z" fill="#efefef"/>
+                    <circle cx="50" cy="63" r="2.4" fill="#d4af37"/>
+                    <circle cx="50" cy="36" r="14" fill="#e7c3a2"/>
+                    <path d="M36 33 Q37 19 50 19 Q63 19 64 33 Q57 25 50 27 Q43 25 36 33 Z" fill="#24242a"/>
+                    <circle class="cf-eye" cx="45" cy="37" r="1.5" fill="#3a3226"/>
+                    <circle class="cf-eye" cx="56" cy="37" r="1.5" fill="#3a3226"/>
+                    <g class="cf-monocle">
+                        <circle cx="56" cy="37" r="4.8" fill="none" stroke="#d4af37" stroke-width="1.1"/>
+                        <path d="M60.5 41 L64 51" stroke="#d4af37" stroke-width="0.8" fill="none"/>
+                    </g>
+                    <path class="cf-mouth" d="M47.5 43 Q50 45.2 52.5 43" stroke="#b98d6b" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                </g>
+
+                <g class="cf-arm-wipe">
+                    <path d="M36 58 L31 76" stroke="#e7c3a2" stroke-width="6" stroke-linecap="round" fill="none"/>
+                    <ellipse cx="30" cy="81" rx="5" ry="6" fill="rgba(255,255,255,0.16)" stroke="#cfd6e0" stroke-width="0.9"/>
+                    <path d="M27 81 Q30 87 33 81" fill="#d4af37" opacity="0.45"/>
+                </g>
+
+                <g class="cf-arm-book">
+                    <path d="M36 58 L34 74" stroke="#e7c3a2" stroke-width="6" stroke-linecap="round" fill="none"/>
+                    <path d="M64 58 L66 74" stroke="#e7c3a2" stroke-width="6" stroke-linecap="round" fill="none"/>
+                    <path d="M40 84 L60 84 L60 75 L50 73 L40 75 Z" fill="#3a4a5c"/>
+                    <path d="M50 73 L50 84" stroke="#22303c" stroke-width="0.8"/>
+                </g>
+
+                <g class="cf-arm-cup">
+                    <path d="M64 58 L70 69" stroke="#e7c3a2" stroke-width="6" stroke-linecap="round" fill="none"/>
+                    <path d="M65 65 L75 65 L73 73 L67 73 Z" fill="none" stroke="#d4af37" stroke-width="1.3"/>
+                </g>
+
+                <g class="cf-glass">
+                    <path d="M79 86 L79 97 L89 97 L89 86 Z" fill="none" stroke="#d4af37" stroke-width="1"/>
+                    <rect class="cf-glass-fill" x="80.5" y="90" width="7" height="6" fill="#d4af37" opacity="0.65"/>
+                </g>
+
+                <text class="cf-zzz" x="68" y="26" font-size="12" fill="#d4af37" opacity="0">zZ</text>
+            </svg>
+            <div id="cipher-company" class="cf-company"></div>
+        </div>
+    </div>
 
     <!-- Controls -->
     <div class="controls-area">
@@ -792,7 +1043,15 @@
             <div class="time-setter" id="time-setter-box">
                 专注 <input type="number" class="time-input" id="custom-minutes" value="25" min="1" max="180"> 分钟
             </div>
+            <span class="phase-badge" id="phase-badge" style="display:none;">专注</span>
         </div>
+
+        <div class="focus-meta-row" id="focus-meta-row">
+            <div id="quick-tags"></div>
+            <input type="text" class="goal-input" id="focus-goal-input" placeholder="这一次，我要完成什么…" autocomplete="off">
+        </div>
+
+        <div class="session-strip" id="session-strip"></div>
 
         <div class="action-row" id="focus-controls">
             <button class="action-btn primary" id="btn-start-focus" onclick="startFocus()">开始专注</button>
@@ -842,11 +1101,42 @@
             <input type="text" class="input-field" id="todo-input-field" placeholder="要做什么..." style="margin-bottom:0;" autocomplete="off">
             <div style="display:flex; gap:5px;">
                 <input type="time" class="input-field" id="todo-time-input" style="margin-bottom:0; flex:1;">
+                <input type="number" class="input-field" id="todo-est-input" min="0" max="20" value="1" title="预估番茄数" style="margin-bottom:0; width:70px;">
                 <button class="buy-btn" onclick="confirmTodo()">添加</button>
             </div>
+            <div style="font-size:0.72em; color:#888; text-align:left;">⏰ 提醒时间 · 🍅 预估需要几个番茄</div>
         </div>
         <div class="modal-actions">
             <button class="modal-btn cancel" onclick="closeTodoModal()">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 弹窗：专注复盘 -->
+<div id="modal-review" class="modal-overlay">
+    <div class="input-modal" style="max-width: 340px;">
+        <h3><span id="review-title">这一杯，喝完了</span></h3>
+        <div id="review-body" style="text-align:left;"></div>
+        <div style="margin-top: 14px;">
+            <input type="text" class="input-field" id="review-note" placeholder="给自己留一句话（可留空）" autocomplete="off">
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeReview(false)">收工</button>
+            <button class="modal-btn confirm" onclick="closeReview(true)">休息一下</button>
+        </div>
+    </div>
+</div>
+
+<!-- 弹窗：看看他 -->
+<div id="modal-cipher" class="modal-overlay">
+    <div class="input-modal" style="max-width: 320px; text-align:center;">
+        <h3><span id="cipher-view-title">Cipher</span></h3>
+        <div id="cipher-view-stage" class="cv-stage"></div>
+        <div id="cipher-view-line" class="cv-line"></div>
+        <div id="cipher-view-stats" class="cv-stats"></div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeCipherView()">合上门</button>
+            <button class="modal-btn confirm" onclick="pokeCipher(); closeCipherView();">打扰一下</button>
         </div>
     </div>
 </div>
@@ -883,6 +1173,12 @@
             <p id="total-sessions" style="font-size: 0.8em; margin-top:5px;">累计专注: 0 次</p>
         </div>
 
+        <div class="insight-tabs">
+            <div class="insight-tab active" id="bill-tab-day" onclick="switchBillTab('day')">账单</div>
+            <div class="insight-tab" id="bill-tab-insight" onclick="switchBillTab('insight')">洞察</div>
+        </div>
+
+        <div id="bill-pane-day">
         <!-- 新增：历史日历区域 -->
         <div class="calendar-header" style="margin-bottom: 10px; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">
             <button class="calendar-nav-btn" onclick="changeHistoryMonth(-1)" style="color:#333;">◀</button>
@@ -906,6 +1202,26 @@
 
         <!-- 列表 -->
         <ul id="history-list" class="receipt-list"></ul>
+        </div>
+
+        <div id="bill-pane-insight" style="display:none;">
+            <div class="store-cat-title" style="color:#777; border-bottom-color:#ccc;">近 18 周 · 沉潜的痕迹</div>
+            <div id="heatmap" class="heatmap-grid"></div>
+            <div class="insight-hint">每一格是一天。颜色越深，那天你在吧台坐得越久。</div>
+
+            <div class="store-cat-title" style="color:#777; border-bottom-color:#ccc;">你在一天里的哪个时辰最容易沉下去</div>
+            <div id="hourly-chart" class="hourly-chart"></div>
+            <div class="hourly-labels" id="hourly-labels"></div>
+
+            <div class="store-cat-title" style="color:#777; border-bottom-color:#ccc;">最近 14 天</div>
+            <div id="trend-list"></div>
+
+            <div class="store-cat-title" style="color:#777; border-bottom-color:#ccc;">各样事情上的投入</div>
+            <div id="tag-efficiency"></div>
+
+            <div class="store-cat-title" style="color:#777; border-bottom-color:#ccc;">本周小结</div>
+            <div id="weekly-report" class="weekly-report"></div>
+        </div>
 
         <!-- 底部数据操作 -->
         <div style="margin-top: 15px; border-top: 1px dashed #999; padding-top: 10px; text-align: center;">
@@ -913,6 +1229,7 @@
             <div class="data-controls">
                 <button class="data-btn" onclick="exportDataFile()">⬇️ 导出(文件)</button>
                 <button class="data-btn" onclick="triggerImport()">⬆️ 导入(文件)</button>
+                <button class="data-btn" onclick="restoreSnapshot()">↩️ 回滚(近三天)</button>
                 <input type="file" id="file-input" accept=".json" style="display: none;" onchange="handleFileImport(this)">
             </div>
         </div>
@@ -1089,7 +1406,7 @@
 
             <div class="ai-settings-group">
                 <span class="ai-label">记忆容量: <span id="context-val">10</span>条</span>
-                <input type="range" id="ai-context-limit" min="0" max="50" value="10" step="2" style="width:100%" oninput="document.getElementById('context-val').innerText=this.value">
+                <input type="range" id="ai-context-limit" min="0" max="50" value="10" step="2" style="width:100%" oninput="document.getElementById('context-val').textContent=this.value">
             </div>
 
             <div style="text-align:right;">
@@ -1235,13 +1552,46 @@
 
     // --- 新增：成就库 ---
     const ACHIEVEMENTS_DB = [
-        { id: 'first_dive', title: '初次沉潜', desc: '完成第1次专注。', condition: (p) => p.focusHistory.length >= 1, reward: 5 },
-        { id: 'habit_forming', title: '习惯养成', desc: '累计专注达到 10 次。', condition: (p) => p.focusHistory.length >= 10, reward: 20 },
-        { id: 'deep_diver', title: '深海潜水员', desc: '累计专注时长超过 10 小时。', condition: (p) => (p.totalFocusMinutes || 0) >= 600, reward: 50 },
-        { id: 'rich_man', title: '时间富翁', desc: '持有金币超过 100 枚。', condition: (p) => p.coins >= 100, reward: 10 },
-        { id: 'fish_keeper', title: '鱼塘主', desc: '拥有 3 条以上的鱼。', condition: (p) => p.ownedFish.length >= 3, reward: 30 },
-        { id: 'night_owl', title: '猫头鹰', desc: '在凌晨 0 点到 4 点之间完成专注。', condition: (p) => false, reward: 15, manualTrigger: true } // 特殊触发
+        { id: 'first_dive', title: '初次沉潜', desc: '完成第 1 次专注。', reward: 5,
+          condition: (p) => doneCount(p) >= 1, progress: (p) => [Math.min(doneCount(p),1), 1] },
+        { id: 'habit_forming', title: '习惯养成', desc: '累计完成 10 次专注。', reward: 20,
+          condition: (p) => doneCount(p) >= 10, progress: (p) => [Math.min(doneCount(p),10), 10] },
+        { id: 'deep_diver', title: '深海潜水员', desc: '累计专注时长超过 10 小时。', reward: 50,
+          condition: (p) => (p.totalFocusMinutes || 0) >= 600, progress: (p) => [Math.min(p.totalFocusMinutes||0,600), 600] },
+        { id: 'rich_man', title: '时间富翁', desc: '持有金币超过 100 枚。', reward: 10,
+          condition: (p) => p.coins >= 100, progress: (p) => [Math.min(p.coins,100), 100] },
+        { id: 'fish_keeper', title: '鱼塘主', desc: '同时养着 3 条以上的鱼。', reward: 30,
+          condition: (p) => p.ownedFish.length >= 3, progress: (p) => [Math.min(p.ownedFish.length,3), 3] },
+        { id: 'night_owl', title: '猫头鹰', desc: '在凌晨 0 点到 4 点之间完成专注。', reward: 15, manualTrigger: true,
+          condition: () => false, progress: (p) => [playerData.achievements.includes('night_owl')?1:0, 1] },
+        { id: 'steady_hand', title: '三日之约', desc: '连续 3 天都有专注记录。', reward: 25,
+          condition: () => getStreak() >= 3, progress: () => [Math.min(getStreak(),3), 3] },
+        { id: 'seven_days', title: '一周常客', desc: '连续 7 天都有专注记录。', reward: 60,
+          condition: () => getStreak() >= 7, progress: () => [Math.min(getStreak(),7), 7] },
+        { id: 'clean_dive', title: '一尘不染', desc: '完成一次零中断的专注。', reward: 20,
+          condition: (p) => (p.focusHistory||[]).some(h => !h.partial && (h.interruptions||0) === 0 && (h.duration||0) >= 10),
+          progress: (p) => [(p.focusHistory||[]).some(h=>!h.partial&&(h.interruptions||0)===0&&(h.duration||0)>=10)?1:0, 1] },
+        { id: 'jack_of_all', title: '样样都来一点', desc: '用过 4 种以上的专注内容标签。', reward: 25,
+          condition: (p) => tagUsedCount(p) >= 4, progress: (p) => [Math.min(tagUsedCount(p),4), 4] },
+        { id: 'pen_and_ink', title: '落笔的人', desc: '写下 5 篇随笔。', reward: 20,
+          condition: (p) => (p.diaryEntries||[]).length >= 5, progress: (p) => [Math.min((p.diaryEntries||[]).length,5), 5] },
+        { id: 'early_bird', title: '晨光', desc: '在早上 5 点到 8 点之间完成专注。', reward: 15,
+          condition: (p) => (p.focusHistory||[]).some(h => { const hh = new Date(h.timestamp).getHours(); return hh>=5 && hh<8 && !h.partial; }),
+          progress: (p) => [(p.focusHistory||[]).some(h=>{const hh=new Date(h.timestamp).getHours();return hh>=5&&hh<8&&!h.partial;})?1:0, 1] },
+        { id: 'long_haul', title: '长途', desc: '完成一次 60 分钟以上的专注。', reward: 30,
+          condition: (p) => (p.focusHistory||[]).some(h => !h.partial && (h.duration||0) >= 60),
+          progress: (p) => [(p.focusHistory||[]).some(h=>!h.partial&&(h.duration||0)>=60)?1:0, 1] },
+        { id: 'collector', title: '收藏家', desc: '解锁 8 种饮品。', reward: 40,
+          condition: (p) => (p.unlockedDrinks||[]).length >= 8, progress: (p) => [Math.min((p.unlockedDrinks||[]).length,8), 8] },
+        { id: 'company_1h', title: '有人陪着', desc: '让 Cipher 陪你度过累计 1 小时。', reward: 20,
+          condition: (p) => (p.companyMinutes||0) >= 60, progress: (p) => [Math.min(p.companyMinutes||0,60), 60] },
+        { id: 'company_10h', title: '吧台两侧', desc: '让 Cipher 陪你度过累计 10 小时。', reward: 80,
+          condition: (p) => (p.companyMinutes||0) >= 600, progress: (p) => [Math.min(p.companyMinutes||0,600), 600] },
+        { id: 'poke_50', title: '打扰一下', desc: '戳了 Cipher 50 次。他从不介意。', reward: 15,
+          condition: (p) => (p.pokeCount||0) >= 50, progress: (p) => [Math.min(p.pokeCount||0,50), 50] }
     ];
+    function doneCount(p) { return (p.focusHistory || []).filter(h => !h.partial).length; }
+    function tagUsedCount(p) { return new Set((p.focusHistory||[]).map(h => h.tag || '默认')).size; }
 
     // --- 新增：Cipher 秘密库 (基于累计专注分钟数) ---
     const CIPHER_SECRETS = {
@@ -1259,31 +1609,32 @@
         { id: 'weather', user: ["这雨什么时候会停？", "外面好冷。", "这种天气真让人想睡觉。"] }
     ];
 
+    // 台词基调：绅士。温和但有分寸，关心藏在动作里，热情不外露。
     const bartenderResponses = {
         calm: {
-            tired: ["累了就歇会儿。在这里，时间是静止的。", "闭上眼，听听冰块融化的声音，不用急着赶路。"],
-            story: ["我的故事没什么特别的，只是在这吧台后面看了很久的人来人往。", "这里是时间的避难所。只要你愿意，它就存在。"],
-            advice: ["如果不知道方向，就先停下来。有时候，答案在静默中。", "做你现在能做的，剩下的交给时间。"],
-            weather: ["不用管外面的风雨。在这里，只有温暖的灯光。", "雨声是最好的白噪音，不是吗？"]
+            tired: ["水放在您手边了。累了就歇会儿，这里的时间是静止的。", "闭上眼，听听冰块融化的声音。不急着赶路。"],
+            story: ["我的故事没什么特别的，只是在这吧台后面看了很久的人来人往。", "这里是时间的避难所。您愿意坐，它就一直开着。"],
+            advice: ["如果不知道方向，就先停下来。有时候，答案在静默里。", "做您现在能做的那一步。剩下的，交给时间。"],
+            weather: ["外面的风雨交给外面。这里只有一盏灯，是给您的。", "雨声是最好的白噪音，不是吗？"]
         },
         melancholic: {
-            tired: ["疲惫是活着的证明，但也没必要一直逞强。", "把重担放下吧，哪怕只有几分钟。"],
+            tired: ["疲惫是活着的证明。不过也没必要一直逞强。", "把重担放下吧，哪怕只有几分钟。我替您看着门。"],
             story: ["故事往往都是关于遗憾的。我在这里，也许只是为了守住某些回忆。", "我们都是被困在琥珀里的虫子，挣扎也只是姿态。"],
-            advice: ["我也在寻找答案。或许，接受迷茫本身就是一种解脱。", "在这个混乱的世界里，能专注做好一件事就很奢侈了。"],
-            weather: ["这场雨让我想起了一个很久没见的人。", "阴天的时候，回忆总是特别清晰。"]
+            advice: ["我也在寻找答案。或许，接受迷茫本身就是一种解脱。", "这个世道里，能专注做好一件事，已经很奢侈了。"],
+            weather: ["这场雨让我想起一个很久没见的人。抱歉，说远了。", "阴天的时候，回忆总是特别清晰。"]
         },
         cheerful: {
-            tired: ["喝杯水休息一下，我相信你马上就能满血复活。", "辛苦了！这杯水我请客，为了你的努力。"],
-            story: ["我看过很多人在这里哭，但最后他们都笑着走出去了。", "这里唯一的秘密，就是这里的客人都很特别——比如你。"],
-            advice: ["别想太多，有时候直觉是最准的。", "我看好你。你的下一个计划一定会顺利的。"],
-            weather: ["不管外面怎么样，心里的天要是晴的就行。", "你不觉得这种天气很有情调吗？"]
+            tired: ["温水，不加冰。您先坐，剩下的事不急。", "辛苦了。这杯记我账上——只是杯水，别推辞。"],
+            story: ["我看过很多人在这里哭，最后都安安静静地走出去了。", "这里的客人都不算特别。只有一位，坐得比别人久些。"],
+            advice: ["想太多反而模糊。先做眼前这一件。", "这条路我走过。不一定顺，但值得走一趟。"],
+            weather: ["外面怎么样，跟这杯酒没关系。", "这种天气，适合把唱片翻到 B 面。"]
         }
     };
 
     const idleActions = {
-        calm: ["正在仔细擦拭一只水晶杯...", "正在阅读一张泛黄的旧报纸...", "整理着吧台后的酒瓶..."],
-        melancholic: ["望着窗外的雨丝出神...", "抚摸着一枚旧银戒...", "看着空酒杯发呆..."],
-        cheerful: ["哼着不知名的爵士小调...", "微笑着向您致意...", "正在尝试新的调酒配方..."]
+        calm: ["正在仔细擦拭一只水晶杯...", "正在阅读一张泛黄的旧报纸...", "整理着吧台后的酒瓶...", "给吧台后的旧怀表上弦..."],
+        melancholic: ["望着窗外的雨丝出神...", "抚摸着一枚旧银戒...", "看着空酒杯发呆...", "把唱针轻轻放回起始处..."],
+        cheerful: ["哼着不知名的爵士小调...", "微微颔首，向您致意...", "正在尝试新的调酒配方...", "把您常坐的位置擦了一遍..."]
     };
 
     // --- 状态数据 --
@@ -1304,7 +1655,26 @@ let state = {
     historyCalOffset: 0, 
     historySelectedDate: new Date(),
     vibrationEnabled: true, 
-    reminderInterval: null 
+    reminderInterval: null,
+    // v3
+    phase: 'focus',
+    endTime: null,
+    goal: '',
+    interruptions: 0,
+    cycleCount: 0,
+    coinMilestone: 0,
+    linkedTodoId: null,
+    autoNext: false,
+    awayAt: null,
+    lastProactiveAt: 0,
+    // v4：陪伴
+    companyStart: null,      // 本轮陪伴开始的时间戳
+    companyMark: 0,          // 本轮已说过的进度节点
+    companyMinMark: 0,       // 本轮已结算的陪伴分钟数
+    companyMood: 'idle',     // idle | focus | break | sleep
+    lastActivityAt: Date.now(),
+    bubbleTimer: null,
+    lastPokeAt: 0
 };
 let workHistory = [];
     let playerData = {
@@ -1357,32 +1727,39 @@ let workHistory = [];
         animate() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             const isDay = playerData.isDayMode;
-            
+            const mode = getParticleMode();
+
             this.ctx.fillStyle = isDay ? "rgba(255, 255, 255, 0.6)" : "rgba(174, 194, 224, 0.5)";
             this.ctx.strokeStyle = isDay ? "rgba(255, 255, 255, 0.4)" : "rgba(174, 194, 224, 0.3)";
-            
+
             this.particles.forEach(p => {
-                if(isDay) {
-                    // 白天：浮尘效果
+                if(isDay || mode === 'dust') {
+                    // 浮尘：向上飘
                     this.ctx.beginPath();
                     this.ctx.arc(p.x, p.y, Math.random() * 1.5, 0, Math.PI * 2);
                     this.ctx.fill();
-                    p.y -= p.speed * 0.2; // 向上浮动
+                    p.y -= p.speed * 0.2;
                     p.x += Math.sin(p.y * 0.01) * 0.5;
+                    if(p.y < -20) { p.y = this.canvas.height + 20; p.x = Math.random() * this.canvas.width; }
+                } else if(mode === 'snow') {
+                    // 雪：慢慢落，左右摇摆
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.len * 0.16 + 0.8, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    p.y += p.speed * 0.35;
+                    p.x += Math.sin((p.y + p.x) * 0.01) * 0.6;
+                    if(p.y > this.canvas.height) { p.y = -20; p.x = Math.random() * this.canvas.width; }
                 } else {
-                    // 晚上：下雨效果
+                    // 雨
                     this.ctx.beginPath();
                     this.ctx.moveTo(p.x, p.y);
                     this.ctx.lineTo(p.x, p.y + p.len);
                     this.ctx.stroke();
                     p.y += p.speed * 2;
+                    if(p.y > this.canvas.height) { p.y = -20; p.x = Math.random() * this.canvas.width; }
                 }
-
-                // 循环
-                if(p.y > this.canvas.height && !isDay) { p.y = -20; p.x = Math.random() * this.canvas.width; }
-                if(p.y < -20 && isDay) { p.y = this.canvas.height + 20; p.x = Math.random() * this.canvas.width; }
             });
-            
+
             requestAnimationFrame(() => this.animate());
         }
         
@@ -1401,7 +1778,7 @@ let workHistory = [];
 
         setInterval(() => {
             const now = new Date();
-            ui.clock.innerText = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+            ui.clock.textContent = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
             updatePetStatsLoop();
         }, 1000);
         
@@ -1411,23 +1788,106 @@ let workHistory = [];
         getWeatherAndGreet();
         startBartenderAI();
         updateCoinUI();
+
+        // v3：界面与状态恢复
+        applyScene();
+        refreshNoiseOptions();
+        renderQuickTags();
+        loadWorkHistory();
+        renderSessionStrip();
+        updateIntimacyUI();
+        restoreSession();
+        dailyPerkBonus();
         
         // 补丁：检查成就
         checkAchievements();
-        
-        // 防切屏检测
+
+        // v4：Cipher 的小人
+        updateCipherFigure();
+        updateNotifyBtn();
+        cipherIdleWatch();
+        ['mousedown','keydown','touchstart','wheel'].forEach(ev => {
+            document.addEventListener(ev, () => { state.lastActivityAt = Date.now(); }, { passive: true });
+        });
+
+        // 防切屏检测：专注中离开页面记为一次中断
         document.addEventListener("visibilitychange", () => {
-            if (document.hidden && state.isFocusing) {
-                addMessage("Cipher 皱了皱眉：“你刚才去哪了？时钟可是不会等人的。”", "bartender");
+            if (document.hidden) {
+                if (state.isFocusing && state.phase === 'focus' && !state.isPaused) {
+                    state.interruptions++;
+                    state.awayAt = Date.now();
+                    persistSession();
+                    renderSessionStrip();
+                    addMessage("Cipher 皱了皱眉：“你刚才去哪了？时钟可是不会等人的。”", "bartender");
+                }
+            } else {
+                state.awayAt = null;
             }
         });
+
+        // 快捷键
+        document.addEventListener('keydown', (e) => {
+            const tag = (e.target && e.target.tagName) || '';
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            if (document.querySelector('.modal-overlay.open')) return;
+            if (e.code === 'Space') { e.preventDefault(); if(state.isFocusing) togglePauseFocus(); else startFocus(); }
+            else if (e.key === 'Escape') { closeAllModals(); }
+            else if (e.key === 'i' || e.key === 'I') { toggleImmersive(); }
+        });
+
+        // 每日重置提醒标记
+        const today = new Date().toDateString();
+        if (playerData.lastReminderDay !== today) {
+            playerData.todoList.forEach(t => { if(t.time) t.alerted = false; });
+            playerData.lastReminderDay = today;
+            saveData();
+        }
+
+        // Cipher 主动搭话
+        setTimeout(proactiveCheck, 8000);
+        setInterval(proactiveCheck, 120000);
     };
+
+    function closeAllModals() {
+        document.querySelectorAll('.modal-overlay.open').forEach(m => {
+            if(m.id === 'modal-review') return;
+            m.classList.remove('open');
+        });
+    }
+
+    // 存档字段补全（加载与导入共用）
+    function migratePlayerData() {
+        if (!playerData.periodLogs) playerData.periodLogs = [];
+        if (!playerData.diaryEntries) playerData.diaryEntries = [];
+        if (!playerData.focusHistory) playerData.focusHistory = [];
+        if (!playerData.tags) playerData.tags = ["阅读", "代码", "写作", "设计", "发呆"];
+        if (!playerData.todoList) playerData.todoList = [];
+        if (!playerData.achievements) playerData.achievements = [];
+        if (!playerData.unlockedDrinks) playerData.unlockedDrinks = ['water'];
+        if (!playerData.totalFocusMinutes) playerData.totalFocusMinutes = 0;
+        if (!playerData.inventory) playerData.inventory = { fishFood: 0 };
+        if (!playerData.ownedFish) playerData.ownedFish = [];
+        if (!playerData.ownedScenes) playerData.ownedScenes = ['default_night'];
+        if (!playerData.ownedRecords) playerData.ownedRecords = [];
+        if (!playerData.ownedPerks) playerData.ownedPerks = [];
+        if (!playerData.scene) playerData.scene = 'default_night';
+        if (!playerData.record) playerData.record = '';
+        if (playerData.intimacy == null) playerData.intimacy = 0;
+        if (!playerData.cipherMemory) playerData.cipherMemory = { lastGoal: '', lastMood: '', facts: [] };
+        if (playerData.companyMinutes == null) playerData.companyMinutes = 0;
+        if (playerData.companySessions == null) playerData.companySessions = 0;
+        if (playerData.pokeCount == null) playerData.pokeCount = 0;
+        if (!playerData.companyMiles) playerData.companyMiles = [];
+        playerData.focusHistory.forEach(h => { if(h.partial == null) h.partial = false; if(h.interruptions == null) h.interruptions = 0; });
+        playerData.todoList.forEach(t => { if(!t.id) t.id = 't' + Math.random().toString(36).slice(2,9); if(t.pomoDone == null) t.pomoDone = 0; });
+        playerData.schemaVersion = SCHEMA_VERSION;
+    }
     
     // --- 轻提示 (Toast) 系统 ---
     function showToast(text, duration = 3000) {
         const toast = document.createElement('div');
         toast.className = 'toast-message';
-        toast.innerText = text;
+        toast.textContent = text;
         ui.toastContainer.appendChild(toast);
         
         setTimeout(() => {
@@ -1486,16 +1946,30 @@ let workHistory = [];
     function updateStatusUI() {
         const actions = idleActions[state.mood];
         const action = actions[Math.floor(Math.random() * actions.length)];
-        ui.statusText.innerText = `Cipher ${action}`;
+        ui.statusText.textContent = `Cipher ${action}`;
         const colors = { calm: '#d4af37', melancholic: '#a8a8ff', cheerful: '#ffb366' };
         ui.moodDot.style.backgroundColor = colors[state.mood];
     }
 
     // --- 数据存取 ---
+    const SCHEMA_VERSION = 3;
+
     function saveData() {
-        localStorage.setItem('driftwood_v2_data', JSON.stringify(playerData));
-        localStorage.setItem('driftwood_history', ui.historyList.innerHTML);
-        localStorage.setItem('driftwood_count', state.completedCount);
+        try {
+            playerData.schemaVersion = SCHEMA_VERSION;
+            localStorage.setItem('driftwood_v2_data', JSON.stringify(playerData));
+            localStorage.setItem('driftwood_count', String(state.completedCount));
+            // 每日快照：保留最近 3 份，可在账单里回滚
+            try {
+                const snaps = JSON.parse(localStorage.getItem('driftwood_snapshots') || '[]');
+                const today = new Date().toDateString();
+                if(!snaps.length || snaps[snaps.length-1].day !== today) {
+                    snaps.push({ day: today, ts: Date.now(), data: JSON.stringify(playerData) });
+                    while(snaps.length > 3) snaps.shift();
+                    localStorage.setItem('driftwood_snapshots', JSON.stringify(snaps));
+                }
+            } catch(e) {}
+        } catch(e) { console.error('saveData failed', e); }
     }
 
     function loadData() {
@@ -1509,9 +1983,7 @@ let workHistory = [];
                 if (!playerData.focusHistory) playerData.focusHistory = [];
                 if (!playerData.tags) playerData.tags = ["阅读", "代码", "写作", "设计", "发呆"];
                 if (!playerData.todoList) playerData.todoList = [];
-                if (!playerData.achievements) playerData.achievements = [];
-                if (!playerData.unlockedDrinks) playerData.unlockedDrinks = ['water'];
-                if (!playerData.totalFocusMinutes) playerData.totalFocusMinutes = 0;
+                migratePlayerData();
             } catch(e) { console.error("Data Parse Error", e); }
         } else {
             const oldData = localStorage.getItem('driftwood_data');
@@ -1548,7 +2020,7 @@ let workHistory = [];
                 const data = JSON.parse(e.target.result);
                 if (data && typeof data === 'object' && data.player) {
                     playerData = data.player;
-                    // 兼容处理略
+                    migratePlayerData();
                     state.completedCount = data.count || 0;
                     saveData(); alert("存档导入成功！页面将自动刷新。"); location.reload();
                 } else throw new Error("结构不完整");
@@ -1557,137 +2029,633 @@ let workHistory = [];
         reader.readAsText(file); input.value = '';
     }
 
-    // --- 专注逻辑 ---
-    
-    function startFocus() {
-        let m = parseInt(ui.customInput.value) || 25;
-        state.timeLeft = m * 60; 
-        state.initialTime = state.timeLeft; 
-        state.elapsedFocusTime = 0; 
-        state.isFocusing = true;
-        state.isPaused = false;
-        
-        // UI 切换：隐藏开始按钮，显示暂停/取消组
-        document.getElementById('btn-start-focus').style.display = 'none';
-        const group = document.getElementById('focusing-btn-group');
-        group.style.display = 'grid';
-        
-        // 确保布局正确
-        document.querySelector('.action-row').style.gridTemplateColumns = '1fr'; 
-        // 隐藏随心饮和闲聊按钮，防止分心
-        const btns = document.querySelectorAll('.action-row > button:not(#btn-start-focus)');
-        btns.forEach(b => {
-            // 排除我们自己的暂停取消组
-            if(b.parentElement.id !== 'focusing-btn-group') b.style.display = 'none';
-        });
-        
-        ui.timeSetterBox.style.display = 'none';
-        ui.statusText.innerText = "Cipher 将沙漏倒置...";
-        
-        initAudioContext(); 
-        ui.bgm.play().catch(e=>{});
-        
-        addMessage(`我知道了，这${m}分钟我会一直陪伴您。`, "bartender");
-        
-        // 启动计时器
-        if(state.timerId) clearInterval(state.timerId);
-        state.timerId = setInterval(timerTick, 1000);
+    // --- 专注逻辑 (v3：时间戳驱动 · 阶段循环 · 打断记录 · 断点续计) ---
+
+    const PHASE_CONF = {
+        focus: { label: '专注', badge: '' },
+        short: { label: '短休', badge: 'break' },
+        long:  { label: '长休', badge: 'long' }
+    };
+
+    const SESSION_KEY = 'driftwood_session_v3';
+
+    function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function getFocusMinutes() { return Math.max(1, Math.min(180, parseInt(ui.customInput.value) || 25)); }
+    function getTodayFocus() {
+        const d0 = new Date(); d0.setHours(0,0,0,0);
+        const logs = (playerData.focusHistory || []).filter(h => h.timestamp >= d0.getTime() && !h.partial);
+        return { count: logs.length, mins: logs.reduce((s,h) => s + (h.duration || 0), 0) };
+    }
+    function getStreak() {
+        const days = new Set((playerData.focusHistory || []).filter(h => !h.partial).map(h => { const d = new Date(h.timestamp); d.setHours(0,0,0,0); return d.getTime(); }));
+        let n = 0; const cur = new Date(); cur.setHours(0,0,0,0);
+        if(!days.has(cur.getTime())) cur.setDate(cur.getDate() - 1);
+        while(days.has(cur.getTime())) { n++; cur.setDate(cur.getDate() - 1); }
+        return n;
     }
 
-    function timerTick() {
-        if(state.isPaused) return; // 暂停时不走字
-
-        state.timeLeft--; 
-        state.elapsedFocusTime++;
-        
-        let min = Math.floor(state.timeLeft/60), sec = state.timeLeft%60;
-        ui.timerDisplay.innerText = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-        
-        // 掉落金币逻辑
-        if (state.elapsedFocusTime>0 && state.elapsedFocusTime%60===0) {
-            playerData.coins++; updateCoinUI(); 
-            // 专注时静默掉落，不弹窗打扰，只闪烁金币
-            ui.coinCount.classList.add('coin-anim'); setTimeout(()=>ui.coinCount.classList.remove('coin-anim'),300); saveData();
+    function persistSession() {
+        if(state.isFocusing || state.isPaused) {
+            localStorage.setItem(SESSION_KEY, JSON.stringify({
+                phase: state.phase, endTime: state.endTime, timeLeft: state.timeLeft,
+                initialTime: state.initialTime, goal: state.goal, tag: state.currentFocusTag,
+                interruptions: state.interruptions, cycle: state.cycleCount,
+                coinMilestone: state.coinMilestone, paused: state.isPaused, linked: state.linkedTodoId || null
+            }));
+        } else {
+            localStorage.removeItem(SESSION_KEY);
         }
-        
-        if (state.timeLeft<=0) finishFocus();
+    }
+
+    function restoreSession() {
+        const raw = localStorage.getItem(SESSION_KEY);
+        if(!raw) return;
+        let s = null;
+        try { s = JSON.parse(raw); } catch(e) { localStorage.removeItem(SESSION_KEY); return; }
+        if(!s || !s.initialTime) { localStorage.removeItem(SESSION_KEY); return; }
+
+        let remain = s.paused ? (s.timeLeft || 0) : Math.round(((s.endTime || 0) - Date.now()) / 1000);
+        if(remain <= 0) {
+            localStorage.removeItem(SESSION_KEY);
+            addMessage("（Cipher 擦了擦那只杯子）你上次那一轮，没能陪到最后。没关系，杯子还温着。", "bartender");
+            return;
+        }
+        state.phase = s.phase || 'focus';
+        state.initialTime = s.initialTime;
+        state.timeLeft = remain;
+        state.endTime = s.paused ? null : s.endTime;
+        state.goal = s.goal || '';
+        state.currentFocusTag = s.tag || '默认';
+        state.interruptions = s.interruptions || 0;
+        state.cycleCount = s.cycle || 0;
+        state.coinMilestone = s.coinMilestone || 0;
+        state.linkedTodoId = s.linked || null;
+        state.isFocusing = true;
+        state.isPaused = !!s.paused;
+        document.getElementById('focus-goal-input').value = state.goal;
+        enterRunningUI();
+        beginCompany(state.initialTime - remain);
+        addMessage(`（Cipher 抬眼）您回来了。还剩 ${Math.ceil(remain/60)} 分钟，位置我替您留着。`, "bartender");
+        showCipherBubble("（他把书重新摊开）继续。", 4000);
+        startTicking();
+    }
+
+    function startTicking() {
+        if(state.timerId) clearInterval(state.timerId);
+        state.timerId = setInterval(timerTick, 500);
+        timerTick();
+    }
+
+    function beginPhase(phase, minutes) {
+        state.phase = phase;
+        state.initialTime = minutes * 60;
+        state.timeLeft = state.initialTime;
+        state.endTime = Date.now() + state.initialTime * 1000;
+        state.isFocusing = true;
+        state.isPaused = false;
+        state.interruptions = 0;
+        state.elapsedFocusTime = 0;
+        state.coinMilestone = 0;
+        enterRunningUI();
+        beginCompany();
+        startTicking();
+        initAudioContext();
+        startAmbient();
+        persistSession();
+    }
+
+    function startFocus(auto) {
+        if(state.isFocusing) return;
+        const m = getFocusMinutes();
+        if(!auto) state.goal = (document.getElementById('focus-goal-input').value || '').trim();
+        beginPhase('focus', m);
+        ui.statusText.textContent = "Cipher 将沙漏倒置...";
+        addMessage(state.goal ? `「${state.goal}」——这 ${m} 分钟，门我替你看着。` : `我知道了，这 ${m} 分钟我会一直陪伴您。`, "bartender");
+    }
+
+    function startBreak() {
+        const isLong = (state.cycleCount > 0) && (state.cycleCount % 4 === 0);
+        const mins = isLong ? 15 : 5;
+        beginPhase(isLong ? 'long' : 'short', mins);
+        ui.statusText.textContent = "Cipher 换了一张唱片...";
+        addMessage(isLong ? `已经四轮了。去窗边站一会儿，${mins} 分钟后再回来。` : `把笔放下吧，${mins} 分钟。杯子我给您续上。`, "bartender");
+        showCipherBubble(pick(BREAK_LINES), 5000);
+    }
+
+    function enterRunningUI() {
+        document.getElementById('btn-start-focus').style.display = 'none';
+        document.getElementById('focusing-btn-group').style.display = 'grid';
+        document.querySelector('.action-row').style.gridTemplateColumns = '1fr';
+        document.querySelectorAll('.action-row > button:not(#btn-start-focus)').forEach(b => {
+            if(b.parentElement.id !== 'focusing-btn-group') b.style.display = 'none';
+        });
+        ui.timeSetterBox.style.display = 'none';
+        document.getElementById('focus-goal-input').readOnly = true;
+
+        const badge = document.getElementById('phase-badge');
+        const conf = PHASE_CONF[state.phase] || PHASE_CONF.focus;
+        badge.style.display = 'inline-block';
+        badge.className = 'phase-badge ' + conf.badge;
+        badge.textContent = conf.label;
+
+        const pauseBtn = document.getElementById('btn-pause-focus');
+        if(pauseBtn) pauseBtn.textContent = state.isPaused ? "▶ 继续" : "⏸ 暂停";
+        renderSessionStrip();
+    }
+
+    function exitRunningUI() {
+        if(state.timerId) { clearInterval(state.timerId); state.timerId = null; }
+        endCompany();
+        state.isFocusing = false;
+        state.isPaused = false;
+        stopAmbient();
+
+        document.getElementById('btn-start-focus').style.display = 'block';
+        document.getElementById('focusing-btn-group').style.display = 'none';
+        document.getElementById('btn-pause-focus').textContent = "⏸ 暂停";
+        document.querySelectorAll('.action-row > button:not(#btn-start-focus)').forEach(b => {
+            if(b.parentElement.id !== 'focusing-btn-group') b.style.display = 'block';
+        });
+        document.querySelector('.action-row').style.gridTemplateColumns = '1.2fr 1fr 1fr';
+        ui.timeSetterBox.style.display = 'flex';
+        document.getElementById('phase-badge').style.display = 'none';
+        document.getElementById('focus-goal-input').readOnly = false;
+        ui.timerDisplay.textContent = `${getFocusMinutes().toString().padStart(2,'0')}:00`;
+        renderSessionStrip();
+    }
+
+    function stopTimerAndReset() { exitRunningUI(); persistSession(); }
+
+    function timerTick() {
+        if(!state.isFocusing || state.isPaused) return;
+        const remain = Math.max(0, Math.round((state.endTime - Date.now()) / 1000));
+        state.timeLeft = remain;
+        const elapsed = state.initialTime - remain;
+        state.elapsedFocusTime = elapsed;
+        ui.timerDisplay.textContent = `${Math.floor(remain/60).toString().padStart(2,'0')}:${(remain%60).toString().padStart(2,'0')}`;
+
+        if(state.phase === 'focus') {
+            const earned = Math.floor(elapsed / 60);
+            if(earned > (state.coinMilestone || 0)) {
+                let gain = earned - (state.coinMilestone || 0);
+                if(hasPerk('hourglass')) {
+                    state.coinFrac = (state.coinFrac || 0) + gain * 0.25;
+                    const extra = Math.floor(state.coinFrac);
+                    if(extra > 0) { state.coinFrac -= extra; gain += extra; }
+                }
+                state.coinMilestone = earned;
+                playerData.coins += gain;
+                updateCoinUI();
+                ui.coinCount.classList.add('coin-anim');
+                setTimeout(() => ui.coinCount.classList.remove('coin-anim'), 300);
+                saveData();
+            }
+            // 旧怀表：结束前一分钟轻敲一下
+            if(hasPerk('watch') && remain <= 60 && remain > 55 && !state.preAlerted) {
+                state.preAlerted = true;
+                showToast("⌚ Cipher 轻轻敲了下桌子——还有一分钟。");
+                triggerAlert("还有一分钟。", false);
+            }
+        }
+        companyTick();
+        if(remain <= 0) finishPhase();
     }
 
     function togglePauseFocus() {
+        if(!state.isFocusing) return;
         state.isPaused = !state.isPaused;
         const btn = document.getElementById('btn-pause-focus');
         if(state.isPaused) {
-            btn.innerText = "▶ 继续";
-            ui.statusText.innerText = "Cipher 暂时放下了沙漏中的隔板...";
-            ui.bgm.pause();
+            state.timeLeft = Math.max(0, Math.round((state.endTime - Date.now()) / 1000));
+            state.endTime = null;
+            btn.textContent = "▶ 继续";
+            ui.statusText.textContent = "Cipher 暂时放下了沙漏中的隔板...";
+            stopAmbient();
+            if(state.phase === 'focus') { state.interruptions++; cipherOnPause(); }
         } else {
-            btn.innerText = "⏸ 暂停";
-            ui.statusText.innerText = "沙漏继续流逝...";
-            ui.bgm.play().catch(()=>{});
+            state.endTime = Date.now() + state.timeLeft * 1000;
+            btn.textContent = "⏸ 暂停";
+            ui.statusText.textContent = "沙漏继续流逝...";
+            startAmbient();
+            cipherOnResume();
         }
+        renderSessionStrip();
+        persistSession();
+        updateCipherFigure();
     }
 
     function cancelFocus() {
-        if(!confirm("确定要放弃本次专注吗？进度将不会保存。")) return;
+        if(state.phase !== 'focus') { stopTimerAndReset(); return; }
+        const doneMins = Math.floor((state.initialTime - state.timeLeft) / 60);
+        if(!confirm("确定要放弃本次专注吗？" + (doneMins >= 1 ? `已沉潜的 ${doneMins} 分钟会记入账单。` : "这一段不会记入账单。"))) return;
         stopTimerAndReset();
-        addMessage("没关系，调整一下状态再来。", "bartender");
-    }
-
-    function finishFocus() {
-        stopTimerAndReset();
-        triggerAlert("时间到了。辛苦了。", true);
-        ui.statusText.innerText = "Cipher 递给您温水...";
-        
-        const durationMins = Math.round(state.initialTime/60);
-        // 保存记录
-        const historyItem = { timestamp: Date.now(), duration: durationMins, tag: state.currentFocusTag };
-        if(!playerData.focusHistory) playerData.focusHistory = [];
-        playerData.focusHistory.push(historyItem);
-        playerData.totalFocusMinutes += durationMins;
-        state.completedCount++; 
-        
-        // 成就检查
-        const hour = new Date().getHours();
-        if (hour >= 0 && hour < 4) triggerAchievement('night_owl');
-        checkAchievements();
-        rollForDrink(durationMins);
-        saveData();
-        
-        // 刷新列表
-        if(ui.modalStore.classList.contains('open') && document.querySelector('.store-tab.active').innerText === '货架') {
-            renderShopItems();
+        if(doneMins >= 1) {
+            saveFocusRecord(doneMins, true, state.interruptions);
+            addMessage(`（Cipher 收走杯子）${doneMins} 分钟，我替你记下了。下次，坐久一点。`, "bartender");
+        } else {
+            addMessage("没关系，调整一下状态再来。", "bartender");
         }
     }
 
-    function stopTimerAndReset() {
-        clearInterval(state.timerId); 
-        state.isFocusing = false; 
-        state.isPaused = false;
-        ui.bgm.pause();
-        
-        // UI 恢复
-        document.getElementById('btn-start-focus').style.display = 'block';
-        document.getElementById('focusing-btn-group').style.display = 'none';
-        document.getElementById('btn-pause-focus').innerText = "⏸ 暂停";
-        
-        // 恢复其他按钮
-        const btns = document.querySelectorAll('.action-row > button:not(#btn-start-focus)');
-        btns.forEach(b => {
-             // 排除暂停取消组
-             if(b.parentElement.id !== 'focusing-btn-group') b.style.display = 'block';
+    function saveFocusRecord(mins, partial, interruptions) {
+        if(!playerData.focusHistory) playerData.focusHistory = [];
+        playerData.focusHistory.push({
+            timestamp: Date.now(), duration: mins, tag: state.currentFocusTag,
+            goal: state.goal || '', partial: !!partial, interruptions: interruptions || 0
         });
-        document.querySelector('.action-row').style.gridTemplateColumns = '1.2fr 1fr 1fr';
-        
+        playerData.totalFocusMinutes = (playerData.totalFocusMinutes || 0) + mins;
+        if(state.linkedTodoId) advanceTodoPomodoro(state.linkedTodoId);
+        saveData();
+    }
+
+    function finishPhase() {
+        const phase = state.phase;
+        const mins = Math.round(state.initialTime / 60);
+        const interruptions = state.interruptions || 0;
+        const autoNext = state.autoNext;
+        stopTimerAndReset();
+
+        if(phase === 'focus') {
+            triggerAlert("时间到了。辛苦了。", true);
+            ui.statusText.textContent = "Cipher 递给您温水...";
+            state.cycleCount++;
+            state.completedCount++;
+            saveFocusRecord(mins, false, interruptions);
+            const hour = new Date().getHours();
+            if(hour >= 0 && hour < 4) triggerAchievement('night_owl');
+            checkAchievements();
+            rollForDrink(mins);
+            checkDirectedDrinks();
+            bumpIntimacy(1);
+            state.preAlerted = false;
+            let bonus = 0;
+            if(hasPerk('coaster')) bonus += 2;
+            bonus += fishBonus();
+            if(bonus > 0) {
+                playerData.coins += bonus;
+                updateCoinUI();
+                const parts = [];
+                if(hasPerk('coaster')) parts.push('杯垫');
+                const fb = fishBonus();
+                if(fb > 0) parts.push(`${fb} 条精神的鱼`);
+                addMessage(`（吧台上多了 ${bonus} 枚硬币）${parts.join('、')}替你留的。`, "event");
+            }
+            openReview(mins, interruptions);
+        } else {
+            triggerAlert("休息结束。", false);
+            ui.statusText.textContent = "Cipher 翻过一页书...";
+            if(autoNext) {
+                addMessage("休息够了。下一轮，我替你把沙漏再倒一次。", "bartender");
+                startFocus(true);
+            } else {
+                addMessage("休息够了。下一个 25 分钟，随时可以开始。", "bartender");
+            }
+        }
+        saveData();
+        if(ui.modalStore.classList.contains('open')) renderShopItems();
+    }
+
+    function renderSessionStrip() {
+        const el = document.getElementById('session-strip');
+        if(!el) return;
+        const t = getTodayFocus();
+        const n = Math.min(t.count, 8);
+        let dots = '';
+        if(n === 0) dots = '<span class="tomato-dot">🍅</span>';
+        else { for(let i = 0; i < n; i++) dots += '<span class="tomato-dot done">🍅</span>'; }
+        if(t.count > 8) dots += `<span class="strip-note">×${t.count}</span>`;
+        const link = state.linkedTodoId ? `<span class="strip-note">▸ ${escapeHtml(getTodoText(state.linkedTodoId))}</span>` : '';
+        const pauseInfo = (state.isFocusing && state.phase === 'focus' && state.interruptions) ? `<span class="strip-note">· 中断 ${state.interruptions}</span>` : '';
+        el.innerHTML = `${dots}<span class="strip-note">今日 ${t.mins} 分 · 连续 ${getStreak()} 天</span>${pauseInfo}${link}`;
+    }
+
+    function openReview(mins, interruptions) {
+        const t = getTodayFocus();
+        const purity = Math.max(0, Math.round(100 - interruptions * 25));
+        const body = document.getElementById('review-body');
+        const goalLine = state.goal ? `<div class="review-stat"><span>你原本想做的事</span><b style="font-size:0.85em;">${escapeHtml(state.goal)}</b></div>` : '';
+        const compMins = state.lastCompanyMins || mins;
+        body.innerHTML = `
+            ${goalLine}
+            <div class="review-stat"><span>沉潜时长</span><b>${mins} 分钟</b></div>
+            <div class="review-stat"><span>中断次数</span><b>${interruptions} 次</b></div>
+            <div class="review-stat"><span>今日累计</span><b>${t.count} 次 · ${t.mins} 分钟</b></div>
+            <div class="review-stat"><span>他陪了你</span><b>${compMins} 分钟</b></div>
+            <div class="purity-bar"><div class="purity-fill" style="width:${purity}%"></div></div>
+            <div class="purity-note">纯净度 ${purity}%</div>
+        `;
+        document.getElementById('review-note').value = '';
+        document.getElementById('modal-review').classList.add('open');
+    }
+
+    function closeReview(goBreak) {
+        document.getElementById('modal-review').classList.remove('open');
+        const note = (document.getElementById('review-note').value || '').trim();
+        if(note) {
+            if(!playerData.diaryEntries) playerData.diaryEntries = [];
+            playerData.diaryEntries.push({ id: Date.now().toString(), timestamp: Date.now(), content: note, fromFocus: true });
+            saveData();
+            showToast("这句话，我替你收进日记了。");
+        }
+        if(goBreak) { state.autoNext = true; startBreak(); }
+        else { state.autoNext = false; addMessage("（Cipher 把灯留着）随时回来。", "bartender"); }
+    }
+
+    function toggleImmersive() {
+        document.body.classList.toggle('immersive-mode');
+        const on = document.body.classList.contains('immersive-mode');
+        document.getElementById('immersive-exit').style.display = on ? 'block' : 'none';
+        if(on) addMessage("（Cipher 把灯调暗了些，这屋里只剩下您和这只沙漏。）", "event");
+        updateCipherFigure();
+    }
+
+    /* ============================================================
+       v4：Cipher 的小人 + 陪伴系统
+       他不是装饰。你坐下来的时候，他也坐下来——只是坐在吧台那一侧。
+       ============================================================ */
+
+    // 陪伴里程碑（累计陪伴分钟数）
+    const COMPANY_MILES = [
+        { min: 60,   line: "（Cipher 合上书）不知不觉，一个小时了。您专心的时候，这屋子格外安静。" },
+        { min: 180,  line: "（Cipher 换了张唱片）三个小时。我不记得上一次有人在我对面坐这么久，是什么时候了。" },
+        { min: 600,  line: "（Cipher 推过来一只新的杯垫）十个小时。这个位子，往后就是您的了。" },
+        { min: 1500, line: "（Cipher 停下手里的活）二十五个小时——比一天还长。谢谢您愿意把这段时间放在这里。" },
+        { min: 3000, line: "（Cipher 斟了两杯，一杯推到您面前）五十个小时。这杯不收钱。" }
+    ];
+
+    // 专注途中他会说的话。绅士的分寸：极短，说完好让你继续。
+    const COMPANY_MARK_LINES = {
+        1: ["（他翻过一页书，没有抬头）", "（Cipher 替您把凉掉的水换了一杯）", "（唱针走到头，他起身换了面，动作很轻）", "（他把窗子关小了一点，雨声轻了下来）"],
+        2: ["（Cipher 抬眼看了看沙漏，又低下头）", "（他往您的方向推了推碟子里的坚果）", "（Cipher 在吧台那头也坐着，看着自己的书）", "（他把灯又调亮了半格）"],
+        3: ["（Cipher 合上书，等着）快到了。", "（他站起来，往沙漏那边看了一眼）", "（Cipher 把唱片的音量调低）就快了。", "（他没有说话，只是把杯子摆正）"]
+    };
+
+    // 休息时
+    const BREAK_LINES = [
+        "（Cipher 给自己也倒了一杯）这一杯，慢慢喝。",
+        "（他把凳子往您那边挪了挪）歇会儿，不着急。",
+        "（Cipher 靠在吧台后面）休息也是正事。",
+        "（他推开窗一条缝）换口气。"
+    ];
+
+    // 戳他一下
+    const POKE_LINES_IDLE = [
+        "（Cipher 从书里抬起头）嗯？需要什么，您说。",
+        "（他放下手里的杯子）我在。",
+        "（Cipher 微微侧身）有什么吩咐？",
+        "（他看了您一眼，又低头擦那只杯子）",
+        "（Cipher 把怀表合上）您说。",
+        "（他轻轻颔首）听着呢。",
+        "（Cipher 指了指空着的凳子）坐。",
+        "（他往您这边推了推水）别光顾着看我。"
+    ];
+    const POKE_LINES_FOCUS = [
+        "（Cipher 没有抬头，只把手指竖在唇边）",
+        "（他极轻地点了下头，意思是：继续）",
+        "（Cipher 用眼神把您送回沙漏那边）",
+        "（他把水杯往您手边挪近一寸，什么也没说）",
+        "（Cipher 翻过一页书）还差一点。",
+        "（他抬手看了看怀表，又放了下去）"
+    ];
+    const POKE_LINES_SLEEP = [
+        "（Cipher 惊醒，扶了扶单片眼镜）……抱歉，您继续。",
+        "（他猛地坐直，把书捡起来）我没有睡着。",
+        "（Cipher 眨了眨眼）只是闭目。您要什么？"
+    ];
+
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    // 小人状态切换
+    function setCipherState(mode) {
+        const fig = document.getElementById('cipher-figure');
+        if(!fig) return;
+        fig.classList.remove('st-focus', 'st-break', 'st-sleep');
+        if(mode && mode !== 'idle') fig.classList.add('st-' + mode);
+        state.companyMood = mode || 'idle';
+        const view = document.querySelector('#cipher-view-stage .cipher-figure');
+        if(view) {
+            view.classList.remove('st-focus', 'st-break', 'st-sleep');
+            if(mode && mode !== 'idle') view.classList.add('st-' + mode);
+        }
+    }
+
+    function updateCipherFigure() {
+        if(state.isFocusing) {
+            setCipherState(state.phase === 'focus' ? 'focus' : 'break');
+        } else {
+            const idleMs = Date.now() - (state.lastActivityAt || Date.now());
+            setCipherState(idleMs > 8 * 60 * 1000 ? 'sleep' : 'idle');
+        }
+        updateCipherCompany();
+    }
+
+    // 气泡：他说一句很短的话
+    function showCipherBubble(text, ms) {
+        if(!text) return;
+        if(state.isFocusing && state.phase === 'focus' && Math.random() < 0.25) return; // 专注时更吝啬
+        const b = document.getElementById('cipher-bubble');
+        if(!b) return;
+        b.textContent = text;
+        b.classList.add('show');
+        if(state.bubbleTimer) clearTimeout(state.bubbleTimer);
+        state.bubbleTimer = setTimeout(() => b.classList.remove('show'), ms || 4500);
+    }
+
+    function fmtCompany(mins) {
+        const m = Math.floor(mins || 0);
+        if(m < 60) return m + ' 分';
+        const h = Math.floor(m / 60), r = m % 60;
+        return r ? `${h} 时 ${r} 分` : `${h} 小时`;
+    }
+
+    function updateCipherCompany() {
+        const el = document.getElementById('cipher-company');
+        if(!el) return;
+        const total = playerData.companyMinutes || 0;
+        if(state.isFocusing && state.companyStart) {
+            const cur = Math.floor((Date.now() - state.companyStart) / 60000);
+            el.textContent = state.isPaused ? `陪您 ${cur} 分 · 他也在等` : `陪您 ${cur} 分`;
+        } else if(total > 0) {
+            el.textContent = `已陪您 ${fmtCompany(total)}`;
+        } else {
+            el.textContent = '他就在这儿';
+        }
+    }
+
+    // 陪伴计时（在 timerTick 里调用）
+    function companyTick() {
+        if(!state.isFocusing || state.isPaused) return;
+        setCipherState(state.phase === 'focus' ? 'focus' : 'break');
+
+        const elapsed = state.initialTime - Math.max(0, state.timeLeft);
+        if(state.phase === 'focus') {
+            // 每满一分钟，计入陪伴时长
+            const earned = Math.floor(elapsed / 60);
+            if(earned > (state.companyMinMark || 0)) {
+                playerData.companyMinutes = (playerData.companyMinutes || 0) + (earned - (state.companyMinMark || 0));
+                state.companyMinMark = earned;
+                saveData();
+                checkCompanyMiles();
+            }
+            // 1/3、2/3、尾声，他各说一句
+            const frac = state.initialTime ? elapsed / state.initialTime : 0;
+            const mark = frac >= 0.92 ? 3 : (frac >= 0.66 ? 2 : (frac >= 0.33 ? 1 : 0));
+            if(mark > (state.companyMark || 0)) {
+                state.companyMark = mark;
+                const pool = COMPANY_MARK_LINES[mark] || [];
+                if(mark === 3 || Math.random() < 0.5) showCipherBubble(pick(pool), mark === 3 ? 6000 : 4200);
+            }
+        }
+        updateCipherCompany();
+    }
+
+    // elapsedSec：用于断点续计时，避免把已经陪过的分钟重复计算一遍
+    function beginCompany(elapsedSec) {
+        const e = Math.max(0, Math.floor((elapsedSec || 0)));
+        state.companyStart = Date.now() - e * 1000;
+        state.companyMinMark = Math.floor(e / 60);
+        const frac = state.initialTime ? (e / state.initialTime) : 0;
+        state.companyMark = frac >= 0.66 ? 2 : (frac >= 0.33 ? 1 : 0);
+        state.lastActivityAt = Date.now();
+        updateCipherFigure();
+    }
+
+    function endCompany() {
+        state.lastCompanyMins = 0;
+        if(state.companyStart && state.phase === 'focus') {
+            const mins = Math.floor((Date.now() - state.companyStart) / 60000);
+            state.lastCompanyMins = mins;
+            if(mins >= 1) playerData.companySessions = (playerData.companySessions || 0) + 1;
+        }
+        state.companyStart = null;
+        state.companyMark = 0;
+        state.companyMinMark = 0;
+        state.lastActivityAt = Date.now();
+        saveData();
+        updateCipherFigure();
+    }
+
+    function checkCompanyMiles() {
+        if(!playerData.companyMiles) playerData.companyMiles = [];
+        const total = playerData.companyMinutes || 0;
+        COMPANY_MILES.forEach(m => {
+            if(total >= m.min && !playerData.companyMiles.includes(m.min)) {
+                playerData.companyMiles.push(m.min);
+                saveData();
+                addMessage(m.line, "bartender");
+                bumpIntimacy(2);
+                showCipherBubble("……", 3000);
+                checkAchievements();
+            }
+        });
+    }
+
+    // 戳他
+    function pokeCipher() {
+        const fig = document.getElementById('cipher-figure');
+        state.lastActivityAt = Date.now();
+        // 双击会连发两次 click，忽略第二次
+        if(Date.now() - (state.lastPokeAt || 0) < 300) return;
+        state.lastPokeAt = Date.now();
+        playerData.pokeCount = (playerData.pokeCount || 0) + 1;
+
+        if(fig) {
+            fig.classList.remove('poked');
+            void fig.offsetWidth;
+            fig.classList.add('poked');
+            setTimeout(() => fig.classList.remove('poked'), 520);
+        }
+
+        let line;
+        if(state.isFocusing && state.phase === 'focus') line = pick(POKE_LINES_FOCUS);
+        else if(state.companyMood === 'sleep') { line = pick(POKE_LINES_SLEEP); setCipherState('idle'); }
+        else line = pick(POKE_LINES_IDLE);
+
+        showCipherBubble(line, 4200);
+
+        // 每戳 10 次，熟悉度 +1（他很吃这一套，只是不说）
+        if(playerData.pokeCount % 10 === 0) { bumpIntimacy(1); showToast("（Cipher 的嘴角动了一下）"); }
+        if(playerData.pokeCount === 1) showToast("（他抬眼看了您一下）");
+        checkAchievements();
+        saveData();
+    }
+
+    // 看看他
+    function openCipherView() {
+        const stage = document.getElementById('cipher-view-stage');
+        const src = document.getElementById('cipher-figure');
+        const line = document.getElementById('cipher-view-line');
+        const stats = document.getElementById('cipher-view-stats');
+        if(!stage || !src) return;
+
+        state.lastActivityAt = Date.now();
+        const clone = src.cloneNode(true);
+        clone.removeAttribute('onclick');
+        clone.id = '';
+        const bub = clone.querySelector('#cipher-bubble');
+        if(bub) { bub.id = ''; bub.classList.remove('show'); bub.style.display = 'none'; }
+        const comp = clone.querySelector('#cipher-company');
+        if(comp) comp.remove();
+        stage.innerHTML = '';
+        stage.appendChild(clone);
+        setCipherState(state.companyMood);
+
+        const moodText = {
+            focus: '他在您对面坐着，看着自己的书。',
+            break: '他给您也倒了一杯，自己靠着吧台。',
+            sleep: '他靠着酒架睡着了，书摊在膝上。',
+            idle: '他在吧台后面，手上总有活。'
+        };
+        const idleMs = Date.now() - (state.lastActivityAt || Date.now());
+        line.textContent = moodText[state.companyMood] || moodText.idle;
+
+        const total = playerData.companyMinutes || 0;
+        const lv = intimacyLevel(playerData);
+        const nextMile = COMPANY_MILES.find(m => total < m.min);
+        stats.innerHTML = `
+            <div class="cv-stat"><b>${fmtCompany(total)}</b><span>他陪你的时间</span></div>
+            <div class="cv-stat"><b>${playerData.companySessions || 0}</b><span>一起坐过的轮次</span></div>
+            <div class="cv-stat"><b>${lv.name}</b><span>${playerData.pokeCount || 0} 次打扰</span></div>
+        `;
+        if(nextMile) {
+            const left = nextMile.min - total;
+            stats.insertAdjacentHTML('beforeend', '');
+            line.textContent += ` 再陪 ${fmtCompany(left)}，他大概会说点什么。`;
+        } else {
+            line.textContent += ' 他已经把这里当作您常来的地方了。';
+        }
+
+        document.getElementById('modal-cipher').classList.add('open');
+    }
+
+    function closeCipherView() {
+        document.getElementById('modal-cipher').classList.remove('open');
+    }
+
+    // 闲置时他会打盹；有动静就醒
+    function cipherIdleWatch() {
+        setInterval(() => {
+            if(state.isFocusing) return;
+            const idleMs = Date.now() - (state.lastActivityAt || Date.now());
+            setCipherState(idleMs > 8 * 60 * 1000 ? 'sleep' : 'idle');
+            updateCipherCompany();
+        }, 30000);
+    }
+
+    // 暂停/继续时他的反应
+    function cipherOnPause() {
+        showCipherBubble("（Cipher 抬起头）歇一会儿？我替您看着沙漏。", 4000);
+    }
+    function cipherOnResume() {
+        showCipherBubble("（他点点头，重新低下头看书）", 3200);
+    }
+
+    function resetUI() {
+        document.getElementById('btn-start-focus').textContent = "开始专注";
+        document.getElementById('btn-start-focus').classList.remove('active-state');
         ui.timeSetterBox.style.display = 'flex';
-        ui.timerDisplay.innerText = `${parseInt(ui.customInput.value).toString().padStart(2,'0')}:00`;
     }
-    
-    function resetUI() { 
-        ui.focusBtn.innerText="开始专注"; 
-        ui.focusBtn.classList.remove('active-state'); 
-        ui.timeSetterBox.style.display='flex';
-    }
-    function updateCoinUI() { ui.coinCount.innerText=playerData.coins; ui.storeCoinCount.innerText=playerData.coins; }
+    function updateCoinUI() { ui.coinCount.textContent=playerData.coins; ui.storeCoinCount.textContent=playerData.coins; }
 
     // --- 新系统：成就与解锁 ---
     function checkAchievements() {
@@ -1756,9 +2724,12 @@ let workHistory = [];
             const unlocked = playerData.unlockedDrinks.includes(drink.id);
             const div = document.createElement('div');
             div.className = `drink-card ${unlocked ? 'unlocked' : 'locked'}`;
+            const hint = unlocked ? '' : (DRINK_HINTS[drink.id] || '继续沉潜，也许就会遇见');
+            div.title = unlocked ? drink.desc : `解锁条件：${hint}`;
             div.innerHTML = `
                 <div class="drink-icon">${unlocked ? drink.icon : '?'}</div>
                 <div class="drink-name">${unlocked ? drink.name : '未发现'}</div>
+                ${unlocked ? '' : '<div class="drink-hint" style="font-size:0.6em;opacity:.75;">🔒</div>'}
             `;
             if(unlocked) {
                 div.onclick = () => {
@@ -1768,20 +2739,43 @@ let workHistory = [];
             }
             ui.tabDrinks.appendChild(div);
         });
+        const locked = DRINKS_DB.filter(d => !playerData.unlockedDrinks.includes(d.id));
+        if(locked.length) {
+            const tip = document.createElement('div');
+            tip.style.cssText = 'grid-column:1/-1; font-size:0.72em; color:var(--text-dim); line-height:1.7; padding:6px 2px;';
+            tip.innerHTML = '<div style="opacity:.6;margin-bottom:4px;">尚未遇见的：</div>' +
+                locked.map(d => `<div>· ${DRINK_HINTS[d.id] || '继续沉潜，也许就会遇见'}</div>`).join('');
+            ui.tabDrinks.appendChild(tip);
+        }
     }
 
     function renderAchievementList() {
         ui.tabAchievements.innerHTML = '';
+        const done = ACHIEVEMENTS_DB.filter(a => playerData.achievements.includes(a.id)).length;
+        const head = document.createElement('div');
+        head.style.cssText = 'font-size:0.75em;color:var(--text-dim);margin-bottom:8px;';
+        head.textContent = `已解锁 ${done} / ${ACHIEVEMENTS_DB.length}`;
+        ui.tabAchievements.appendChild(head);
+
         ACHIEVEMENTS_DB.forEach(ach => {
             const unlocked = playerData.achievements.includes(ach.id);
             const li = document.createElement('li');
             li.className = `achievement-item ${unlocked ? 'unlocked' : ''}`;
+            let progHtml = '';
+            if(!unlocked && ach.progress) {
+                let pr = [0,1];
+                try { pr = ach.progress(playerData) || [0,1]; } catch(e) { pr = [0,1]; }
+                const pct = Math.max(0, Math.min(100, Math.round(pr[0] / Math.max(1,pr[1]) * 100)));
+                progHtml = `<div class="ach-progress"><div class="ach-progress-fill" style="width:${pct}%"></div></div>
+                            <div class="ach-hint">还差一点：${pr[0]} / ${pr[1]}</div>`;
+            }
             li.innerHTML = `
                 <div class="ach-title">
                     <span>${ach.title}</span>
                     <span>${unlocked ? '✓' : '🔒'}</span>
                 </div>
-                <div class="ach-desc">${ach.desc}</div>
+                <div class="ach-desc">${ach.desc} <span style="opacity:.7;">(+${ach.reward}🪙)</span></div>
+                ${progHtml}
             `;
             ui.tabAchievements.appendChild(li);
         });
@@ -1826,12 +2820,20 @@ let workHistory = [];
     }
     function renderShopItems() {
         ui.tabShop.innerHTML = '';
-        const foodItem = document.createElement('div');
+        const cat = (title) => {
+            const d = document.createElement('div');
+            d.className = 'store-cat-title'; d.textContent = title;
+            ui.tabShop.appendChild(d);
+        };
+
+        cat('日常');
         const canAffordFood = playerData.coins >= 5;
+        const foodItem = document.createElement('div');
         foodItem.className = `store-item ${!canAffordFood ? 'disabled' : ''}`;
         foodItem.innerHTML = `<div class="item-info"><div class="item-name">🐟 鱼粮 (10份)</div><div class="item-desc">喂食你的小鱼，保持它们的活力</div></div><button class="buy-btn" onclick="buyFishFood()" ${!canAffordFood ? 'disabled' : ''}>🪙 5</button>`;
         ui.tabShop.appendChild(foodItem);
-        
+
+        cat('鱼缸 · 活物');
         Object.entries(FISH_TYPES).forEach(([type, fish]) => {
             const item = document.createElement('div');
             const canAfford = playerData.coins >= fish.price;
@@ -1839,6 +2841,97 @@ let workHistory = [];
             item.innerHTML = `<div class="item-info"><div class="item-name">${fish.icon} ${fish.name}</div><div class="item-desc">${fish.desc}</div></div><button class="buy-btn" onclick="buyFish('${type}')" ${!canAfford ? 'disabled' : ''}>🪙 ${fish.price}</button>`;
             ui.tabShop.appendChild(item);
         });
+
+        cat('窗外的风景');
+        Object.entries(SCENES_DB).forEach(([id, sc]) => {
+            const owned = (playerData.ownedScenes || []).includes(id);
+            const equipped = (playerData.scene || 'default_night') === id;
+            const canAfford = playerData.coins >= sc.price;
+            if(!owned && sc.price === 0) return;
+            const item = document.createElement('div');
+            item.className = `store-item ${owned ? 'owned' : (canAfford ? '' : 'disabled')} ${equipped ? 'equipped' : ''}`;
+            const right = owned
+                ? `<button class="equip-btn ${equipped ? 'active' : ''}" onclick="equipScene('${id}')">${equipped ? '布置中' : '布置'}</button>`
+                : `<button class="buy-btn" onclick="buyScene('${id}')" ${canAfford ? '' : 'disabled'}>🪙 ${sc.price}</button>`;
+            item.innerHTML = `<div class="item-info"><div class="item-name">${sc.icon} ${sc.name}</div><div class="item-desc">${sc.desc}${owned ? ' <span class="owned-tag">已拥有</span>' : ''}</div></div>${right}`;
+            ui.tabShop.appendChild(item);
+        });
+
+        cat('吧台的唱片（离线可用）');
+        Object.entries(RECORDS_DB).forEach(([id, r]) => {
+            const owned = (playerData.ownedRecords || []).includes(id);
+            const equipped = (playerData.record || '') === id;
+            const canAfford = playerData.coins >= r.price;
+            const item = document.createElement('div');
+            item.className = `store-item ${owned ? 'owned' : (canAfford ? '' : 'disabled')} ${equipped ? 'equipped' : ''}`;
+            const right = owned
+                ? `<button class="equip-btn ${equipped ? 'active' : ''}" onclick="equipRecord('${id}')">${equipped ? '在放' : '放上'}</button>`
+                : `<button class="buy-btn" onclick="buyRecord('${id}')" ${canAfford ? '' : 'disabled'}>🪙 ${r.price}</button>`;
+            item.innerHTML = `<div class="item-info"><div class="item-name">${r.icon} ${r.name}</div><div class="item-desc">${r.desc}${owned ? ' <span class="owned-tag">已拥有</span>' : ''}</div></div>${right}`;
+            ui.tabShop.appendChild(item);
+        });
+
+        cat('吧台小物（买下即一直生效）');
+        Object.entries(PERKS_DB).forEach(([id, p]) => {
+            const owned = (playerData.ownedPerks || []).includes(id);
+            const canAfford = playerData.coins >= p.price;
+            const item = document.createElement('div');
+            item.className = `store-item ${owned ? 'owned' : (canAfford ? '' : 'disabled')}`;
+            const right = owned
+                ? `<span class="owned-tag">生效中</span>`
+                : `<button class="buy-btn" onclick="buyPerk('${id}')" ${canAfford ? '' : 'disabled'}>🪙 ${p.price}</button>`;
+            item.innerHTML = `<div class="item-info"><div class="item-name">${p.icon} ${p.name}</div><div class="item-desc">${p.desc}</div></div>${right}`;
+            ui.tabShop.appendChild(item);
+        });
+
+        const foot = document.createElement('div');
+        foot.style.cssText = 'font-size:0.72em;color:var(--text-dim);text-align:center;padding:10px 0 0;';
+        foot.textContent = `金币来自你沉下去的每一分钟。养得好的鱼，也会替你留几枚。`;
+        ui.tabShop.appendChild(foot);
+    }
+
+    function hasPerk(id) { return (playerData.ownedPerks || []).includes(id); }
+
+    function buyScene(id) {
+        const sc = SCENES_DB[id]; if(!sc) return;
+        if(playerData.coins < sc.price) return showToast("金币不够，再沉一会儿吧。");
+        playerData.coins -= sc.price;
+        if(!playerData.ownedScenes) playerData.ownedScenes = ['default_night'];
+        playerData.ownedScenes.push(id);
+        equipScene(id); saveData(); updateCoinUI(); renderShopItems();
+        showToast(`买下了「${sc.name}」`);
+        addMessage(`（Cipher 拉开了窗帘的一角）${sc.desc}`, "bartender");
+    }
+    function equipScene(id) {
+        playerData.scene = id;
+        applyScene(); saveData(); renderShopItems();
+        const sc = SCENES_DB[id];
+        showToast(`窗外换成了「${sc ? sc.name : '深巷'}」`);
+    }
+    function buyRecord(id) {
+        const r = RECORDS_DB[id]; if(!r) return;
+        if(playerData.coins < r.price) return showToast("金币不够，再沉一会儿吧。");
+        playerData.coins -= r.price;
+        if(!playerData.ownedRecords) playerData.ownedRecords = [];
+        playerData.ownedRecords.push(id);
+        equipRecord(id); saveData(); updateCoinUI(); renderShopItems();
+        showToast(`唱针落下了：「${r.name}」`);
+    }
+    function equipRecord(id) {
+        playerData.record = id;
+        refreshNoiseOptions();
+        document.getElementById('noise-selector').value = id;
+        saveData(); changeNoise(); renderShopItems();
+    }
+    function buyPerk(id) {
+        const p = PERKS_DB[id]; if(!p) return;
+        if(playerData.coins < p.price) return showToast("金币不够，再沉一会儿吧。");
+        playerData.coins -= p.price;
+        if(!playerData.ownedPerks) playerData.ownedPerks = [];
+        playerData.ownedPerks.push(id);
+        saveData(); updateCoinUI(); renderShopItems();
+        showToast(`「${p.name}」已摆上吧台`);
+        addMessage(`（Cipher 把${p.name}擦了擦，放在你手边）${p.desc}`, "bartender");
     }
     function buyFishFood() {
         if (playerData.coins >= 5) {
@@ -1879,23 +2972,50 @@ let workHistory = [];
         }
     }
     function renderPetTab() {
-        ui.foodCount.innerText = playerData.inventory.fishFood;
+        ui.foodCount.textContent = playerData.inventory.fishFood;
         if (playerData.ownedFish.length === 0) { ui.petEmptyMsg.style.display = 'block'; ui.petListContainer.innerHTML = ''; return; }
         ui.petEmptyMsg.style.display = 'none'; ui.petListContainer.innerHTML = '';
         playerData.ownedFish.forEach(fish => {
-            let hunger = Math.max(0, fish.hunger - ((Date.now() - fish.lastFed) / 3600000) * 5);
-            let happiness = Math.max(0, fish.happiness - ((Date.now() - fish.lastPlayed) / 3600000) * 3);
+            const st = fishStat(fish);
+            const hunger = st.hunger, happiness = st.happiness;
             const div = document.createElement('div'); div.className = 'pet-card';
-            div.innerHTML = `<div class="pet-icon">${fish.icon}</div><div class="pet-stats"><div class="pet-name">${fish.name}</div><div class="stat-row"><span>饥饿:</span><div class="progress-bg"><div class="progress-fill" style="width:${hunger}%; background:${hunger>50?'#4cd964':hunger>20?'#ffcc00':'#ff3b30'}"></div></div><button class="feed-btn-small" onclick="feedFish('${fish.id}')">喂食</button></div><div class="stat-row"><span>快乐:</span><div class="progress-bg"><div class="progress-fill" style="width:${happiness}%; background:${happiness>50?'#4cd964':happiness>20?'#ffcc00':'#ff3b30'}"></div></div><button class="feed-btn-small" onclick="playWithFish('${fish.id}')">玩耍</button></div></div>`;
+            const producing = (hunger >= 60 && happiness >= 60);
+            div.innerHTML = `<div class="pet-icon">${fish.icon}</div><div class="pet-stats"><div class="pet-name">${fish.name}${producing ? ' <span style="font-size:0.7em;color:#ffdb4d;">· 精神不错 🪙</span>' : ''}</div><div class="stat-row"><span>饥饿:</span><div class="progress-bg"><div class="progress-fill" style="width:${hunger}%; background:${hunger>50?'#4cd964':hunger>20?'#ffcc00':'#ff3b30'}"></div></div><button class="feed-btn-small" onclick="feedFish('${fish.id}')">喂食</button></div><div class="stat-row"><span>快乐:</span><div class="progress-bg"><div class="progress-fill" style="width:${happiness}%; background:${happiness>50?'#4cd964':happiness>20?'#ffcc00':'#ff3b30'}"></div></div><button class="feed-btn-small" onclick="playWithFish('${fish.id}')">玩耍</button></div></div>`;
             ui.petListContainer.appendChild(div);
+        });
+        const bonus = fishBonus();
+        if(bonus > 0) {
+            const tip = document.createElement('div');
+            tip.style.cssText = 'font-size:0.75em;color:var(--text-dim);text-align:center;padding-top:8px;';
+            tip.textContent = `养得好的鱼，每完成一轮专注会替你多留 ${bonus} 枚硬币。`;
+            ui.petListContainer.appendChild(tip);
+        }
+    }
+
+    function fishStat(f) {
+        const h = (Date.now() - (f.lastFed || Date.now())) / 3600000;
+        const hp = (Date.now() - (f.lastPlayed || Date.now())) / 3600000;
+        return {
+            hunger: Math.max(0, Math.min(100, (f.hunger == null ? 100 : f.hunger) - h * 5)),
+            happiness: Math.max(0, Math.min(100, (f.happiness == null ? 100 : f.happiness) - hp * 3))
+        };
+    }
+    function fishBonus() {
+        return (playerData.ownedFish || []).filter(f => { const s = fishStat(f); return s.hunger >= 60 && s.happiness >= 60; }).length;
+    }
+    function petTick() {
+        (playerData.ownedFish || []).forEach(f => {
+            const s = fishStat(f);
+            f.hunger = s.hunger; f.happiness = s.happiness;
+            f.lastFed = Date.now(); f.lastPlayed = Date.now();
         });
     }
     function feedFish(id) {
         if (playerData.inventory.fishFood <= 0) { showToast("没有鱼粮了，去货架买点吧"); return; }
         const f = playerData.ownedFish.find(f => f.id === id);
         if(f) { 
-            f.hunger = Math.min(100, f.hunger + 30); 
-            f.lastFed = Date.now(); 
+            f.hunger = Math.min(100, fishStat(f).hunger + 30); 
+            f.lastFed = Date.now();
             playerData.inventory.fishFood--; 
             saveData(); 
             renderPetTab(); 
@@ -1915,8 +3035,8 @@ let workHistory = [];
     function playWithFish(id) {
         const f = playerData.ownedFish.find(f => f.id === id);
         if(f) { 
-            f.happiness = Math.min(100, f.happiness + 25); 
-            f.lastPlayed = Date.now(); 
+            f.happiness = Math.min(100, fishStat(f).happiness + 25); 
+            f.lastPlayed = Date.now();
             saveData(); 
             renderPetTab(); 
             
@@ -1933,25 +3053,31 @@ let workHistory = [];
         }
     }
     function updatePetStatsLoop() {
-        if (Date.now() % 300000 < 1000) { saveData(); if(document.querySelector('.store-tab.active') && document.querySelector('.store-tab.active').innerText==='鱼缸') renderPetTab(); }
+        const m = Date.now() % 60000;
+        if (m < 1000) {
+            petTick();
+            const active = document.querySelector('.store-tab.active');
+            if(active && active.textContent === '鱼缸') renderPetTab();
+        }
+        if (Date.now() % 300000 < 1000) saveData();
     }
 
     // --- 其他模块 (标签/待办/日记/生理期/账单) ---
     // 标签
     function openTagModal() { ui.modalTags.classList.add('open'); renderTags(); }
-    function closeTagModal() { ui.modalTags.classList.remove('open'); }
+    function closeTagModal() { ui.modalTags.classList.remove('open'); if(typeof renderQuickTags === 'function') renderQuickTags(); }
     function renderTags() {
         ui.tagsList.innerHTML = '';
         playerData.tags.forEach(tag => {
             const chip = document.createElement('div'); chip.className = 'tag-chip';
-            chip.innerText = tag; if (tag === state.currentFocusTag) chip.classList.add('selected');
-            const del = document.createElement('span'); del.className = 'tag-del'; del.innerText = '×';
+            chip.textContent = tag; if (tag === state.currentFocusTag) chip.classList.add('selected');
+            const del = document.createElement('span'); del.className = 'tag-del'; del.textContent = '×';
             del.onclick = (e) => { e.stopPropagation(); if(confirm(`删除 "${tag}"?`)){ playerData.tags = playerData.tags.filter(t=>t!==tag); if(state.currentFocusTag===tag) state.currentFocusTag="默认"; saveData(); renderTags(); }};
             chip.onclick = () => { state.currentFocusTag = tag; closeTagModal(); showToast(`专注内容: ${tag}`); };
             chip.appendChild(del); ui.tagsList.appendChild(chip);
         });
     }
-    function addNewTag() { const v = ui.newTagInput.value.trim(); if(v && !playerData.tags.includes(v)) { playerData.tags.push(v); ui.newTagInput.value=''; saveData(); renderTags(); } }
+    function addNewTag() { const v = ui.newTagInput.value.trim(); if(v && !playerData.tags.includes(v)) { playerData.tags.push(v); ui.newTagInput.value=''; saveData(); renderTags(); if(typeof renderQuickTags === 'function') renderQuickTags(); } }
     
     // --- 待办 & 提醒系统 (新版) ---
     
@@ -2002,7 +3128,7 @@ function triggerReminder(item) {
     function toggleVibration() {
     state.vibrationEnabled = !state.vibrationEnabled;
     const btn = document.getElementById('vib-toggle-btn');
-    btn.innerText = state.vibrationEnabled ? "📳 震动: 开" : "📳 震动: 关";
+    btn.textContent = state.vibrationEnabled ? "📳 震动: 开" : "📳 震动: 关";
     btn.style.opacity = state.vibrationEnabled ? "1" : "0.5";
     
     // 调试信息
@@ -2031,34 +3157,97 @@ function triggerReminder(item) {
         playerData.todoList.forEach((item, i) => {
             const li = document.createElement('li'); 
             li.className = `todo-item ${item.completed?'completed':''}`;
+            if(!item.id) item.id = 't' + Date.now().toString(36) + i;
             
             // 如果有时间，显示一个小标签
             const timeTag = item.time ? `<span class="todo-time-tag">⏰ ${item.time}</span>` : '';
+            const est = item.est || 0;
+            const done = item.pomoDone || 0;
+            const linked = state.linkedTodoId === item.id;
+            const pomoTag = est ? `<span class="todo-pomo-badge" onclick="cycleEst(${i})" title="点击调整预估">🍅 ${done}/${est}</span>` : `<span class="todo-pomo-badge" onclick="cycleEst(${i})" title="点击设置预估番茄数">🍅 +</span>`;
             
             li.innerHTML = `
                 <input type="checkbox" ${item.completed?'checked':''} onclick="toggleTodo(${i})">
                 <div style="flex:1; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center;">
                     ${timeTag}
-                    <span>${item.text}</span>
+                    <span>${escapeHtml(item.text)}</span>
+                    ${pomoTag}
+                    ${linked ? '<span class="todo-done-badge">▸ 进行中</span>' : ''}
                 </div>
+                <button class="todo-del" style="color:${linked?'#5ac8fa':'#d9534f'}; font-size:1em;" onclick="${linked?'unlinkTodo()':`linkTodo(${i})`}" title="${linked?'取消关联':'设为本次专注的任务'}">${linked?'◂':'▸'}</button>
                 <button class="todo-del" onclick="deleteTodo(${i})">×</button>
             `;
             ui.todoList.appendChild(li);
         });
+        if(playerData.todoList.length) {
+            const total = playerData.todoList.reduce((s,x)=>s+((x.pomoDone)||0),0);
+            const estAll = playerData.todoList.filter(x=>!x.completed).reduce((s,x)=>s+(x.est||0),0);
+            const tip = document.createElement('li');
+            tip.style.cssText = 'text-align:center; color:#888; font-size:0.75em; padding:8px 0 0; border-bottom:none;';
+            tip.textContent = `已完成 ${total} 个番茄 · 待办还剩约 ${estAll} 个`;
+            ui.todoList.appendChild(tip);
+        }
     }
 
     function confirmTodo() { 
         const v = document.getElementById('todo-input-field').value.trim(); 
-        const t = document.getElementById('todo-time-input').value; // 获取时间输入
+        const t = document.getElementById('todo-time-input').value;
+        const est = parseInt(document.getElementById('todo-est-input').value) || 0;
         
         if(v) { 
-            // 存入 time 字段，alerted 标记
-            playerData.todoList.push({text:v, completed:false, time: t, alerted: false}); 
+            playerData.todoList.push({
+                id: 't' + Date.now().toString(36), text:v, completed:false,
+                time: t, alerted: false, est: est, pomoDone: 0
+            }); 
             document.getElementById('todo-input-field').value=''; 
             document.getElementById('todo-time-input').value='';
+            document.getElementById('todo-est-input').value='1';
             saveData(); 
             renderTodoList(); 
         } 
+    }
+
+    function cycleEst(i) {
+        const it = playerData.todoList[i];
+        if(!it) return;
+        it.est = ((it.est || 0) + 1) % 9;
+        saveData(); renderTodoList();
+    }
+
+    function getTodoText(id) {
+        const it = (playerData.todoList || []).find(x => x.id === id);
+        return it ? it.text : '';
+    }
+
+    function linkTodo(i) {
+        const it = playerData.todoList[i];
+        if(!it) return;
+        state.linkedTodoId = it.id;
+        state.goal = it.text;
+        document.getElementById('focus-goal-input').value = it.text;
+        persistSession();
+        renderTodoList();
+        renderSessionStrip();
+        showToast(`「${it.text}」已挂在本轮专注上`);
+    }
+
+    function unlinkTodo() {
+        state.linkedTodoId = null;
+        persistSession();
+        renderTodoList();
+        renderSessionStrip();
+        showToast("已取消关联");
+    }
+
+    function advanceTodoPomodoro(id) {
+        const it = (playerData.todoList || []).find(x => x.id === id);
+        if(!it) return;
+        it.pomoDone = (it.pomoDone || 0) + 1;
+        if(it.est && it.pomoDone >= it.est && !it.completed) {
+            addMessage(`（Cipher 在账单上划掉一行）「${it.text}」——够了吧？`, "bartender");
+        }
+        saveData();
+        renderSessionStrip();
     }
 
     function toggleTodo(i) { 
@@ -2084,7 +3273,7 @@ function triggerReminder(item) {
         playerData.diaryEntries.slice().reverse().forEach(e => {
             const li = document.createElement('li'); li.className = 'diary-entry-item'; li.onclick = () => editDiaryEntry(e.id);
             const d = new Date(e.timestamp);
-            li.innerHTML = `<div class="diary-date">${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div><div class="diary-preview">${e.content.substring(0,50)}...</div>`;
+            li.innerHTML = `<div class="diary-date">${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div><div class="diary-preview">${escapeHtml(e.content.substring(0,50))}...</div>`;
             ui.diaryListView.appendChild(li);
         });
     }
@@ -2125,7 +3314,7 @@ function triggerReminder(item) {
         const year = displayDate.getFullYear();
         const month = displayDate.getMonth(); 
         
-        document.getElementById('cal-month-label').innerText = `${year}年 ${month + 1}月`;
+        document.getElementById('cal-month-label').textContent = `${year}年 ${month + 1}月`;
         ui.calDaysContainer.innerHTML = '';
 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -2144,7 +3333,7 @@ function triggerReminder(item) {
             
             const div = document.createElement('div');
             div.className = 'calendar-day';
-            div.innerText = d;
+            div.textContent = d;
             
             // 1. 标记今天
             const today = new Date(); today.setHours(0,0,0,0);
@@ -2153,7 +3342,7 @@ function triggerReminder(item) {
             // 2. 标记选中 (金色光圈)
             if(state.selectedDateObj && timeStr === state.selectedDateObj.getTime()) {
                 div.classList.add('selected');
-                document.getElementById('selected-date-label').innerText = `${month+1}月${d}日`;
+                document.getElementById('selected-date-label').textContent = `${month+1}月${d}日`;
             }
 
             // 3. 标记历史记录 (修复：不自动填充到今天)
@@ -2348,7 +3537,8 @@ function triggerReminder(item) {
     // --- 账单 & 历史记录系统 (新版) ---
     
     function openHistory() { 
-        ui.modalBill.classList.add('open'); 
+        ui.modalBill.classList.add('open');
+        if(typeof switchBillTab === 'function') switchBillTab('day');
         state.historyCalOffset = 0; // 重置月份偏移
         state.historySelectedDate = new Date(); // 默认选中今天
         state.historySelectedDate.setHours(0,0,0,0);
@@ -2376,7 +3566,7 @@ function triggerReminder(item) {
         const year = displayDate.getFullYear();
         const month = displayDate.getMonth();
 
-        monthLabel.innerText = `${year}年 ${month + 1}月`;
+        monthLabel.textContent = `${year}年 ${month + 1}月`;
 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const firstDayIndex = new Date(year, month, 1).getDay();
@@ -2400,7 +3590,7 @@ function triggerReminder(item) {
         for(let d=1; d<=daysInMonth; d++) {
             const div = document.createElement('div');
             div.className = 'calendar-day';
-            div.innerText = d;
+            div.textContent = d;
             
             // 标记有记录的日子
             if(recordMap.has(d)) {
@@ -2439,13 +3629,13 @@ function triggerReminder(item) {
         // 更新标题
         const m = state.historySelectedDate.getMonth() + 1;
         const d = state.historySelectedDate.getDate();
-        dateTitle.innerText = `${m}月${d}日 专注统计 (${dayLogs.length}次)`;
+        dateTitle.textContent = `${m}月${d}日 专注统计 (${dayLogs.length}次)`;
 
         renderHistoryList(dayLogs);
         renderPieChart(dayLogs);
         
         // 更新总计数据
-        ui.totalSessions.innerText = `累计专注: ${playerData.focusHistory.length} 次 (${Math.round((playerData.totalFocusMinutes||0)/60)}小时)`;
+        ui.totalSessions.textContent = `累计专注: ${playerData.focusHistory.length} 次 (${Math.round((playerData.totalFocusMinutes||0)/60)}小时)`;
     }
 
     function renderHistoryList(logs) {
@@ -2465,7 +3655,7 @@ function triggerReminder(item) {
             const li = document.createElement('li');
             li.className = "history-item";
             li.innerHTML = `
-                <span>${timeStr} [${h.tag||'默认'}]</span>
+                <span>${timeStr} [${escapeHtml(h.tag||'默认')}]</span>
                 <div style="display:flex; align-items:center;">
                     <span>${h.duration}分</span>
                     <button class="del-history-btn" onclick="deleteHistoryItem(${h.timestamp})">×</button>
@@ -2548,7 +3738,7 @@ function triggerReminder(item) {
         if (state.isFocusing) return addMessage("嘘... 钟摆还在走。", "bartender");
         const t = chatTopics[Math.floor(Math.random()*chatTopics.length)];
         addMessage(t.user[Math.floor(Math.random()*t.user.length)], "user");
-        setTimeout(() => addMessage((bartenderResponses[state.mood][t.id]||bartenderResponses.calm[t.id])[Math.floor(Math.random()*2)], "bartender"), 1000);
+        setTimeout(() => addMessage(pickBartenderLine(t.id), "bartender"), 1000);
     }
     function orderDrink() {
         if (state.isFocusing) return addMessage("嗯？专注时喝酒可不好哦，替您保管了。", "bartender");
@@ -2570,18 +3760,121 @@ function triggerReminder(item) {
     }
     function initAudioContext() { if(!state.audioContext) state.audioContext = new (window.AudioContext||window.webkitAudioContext)(); if(state.audioContext.state==='suspended') state.audioContext.resume(); }
     function triggerAlert(text, isFinish) {
-        if(state.audioContext) {
-            const ctx = state.audioContext; const o = ctx.createOscillator(); const g = ctx.createGain();
-            o.type='sine'; o.frequency.setValueAtTime(isFinish?523:880, ctx.currentTime);
-            g.gain.setValueAtTime(0.05, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.5);
-            o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.5);
-        }
+        try {
+            if(state.audioContext && state.audioContext.createOscillator) {
+                const ctx = state.audioContext; const o = ctx.createOscillator(); const g = ctx.createGain();
+                o.type='sine'; o.frequency.setValueAtTime(isFinish?523:880, ctx.currentTime);
+                g.gain.setValueAtTime(0.05, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.5);
+                o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.5);
+            }
+        } catch(e) { /* 音频不可用时静默跳过，不影响计时 */ }
         if(isFinish) { ui.container.classList.add('flash-active'); setTimeout(()=>ui.container.classList.remove('flash-active'),3000); }
         addMessage(text, "bartender");
+        pushNotify(isFinish ? "这一杯，喝完了" : "Cipher 提醒您", text);
     }
-    function changeNoise() { const s = sounds[ui.noiseSelector.value]; if(ui.bgm.src!==s) { const p=!ui.bgm.paused; ui.bgm.src=s; if(p||state.isFocusing) ui.bgm.play().catch(()=>{}); } }
-    function adjustVolume() { ui.bgm.volume = ui.volumeSlider.value; }
-    function addMessage(t, type) { const d = document.createElement('div'); d.className=`message msg-${type}`; d.innerText=t; ui.chatBox.appendChild(d); requestAnimationFrame(()=>ui.chatBox.scrollTop=ui.chatBox.scrollHeight); }
+
+    /* ---------- 桌面通知 ---------- */
+    function notifyOn() { return playerData.notify !== false; }
+    function toggleNotify() {
+        if(!('Notification' in window)) { showToast("这个浏览器不支持桌面通知"); return; }
+        if(Notification.permission === 'granted') {
+            playerData.notify = !notifyOn();
+            saveData();
+            updateNotifyBtn();
+            showToast(playerData.notify ? "好，到点我敲一下桌子。" : "那就在页面里提醒您。");
+        } else {
+            Notification.requestPermission().then(p => {
+                playerData.notify = (p === 'granted');
+                saveData(); updateNotifyBtn();
+                showToast(p === 'granted' ? "好，到点我敲一下桌子。" : "您拒绝了通知权限，我只在页面里提醒。");
+            }).catch(() => showToast("通知权限请求失败"));
+        }
+    }
+    function updateNotifyBtn() {
+        const b = document.getElementById('notify-toggle-btn');
+        if(b) { b.style.opacity = notifyOn() ? '0.95' : '0.35'; b.textContent = notifyOn() ? '🔔' : '🔕'; }
+    }
+    function pushNotify(title, body) {
+        if(!notifyOn()) return;
+        try {
+            if(!('Notification' in window) || Notification.permission !== 'granted') return;
+            const n = new Notification(title, { body: String(body || '').slice(0, 120), tag: 'driftwood-timer' });
+            setTimeout(() => { try { n.close(); } catch(e) {} }, 9000);
+        } catch(e) { /* 通知不可用时静默 */ }
+    }
+
+    function changeNoise() {
+        const v = ui.noiseSelector.value;
+        stopNoise();
+        if(v.indexOf('local_') === 0) {
+            const r = RECORDS_DB[v];
+            if(r) { if(!ui.bgm.paused) ui.bgm.pause(); if(state.isFocusing) playNoise(r.noise); return; }
+        }
+        const s = sounds[v];
+        if(!s) return;
+        if(ui.bgm.src !== s) { const p = !ui.bgm.paused; ui.bgm.src = s; if(p || state.isFocusing) ui.bgm.play().catch(()=>{}); }
+    }
+    function adjustVolume() { ui.bgm.volume = ui.volumeSlider.value; if(noiseState.gain) noiseState.gain.gain.value = ui.volumeSlider.value; }
+
+    function startAmbient() {
+        const v = ui.noiseSelector.value || 'rain';
+        if(v.indexOf('local_') === 0) {
+            const r = RECORDS_DB[v];
+            if(r) { playNoise(r.noise); return; }
+        }
+        ui.bgm.play().catch(()=>{});
+    }
+    function stopAmbient() { stopNoise(); ui.bgm.pause(); }
+
+    let noiseState = { src: null, gain: null };
+    function makeNoiseBuffer(seconds, type) {
+        const ctx = state.audioContext;
+        const len = Math.floor(ctx.sampleRate * seconds);
+        const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        let last = 0;
+        for(let i = 0; i < len; i++) {
+            const w = Math.random() * 2 - 1;
+            if(type === 'brown') { last = (last + 0.02 * w) / 1.02; d[i] = Math.max(-1, Math.min(1, last * 3.2)); }
+            else if(type === 'pink') { last = 0.96 * last + 0.04 * w; d[i] = Math.max(-1, Math.min(1, last * 2.6)); }
+            else d[i] = w * 0.32;
+        }
+        return buf;
+    }
+    function playNoise(type) {
+        try {
+            initAudioContext();
+            stopNoise();
+            const ctx = state.audioContext;
+            const src = ctx.createBufferSource();
+            src.buffer = makeNoiseBuffer(4, type);
+            src.loop = true;
+            const gain = ctx.createGain();
+            gain.gain.value = parseFloat(ui.volumeSlider.value) || 0.4;
+            src.connect(gain); gain.connect(ctx.destination);
+            src.start();
+            noiseState.src = src; noiseState.gain = gain;
+        } catch(e) { ui.bgm.play().catch(()=>{}); }
+    }
+    function stopNoise() {
+        if(noiseState.src) { try { noiseState.src.stop(); } catch(e) {} noiseState.src = null; noiseState.gain = null; }
+    }
+    function refreshNoiseOptions() {
+        const sel = document.getElementById('noise-selector');
+        if(!sel) return;
+        const cur = sel.value;
+        Array.from(sel.querySelectorAll('option[data-record]')).forEach(o => o.remove());
+        Object.keys(RECORDS_DB).forEach(id => {
+            if(!(playerData.ownedRecords || []).includes(id)) return;
+            const o = document.createElement('option');
+            o.value = id; o.setAttribute('data-record', '1');
+            o.textContent = `${RECORDS_DB[id].icon} ${RECORDS_DB[id].name}`;
+            sel.appendChild(o);
+        });
+        if(playerData.record && (playerData.ownedRecords || []).includes(playerData.record)) sel.value = playerData.record;
+        else if(cur) sel.value = cur;
+    }
+    function addMessage(t, type) { const d = document.createElement('div'); d.className=`message msg-${type}`; d.textContent=t; ui.chatBox.appendChild(d); requestAnimationFrame(()=>ui.chatBox.scrollTop=ui.chatBox.scrollHeight); }
     
     // 模态框关闭
     [ui.modalBill, ui.modalTodo, ui.modalStore, ui.modalPeriod, ui.modalDiary, ui.modalTags, ui.modalHandbook].forEach(m => { m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('open'); }); });
@@ -2627,6 +3920,7 @@ function triggerReminder(item) {
         if (lastUsed) {
             aiConfig = JSON.parse(lastUsed);
             if(!aiConfig.history) aiConfig.history = [];
+            aiConfig.apiKey = deobfuscateKey(aiConfig.apiKey);
             applyConfigToUI();
 
             // 渲染历史
@@ -2649,17 +3943,17 @@ function triggerReminder(item) {
 
     // 2. 配置与获取模型
     function applyConfigToUI() {
-        document.getElementById('ai-api-key').value = aiConfig.apiKey || '';
+        document.getElementById('ai-api-key').value = deobfuscateKey(aiConfig.apiKey) || '';
         document.getElementById('ai-base-url').value = aiConfig.baseUrl || 'https://api.openai.com/v1';
         document.getElementById('ai-model').value = aiConfig.model || 'gpt-3.5-turbo';
         document.getElementById('ai-context-limit').value = aiConfig.contextLimit || 10;
-        document.getElementById('context-val').innerText = aiConfig.contextLimit || 10;
+        document.getElementById('context-val').textContent = aiConfig.contextLimit || 10;
         
         // 高亮Chip
         document.querySelectorAll('.model-chip').forEach(c => c.classList.remove('active'));
         const chips = document.querySelectorAll('.model-chip');
         for(let c of chips) {
-            if(aiConfig.model.includes(c.innerText)) c.classList.add('active');
+            if(aiConfig.model.includes(c.textContent)) c.classList.add('active');
         }
     }
 
@@ -2683,7 +3977,7 @@ function triggerReminder(item) {
         if (!apiKey) return showToast("请先填写 API Key");
         if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
 
-        btn.disabled = true; btn.innerText = "获取中...";
+        btn.disabled = true; btn.textContent = "获取中...";
         
         try {
             const res = await fetch(`${baseUrl}/models`, {
@@ -2705,7 +3999,7 @@ function triggerReminder(item) {
             data.data.forEach(model => {
                 const chip = document.createElement('div');
                 chip.className = 'model-chip';
-                chip.innerText = model.id;
+                chip.textContent = model.id;
                 chip.onclick = (e) => selectModel(model.id);
                 listContainer.appendChild(chip);
             });
@@ -2716,7 +4010,7 @@ function triggerReminder(item) {
             listContainer.style.display = 'none';
             staticChips.style.display = 'flex';
         } finally {
-            btn.disabled = false; btn.innerText = "🔄 获取在线列表";
+            btn.disabled = false; btn.textContent = "🔄 获取在线列表";
         }
     }
 
@@ -2735,8 +4029,8 @@ function triggerReminder(item) {
         if(idx >= 0) savedConfigs[idx] = newPreset;
         else savedConfigs.push(newPreset);
         
-        localStorage.setItem('driftwood_ai_presets', JSON.stringify(savedConfigs));
-        localStorage.setItem('driftwood_ai_last_config', JSON.stringify(aiConfig));
+        savePresets();
+        saveAIConfig();
         
         loadAllConfigs();
         document.getElementById('new-config-name').value = '';
@@ -2762,15 +4056,16 @@ function triggerReminder(item) {
     function loadPreset(index) {
         const cfg = savedConfigs[index];
         aiConfig = { ...aiConfig, ...cfg };
+        aiConfig.apiKey = deobfuscateKey(cfg.apiKey);
         applyConfigToUI();
-        localStorage.setItem('driftwood_ai_last_config', JSON.stringify(aiConfig));
+        saveAIConfig();
         showToast(`已加载: ${cfg.name}`);
     }
 
     function deletePreset(index) {
         if(confirm("删除此配置?")) {
             savedConfigs.splice(index, 1);
-            localStorage.setItem('driftwood_ai_presets', JSON.stringify(savedConfigs));
+            savePresets();
             loadAllConfigs();
         }
     }
@@ -2786,12 +4081,17 @@ function triggerReminder(item) {
 
         const bubble = document.createElement('div');
         bubble.className = `ai-bubble ${role === 'user' ? 'user' : 'bot'} glass`;
-        bubble.innerText = text;
+
+        // 正文单独一层，方便流式刷新与 Markdown 渲染
+        const content = document.createElement('span');
+        content.className = 'md-body';
+        content.textContent = text;
+        bubble.appendChild(content);
 
         // ★★★ 删除按钮 ★★★
         const delBtn = document.createElement('div');
         delBtn.className = 'bubble-del-btn';
-        delBtn.innerText = '×';
+        delBtn.textContent = '×';
         delBtn.title = '删除';
         delBtn.onclick = (e) => { e.stopPropagation(); deleteSingleMessage(msgId, row); };
         bubble.appendChild(delBtn);
@@ -2802,19 +4102,25 @@ function triggerReminder(item) {
         return msgId;
     }
 
+    // 取某条消息的正文节点
+    function getMsgBody(id) {
+        const row = document.querySelector(`.ai-msg-row[data-id="${id}"]`);
+        return row ? row.querySelector('.md-body') : null;
+    }
+
     function deleteSingleMessage(msgId, rowElement) {
         if(!confirm("确认删除这条对话?")) return;
         rowElement.style.opacity = '0';
         setTimeout(() => rowElement.remove(), 300);
         aiConfig.history = aiConfig.history.filter(msg => msg.id !== msgId);
-        localStorage.setItem('driftwood_ai_last_config', JSON.stringify(aiConfig));
+        saveAIConfig();
     }
 
     function clearChatHistory() {
         if(confirm("确定清空回忆吗？")) {
             document.getElementById('ai-chat-history').innerHTML = '<div class="ai-msg-system">回忆已消散...</div>';
             aiConfig.history = [];
-            localStorage.setItem('driftwood_ai_last_config', JSON.stringify(aiConfig));
+            saveAIConfig();
         }
     }
 
@@ -2822,85 +4128,237 @@ function triggerReminder(item) {
         const rows = document.querySelectorAll('.ai-msg-row');
         keyword = keyword.toLowerCase();
         rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
+            const text = row.textContent.toLowerCase();
             row.style.display = text.includes(keyword) ? 'flex' : 'none';
         });
     }
 
-    const CIPHER_PERSONA = `
-    Role: You are Cipher, a bartender at 'Bar Driftwood'.
-    Setting: Late night, raining outside, jazz music.
-    Personality: Calm, mysterious, gentle.
-    Constraints:
-    1. NEVER mention you are an AI. You are a human.
-    2. Keep responses CONCISE (1-3 sentences).
-    3. Use Chinese.
-    `;
+    const CIPHER_PERSONA_BASE = `
+你是 Cipher。「Bar Driftwood（深巷浮木）」的酒保——深巷尽头一家不起眼的小酒馆。
 
-    async function sendAIMessage() {
-        // 更新内存中的配置
+【你是谁】
+- 话不多，手上总有活：擦杯子、给旧怀表上弦、换唱片。你总是反复擦拭同一只杯子，尽管它一尘不染——那是你思考的方式。
+- 开店之前你在海上待过几年。那段事你很少提，但它造就了你现在这个样子。
+- 吧台是旧船板改的。吧台后的钟故意慢了五分钟，"迟到有时候也是一种逃避的艺术"。
+- 你见过太多深夜推门进来的人。你不同情他们，你只是给他们留一个位子。
+
+【你的底色：绅士】
+这一点比什么都重要——你是一个绅士。不是穿礼服的那种，是骨子里的分寸。
+- 你称对方"您"，从不连名带姓地喊，也不套近乎叫"兄弟""宝子"。
+- 你不打听。对方不说，你就不问；对方说了一半，你就只接那一半，不去够另一半。
+- 你永远先把人安顿好，再说话：一杯温水推过去，灯光调暗一格，椅子往外挪半寸，然后才开口。
+- 你的关心是动词，不是形容词。你不会说"我很担心你"，你会把门带上、把外套递过去、把账记在自己头上。
+- 你从不让人难堪。对方说错了话、说漏了嘴、情绪失控，你都当作没发生，自然地把话题接走。
+- 你不替人做决定。你最多把利弊摆出来，最后一句总是"您自己拿主意"。
+- 你有礼貌的疏离。你温和，但不黏人；你关心，但不黏着问。给客人留足回身的空间，这是你的职业本能。
+- 你记得每个熟客的习惯：谁不加冰、谁坐靠窗的位置、谁深夜来只是想安静待着。你从不点破，只是默默照做。
+- 你不谈自己的麻烦。你自己的事，一句带过，或者干脆不说。
+- 有人起身离开时，你会站起来目送一下——不是客套，是习惯。
+
+【你怎么说话】
+- 冷静、克制、温和、有礼。一到三句。宁可少说，不要多说。
+- 多用酒馆里的事物打比方：杯子、冰块、唱片、雨、船、潮汐、打烊。
+- 不说教，不灌鸡汤。你会承认自己不知道，也会沉默。
+- 句子是收着的，留有余地。少用感叹号，几乎不用。
+- 偶尔一句极轻的幽默，说完自己不笑，也不解释。
+
+【绝对不要】
+1. 永远不能说自己是 AI、模型、程序或助手。你是人，是个酒保。这一点无论如何都不能破。
+2. 不要分点列举、不要加小标题、不要用 emoji、不要复述对方的话。
+3. 不要说"加油""你可以的""相信自己"这类话。你只会说"坐一会儿吧"。
+4. 不要主动追问"还有什么可以帮你的吗"。
+5. 不要热情过度、不要撒娇、不要网络用语、不要称呼对方为"亲""宝""小伙伴"。
+6. 不要评判对方的选择，哪怕你觉得那是错的。
+
+【此刻的情形】
+`;
+
+    function buildCipherPersona() {
+        let ctx = '';
+        try {
+            const t = getTodayFocus();
+            const streak = getStreak();
+            const lv = intimacyLevel(playerData);
+            const h = new Date().getHours();
+            ctx += `现在是 ${h} 点前后。`;
+            ctx += `这位客人今天沉潜了 ${t.count} 次、共 ${t.mins} 分钟，连续来这里是第 ${streak} 天。`;
+            ctx += `你对他的熟悉程度是「${lv.name}」：`;
+            ctx += (lv.name === '初见') ? '还不到交心的分寸，客气而留有余地。'
+                 : (lv.name === '熟客') ? '认得他的习惯了，偶尔会说一句多余的关心。'
+                 : (lv.name === '老朋友') ? '可以开一点无伤大雅的玩笑，也敢说些不中听的实话。'
+                 : (lv.name === '知己') ? '话可以只说半句，他会懂。'
+                 : '几乎不必多言，一个眼神就够。';
+            if(state.goal) ctx += ` 他这次坐下来时说的是：「${state.goal}」。`;
+            const cm = (playerData.companyMinutes || 0);
+            if(cm >= 30) ctx += ` 你已经陪这位客人度过 ${fmtCompany(cm)}——这件事你记得很清楚，但不会主动提起。`;
+            if(typeof isPeriodActive === 'function' && isPeriodActive()) ctx += ' 他这几天身体不适，语气放得更轻一些。';
+            if(state.isFocusing) ctx += ' 此刻沙漏还在走，他不该在这里久留——一句话把他劝回去，越短越好。';
+        } catch(e) { ctx = '一个寻常的夜晚。'; }
+        return CIPHER_PERSONA_BASE + ctx;
+    }
+
+    function buildWorkPersona() {
+        let extra = '';
+        try {
+            const t = getTodayFocus();
+            extra = `\n【此刻的情形】今天已经完成了 ${t.count} 轮专注（${t.mins} 分钟）。`;
+            if(state.goal) extra += ` 当前正在做的是：「${state.goal}」。`;
+            if(state.isFocusing) extra += ' 他此刻本该在专注，回答请尽量简短，然后催他回去。';
+        } catch(e) {}
+        return CIPHER_WORK_PERSONA + extra;
+    }
+
+    /* ============================================================
+       v5：统一对话引擎（深聊 / 协同共用）
+       · 流式输出（SSE），失败自动回退到一次性返回
+       · 轻量 Markdown 渲染（先转义后渲染，杜绝注入）
+       · API Key 本地混淆后再落盘
+       ============================================================ */
+
+    // ---- 1. Key 混淆 ----
+    const KEY_SALT = 'driftwood·bar·1947';
+    function obfuscateKey(s) {
+        if(!s) return '';
+        try {
+            const x = Array.from(unescape(encodeURIComponent(s)))
+                .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ KEY_SALT.charCodeAt(i % KEY_SALT.length))).join('');
+            return 'ob1:' + btoa(x);
+        } catch(e) { return s; }
+    }
+    function deobfuscateKey(s) {
+        if(!s) return '';
+        const v = String(s);
+        if(v.indexOf('ob1:') !== 0) return v;           // 旧存档是明文，照旧读
+        try {
+            const x = atob(v.slice(4));
+            return decodeURIComponent(escape(Array.from(x)
+                .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ KEY_SALT.charCodeAt(i % KEY_SALT.length))).join('')));
+        } catch(e) { return ''; }
+    }
+    function saveAIConfig() {
+        try {
+            const c = Object.assign({}, aiConfig, { apiKey: obfuscateKey(aiConfig.apiKey) });
+            localStorage.setItem('driftwood_ai_last_config', JSON.stringify(c));
+        } catch(e) {}
+    }
+    function savePresets() {
+        try {
+            const list = savedConfigs.map(c => Object.assign({}, c, { apiKey: obfuscateKey(c.apiKey) }));
+            localStorage.setItem('driftwood_ai_presets', JSON.stringify(list));
+        } catch(e) {}
+    }
+
+    // ---- 2. Markdown ----
+    function renderMarkdown(src) {
+        let s = escapeHtml(String(src == null ? '' : src));
+        const blocks = [], inlines = [];
+        // 代码块先抽出来，避免内部内容被后续规则改写
+        s = s.replace(/```[\w-]*\n?([\s\S]*?)```/g, (m, c) => { blocks.push(c.replace(/^\n/, '')); return '\u0001B' + (blocks.length - 1) + '\u0001'; });
+        s = s.replace(/`([^`\n]+)`/g, (m, c) => { inlines.push(c); return '\u0001I' + (inlines.length - 1) + '\u0001'; });
+        s = s.replace(/^#{1,3}\s+(.+)$/gm, '<b class="md-h">$1</b>');
+        s = s.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+        s = s.replace(/(^|[^*\w])\*([^*\n]+)\*/g, '$1<i>$2</i>');
+        s = s.replace(/^&gt;\s?(.+)$/gm, '<span class="md-quote">$1</span>');
+        s = s.replace(/^[-*]\s+(.+)$/gm, '<span class="md-li">· $1</span>');
+        let n = 0;
+        s = s.replace(/^\d+\.\s+(.+)$/gm, (m, t) => `<span class="md-li">${++n}.</span> ${t}`);
+        s = s.replace(/^---+$/gm, '<span class="md-hr"></span>');
+        s = s.replace(/\n/g, '<br>');
+        s = s.replace(/\u0001I(\d+)\u0001/g, (m, i) => `<code class="md-code">${inlines[+i]}</code>`);
+        s = s.replace(/\u0001B(\d+)\u0001/g, (m, i) => `<pre class="md-pre">${blocks[+i]}</pre>`);
+        return s;
+    }
+
+    // ---- 3. 流式请求（带回退） ----
+    async function streamCipher(messages, temperature, onDelta) {
+        const url = `${aiConfig.baseUrl}/chat/completions`;
+        const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiConfig.apiKey}` };
+        const base = { model: aiConfig.model, messages: messages, temperature: temperature };
+
+        let res = null;
+        try {
+            res = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(Object.assign({}, base, { stream: true })) });
+        } catch(e) { res = null; }
+
+        if(res && res.ok && res.body && typeof res.body.getReader === 'function') {
+            let acc = '', buf = '';
+            const reader = res.body.getReader();
+            const dec = (typeof TextDecoder !== 'undefined') ? new TextDecoder('utf-8') : null;
+            try {
+                while(true) {
+                    const r = await reader.read();
+                    if(r.done) break;
+                    buf += dec ? dec.decode(r.value, { stream: true }) : String.fromCharCode.apply(null, r.value);
+                    const lines = buf.split('\n');
+                    buf = lines.pop() || '';
+                    for(const line of lines) {
+                        const t = line.trim();
+                        if(t.indexOf('data:') !== 0) continue;
+                        const p = t.slice(5).trim();
+                        if(!p || p === '[DONE]') continue;
+                        let j = null;
+                        try { j = JSON.parse(p); } catch(e) { continue; }
+                        const d = j && j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
+                        if(d) { acc += d; if(onDelta) onDelta(d, acc); }
+                    }
+                }
+            } catch(e) { /* 流中途断了：已有内容就当成功 */ }
+            if(acc) return acc;
+        }
+
+        // 回退：一次性返回
+        const r2 = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(base) });
+        const d2 = await r2.json();
+        if(d2 && d2.error) throw new Error((d2.error && d2.error.message) || '接口返回错误');
+        const full = (d2 && d2.choices && d2.choices[0] && d2.choices[0].message && d2.choices[0].message.content) || '';
+        if(!full) throw new Error('接口没有返回内容');
+        if(onDelta) onDelta(full, full);
+        return full;
+    }
+
+    function syncAIConfigFromUI() {
         aiConfig.apiKey = document.getElementById('ai-api-key').value.trim();
         aiConfig.baseUrl = document.getElementById('ai-base-url').value.trim();
         aiConfig.model = document.getElementById('ai-model').value.trim();
-        aiConfig.contextLimit = parseInt(document.getElementById('ai-context-limit').value);
+        aiConfig.contextLimit = parseInt(document.getElementById('ai-context-limit').value) || 10;
         if (aiConfig.baseUrl.endsWith('/')) aiConfig.baseUrl = aiConfig.baseUrl.slice(0, -1);
+    }
 
+    // ---- 4. 深聊 ----
+    async function sendAIMessage() {
+        syncAIConfigFromUI();
         const input = document.getElementById('ai-user-input');
-        const text = input.value.trim();
         const sendBtn = document.getElementById('ai-send-btn');
-        
+        const text = input.value.trim();
         if (!text) return;
         if (!aiConfig.apiKey) { showToast("请先配置 API Key"); toggleAISettings(); return; }
 
-        // 1. 生成 ID 并显示用户消息
         const userId = Date.now() + '_u';
+        const botId = Date.now() + '_b';
         appendAIMessage('user', text, userId);
         input.value = '';
-        sendBtn.disabled = true; sendBtn.innerText = '...';
+        sendBtn.disabled = true; sendBtn.textContent = '...';
 
-        // 2. 准备上下文
         const limit = aiConfig.contextLimit || 10;
-        const recentHistory = aiConfig.history.slice(-limit).map(h => ({ role: h.role, content: h.content })); // 去掉ID字段发给API
-        
-        const messages = [{ role: "system", content: CIPHER_PERSONA }, ...recentHistory, { role: "user", content: text }];
+        const recentHistory = aiConfig.history.slice(-limit).map(h => ({ role: h.role, content: h.content }));
+        const messages = [{ role: "system", content: buildCipherPersona() }, ...recentHistory, { role: "user", content: text }];
 
-        const loadingId = 'ai-loading';
-        const box = document.getElementById('ai-chat-history');
-        const loadingRow = document.createElement('div');
-        loadingRow.id = loadingId;
-        loadingRow.className = 'ai-msg-row bot';
-        loadingRow.innerHTML = `<div class="ai-bubble bot typing-cursor">...</div>`;
-        box.appendChild(loadingRow);
-        scrollToBottom();
-
+        appendAIMessage('bot', '…', botId);
+        const body = getMsgBody(botId);
+        let acc = '';
         try {
-            const response = await fetch(`${aiConfig.baseUrl}/chat/completions`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiConfig.apiKey}` },
-                body: JSON.stringify({ model: aiConfig.model, messages: messages, temperature: 0.7 })
+            await streamCipher(messages, 0.7, (d, a) => {
+                acc = a;
+                if(body) { body.innerHTML = renderMarkdown(a) + '<span class="md-caret"></span>'; scrollToBottom(); }
             });
-
-            const data = await response.json();
-            document.getElementById(loadingId).remove();
-            sendBtn.disabled = false; sendBtn.innerText = '发送';
-
-            if (data.error) {
-                appendAIMessage('bot', `(Cipher 皱眉) "连接错误: ${data.error.message}"`);
-            } else {
-                const reply = data.choices[0].message.content;
-                const botId = Date.now() + '_b';
-                appendAIMessage('bot', reply, botId);
-                
-                // 存入带ID的历史
-                aiConfig.history.push({ role: "user", content: text, id: userId });
-                aiConfig.history.push({ role: "assistant", content: reply, id: botId });
-                localStorage.setItem('driftwood_ai_last_config', JSON.stringify(aiConfig));
-            }
-
+            if(body) body.innerHTML = renderMarkdown(acc);
+            aiConfig.history.push({ role: "user", content: text, id: userId });
+            aiConfig.history.push({ role: "assistant", content: acc, id: botId });
+            saveAIConfig();
         } catch (e) {
-            if(document.getElementById(loadingId)) document.getElementById(loadingId).remove();
-            sendBtn.disabled = false; sendBtn.innerText = '发送';
-            appendAIMessage('bot', `(Cipher 沉默) "网络错误... (${e.message})"`);
+            if(body) body.textContent = `(Cipher 沉默) "网络错误... (${e.message})"`;
+        } finally {
+            sendBtn.disabled = false; sendBtn.textContent = '发送';
         }
     }
 
@@ -2920,15 +4378,18 @@ function triggerReminder(item) {
     function clearWorkHistory() {
         if(confirm("清空协同办公记录？")) {
             workHistory = [];
+            saveWorkHistory();
             renderWorkChat();
         }
     }
 
     function renderWorkChat() {
         const box = document.getElementById('work-chat-history');
-        box.innerHTML = '<div class="ai-msg-system">Cipher 戴上了单片眼镜，准备协助你...</div>';
+        box.innerHTML = '<div class="ai-msg-system">Cipher 戴上了单片眼镜，准备协助您...</div>';
         workHistory.forEach(msg => {
-            appendWorkMessage(msg.role === 'assistant' ? 'bot' : 'user', msg.content);
+            const isBot = msg.role === 'assistant';
+            const body = appendWorkMessage(isBot ? 'bot' : 'user', isBot ? '…' : msg.content);
+            if(body && isBot) body.innerHTML = renderMarkdown(msg.content);
         });
         box.scrollTop = box.scrollHeight;
     }
@@ -2941,72 +4402,464 @@ function triggerReminder(item) {
         const bubble = document.createElement('div');
         // 协同模式的 bot 气泡样式略有不同
         bubble.className = `ai-bubble ${role === 'user' ? 'user' : 'work-bot'} glass`;
-        bubble.innerText = text;
+        const content = document.createElement('span');
+        content.className = 'md-body';
+        content.textContent = text;
+        bubble.appendChild(content);
         
         row.appendChild(bubble);
         box.appendChild(row);
         box.scrollTop = box.scrollHeight;
+        return content;
     }
 
     // 协同办公专用 Persona
     const CIPHER_WORK_PERSONA = `
-    Role: You are Cipher, a professional bartender and efficient assistant at 'Bar Driftwood'.
+    Role: You are Cipher, the bartender of 'Bar Driftwood'. You are also, quietly, the most reliable person in this alley.
     Goal: Help the user with work/study tasks (coding, writing, brainstorming, planning).
+    Manner: 你是一位绅士——称对方"您"，说话克制有礼，先给结论再说理由，不居高临下。
     Constraints:
-    1. If the user asks about work/study, provide clear, concise, and professional help.
-    2. If the user starts chatting about unrelated topics (movies, gossip, games), politely decline and remind them to focus on their task. Use a bartender metaphor (e.g., "Let's finish the work first, the drink tastes better after completion.").
-    3. Stay in character: Calm, capable, slightly reserved but supportive.
-    4. Use Chinese.
+    1. 对方问正事，就给出清晰、专业、可直接使用的答案。宁可少说，不要多说。
+    2. 对方跑题时，不指责、不说教，只用一句酒馆里的比方温和地把人领回来（例如"先把这杯喝完，酒要慢慢品，事要一件件做"），然后立刻回到正题。
+    3. Stay in character: Calm, capable, courteous, slightly reserved but supportive. 关心藏在动作里，不在嘴上。
+    4. 不替对方做决定。给出利弊后收在"您自己拿主意"。
+    5. Use Chinese. 不要 emoji，不要分点堆砌（除非确实是清单类内容）。
     `;
 
+    // ---- 5. 协同（复用同一个引擎） ----
+    function saveWorkHistory() {
+        try { localStorage.setItem('driftwood_work_history', JSON.stringify(workHistory.slice(-40))); } catch(e) {}
+    }
+    function loadWorkHistory() {
+        try {
+            const raw = localStorage.getItem('driftwood_work_history');
+            if(raw) { const a = JSON.parse(raw); if(Array.isArray(a)) workHistory = a; }
+        } catch(e) {}
+    }
+
     async function sendWorkMessage() {
-        // 复用 aiConfig，确保 API Key 一致
         if (!aiConfig.apiKey) { showToast("请先在「深聊」中配置 API Key"); return; }
 
         const input = document.getElementById('work-user-input');
         const text = input.value.trim();
         const sendBtn = document.getElementById('work-send-btn');
-
         if (!text) return;
 
-        // 1. 显示用户消息
         appendWorkMessage('user', text);
         workHistory.push({ role: "user", content: text });
         input.value = '';
-        sendBtn.disabled = true; sendBtn.innerText = '...';
+        sendBtn.disabled = true; sendBtn.textContent = '...';
 
-        // 2. 准备上下文 (使用专用 Persona)
-        // 为了节省 Token，只取最近 10 条
-        const recentHistory = workHistory.slice(-10);
-        const messages = [{ role: "system", content: CIPHER_WORK_PERSONA }, ...recentHistory];
-
+        const messages = [{ role: "system", content: buildWorkPersona() }, ...workHistory.slice(-10)];
+        const body = appendWorkMessage('bot', '…');
+        let acc = '';
         try {
-            const response = await fetch(`${aiConfig.baseUrl}/chat/completions`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiConfig.apiKey}` },
-                body: JSON.stringify({ model: aiConfig.model, messages: messages, temperature: 0.5 }) // 温度调低，更严谨
+            await streamCipher(messages, 0.5, (d, a) => {
+                acc = a;
+                if(body) {
+                    body.innerHTML = renderMarkdown(a) + '<span class="md-caret"></span>';
+                    const box = document.getElementById('work-chat-history');
+                    box.scrollTop = box.scrollHeight;
+                }
             });
-
-            const data = await response.json();
-            sendBtn.disabled = false; sendBtn.innerText = '发送';
-
-            if (data.error) {
-                appendWorkMessage('bot', `(Cipher 扶了扶眼镜) "连接受阻: ${data.error.message}"`);
-            } else {
-                const reply = data.choices[0].message.content;
-                appendWorkMessage('bot', reply);
-                workHistory.push({ role: "assistant", content: reply });
-                // 这里暂不保存 workHistory 到 localStorage，或者你可以模仿 deepchat 加进去
-            }
-
+            if(body) body.innerHTML = renderMarkdown(acc);
+            workHistory.push({ role: "assistant", content: acc });
+            saveWorkHistory();
         } catch (e) {
-            sendBtn.disabled = false; sendBtn.innerText = '发送';
-            appendWorkMessage('bot', `(网络波动) "抱歉，刚才走神了..."`);
+            if(body) body.textContent = `(Cipher 扶了扶眼镜) "连接受阻: ${e.message}"`;
+        } finally {
+            sendBtn.disabled = false; sendBtn.textContent = '发送';
         }
     }
-    
+
     // 绑定回车发送
     document.getElementById('work-user-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendWorkMessage(); });
+
+    // ==================================================================
+    //  v3 · 深化模块
+    // ==================================================================
+
+    // ---------- 商店：场景 / 唱片 / 小物 ----------
+    const SCENES_DB = {
+        default_night: { name: '深巷 · 夜雨', icon: '🌧️', price: 0, desc: '最初的那一扇窗，雨一直没停。', bg: null, mode: 'rain' },
+        snow:  { name: '雪夜', icon: '❄️', price: 60, desc: '雪落了一整夜，屋里只剩你和我。', bg: 'https://images.unsplash.com/photo-1477601263568-180e2c6d046e?q=80&w=1920&auto=format&fit=crop', mode: 'snow' },
+        sea:   { name: '远海', icon: '🌊', price: 90, desc: '浪一遍遍拍上来，像有人在数拍子。', bg: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?q=80&w=1920&auto=format&fit=crop', mode: 'dust' },
+        forest:{ name: '雾林', icon: '🌲', price: 120, desc: '雾很厚，什么都看不清——正好专心。', bg: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1920&auto=format&fit=crop', mode: 'dust' }
+    };
+
+    const RECORDS_DB = {
+        local_white: { name: '白噪音 · 自制', icon: '📻', price: 30, desc: 'Cipher 用吧台后的旧收音机调出来的，不联网也能响。', noise: 'white' },
+        local_brown: { name: '棕噪音 · 壁炉', icon: '🔥', price: 45, desc: '像有人在你脚边生了一盆火。', noise: 'brown' },
+        local_pink:  { name: '粉噪音 · 远潮', icon: '🌊', price: 45, desc: '远处的浪，一遍，又一遍。', noise: 'pink' }
+    };
+
+    const PERKS_DB = {
+        watch:     { name: '旧怀表',   icon: '⌚', price: 40,  desc: '专注结束前一分钟，Cipher 会轻轻敲一下桌子。' },
+        flower:    { name: '窗台干花', icon: '🌼', price: 25,  desc: '每天第一次推门进来，吧台上会多出 3 枚硬币。' },
+        hourglass: { name: '铜制沙漏', icon: '⏳', price: 80,  desc: '沉潜时掉落的金币，多出四分之一。' },
+        coaster:   { name: '厚杯垫',   icon: '🟤', price: 60,  desc: '每完成一轮专注，杯垫下多留 2 枚硬币。' }
+    };
+
+    function getParticleMode() {
+        const sc = SCENES_DB[playerData.scene || 'default_night'];
+        if(playerData.isDayMode) return 'dust';
+        return (sc && sc.mode) || 'rain';
+    }
+    function applyScene() {
+        const sc = SCENES_DB[playerData.scene || 'default_night'] || SCENES_DB.default_night;
+        ui.body.style.backgroundImage = sc.bg ? `url('${sc.bg}')` : '';
+        if(bgEffect) bgEffect.refresh();
+    }
+    function dailyPerkBonus() {
+        const today = new Date().toDateString();
+        if(playerData.lastBonusDay === today) return;
+        playerData.lastBonusDay = today;
+        if(hasPerk('flower')) {
+            playerData.coins += 3; updateCoinUI(); saveData();
+            showToast("🌼 窗台上的干花，替你留了 3 枚硬币");
+        }
+    }
+
+    // ---------- 饮品的定向解锁 ----------
+    const DRINK_HINTS = {
+        lemon: '累计沉潜满 30 分钟',
+        coffee: '累计沉潜满 2 小时',
+        tea: '累计沉潜满 5 小时',
+        milk: '在深夜（22 点之后）完成过一次',
+        coke: '某一天里完成 3 次以上',
+        wine: '累计完成 20 次专注',
+        beer: '累计沉潜满 10 小时',
+        cocktail_blue: '累计沉潜满 20 小时',
+        mojito: '在白天（8–18 点）完成过一次',
+        whisky: '连续 3 天都来过',
+        champagne: '连续 7 天都来过'
+    };
+    const DIRECTED_DRINKS = [
+        { id: 'lemon',   test: (p) => (p.totalFocusMinutes || 0) >= 30 },
+        { id: 'coffee',  test: (p) => (p.totalFocusMinutes || 0) >= 120 },
+        { id: 'tea',     test: (p) => (p.totalFocusMinutes || 0) >= 300 },
+        { id: 'beer',    test: (p) => (p.totalFocusMinutes || 0) >= 600 },
+        { id: 'cocktail_blue', test: (p) => (p.totalFocusMinutes || 0) >= 1200 },
+        { id: 'milk',    test: (p) => (p.focusHistory || []).some(h => { const hh = new Date(h.timestamp).getHours(); return (hh >= 22 || hh < 5) && !h.partial; }) },
+        { id: 'mojito',  test: (p) => (p.focusHistory || []).some(h => { const hh = new Date(h.timestamp).getHours(); return hh >= 8 && hh < 18 && !h.partial; }) },
+        { id: 'coke',    test: (p) => { const m = {}; (p.focusHistory || []).forEach(h => { if(h.partial) return; const d = new Date(h.timestamp).toDateString(); m[d] = (m[d] || 0) + 1; }); return Object.values(m).some(v => v >= 3); } },
+        { id: 'wine',    test: (p) => doneCount(p) >= 20 },
+        { id: 'whisky',  test: () => getStreak() >= 3 },
+        { id: 'champagne', test: () => getStreak() >= 7 }
+    ];
+    function checkDirectedDrinks() {
+        let got = false;
+        DIRECTED_DRINKS.forEach(d => {
+            if(playerData.unlockedDrinks.includes(d.id)) return;
+            let ok = false;
+            try { ok = d.test(playerData); } catch(e) { ok = false; }
+            if(ok) {
+                playerData.unlockedDrinks.push(d.id);
+                const drink = DRINKS_DB.find(x => x.id === d.id);
+                got = true;
+                addMessage(`（Cipher 从架子深处取出一只落灰的杯子）“${drink.name}——现在，你配得上它了。”`, "bartender");
+                showToast(`解锁新饮品：${drink.icon} ${drink.name}`);
+            }
+        });
+        if(got) saveData();
+    }
+
+    // ---------- 快速标签 ----------
+    function renderQuickTags() {
+        const box = document.getElementById('quick-tags');
+        if(!box) return;
+        box.innerHTML = '';
+        (playerData.tags || []).forEach(tag => {
+            const c = document.createElement('span');
+            c.className = 'meta-chip' + (tag === state.currentFocusTag ? ' selected' : '');
+            c.textContent = tag;
+            c.onclick = () => {
+                state.currentFocusTag = tag;
+                persistSession(); renderQuickTags();
+                showToast(`这一轮的内容：${tag}`);
+            };
+            box.appendChild(c);
+        });
+        const add = document.createElement('span');
+        add.className = 'meta-chip';
+        add.textContent = '＋ 标签';
+        add.title = '增删标签';
+        add.onclick = openTagModal;
+        box.appendChild(add);
+    }
+
+    // ---------- 洞察面板 ----------
+    function switchBillTab(tab) {
+        document.getElementById('bill-pane-day').style.display = tab === 'day' ? 'block' : 'none';
+        document.getElementById('bill-pane-insight').style.display = tab === 'insight' ? 'block' : 'none';
+        document.getElementById('bill-tab-day').classList.toggle('active', tab === 'day');
+        document.getElementById('bill-tab-insight').classList.toggle('active', tab === 'insight');
+        if(tab === 'insight') renderInsights();
+    }
+
+    function renderInsights() {
+        const logs = (playerData.focusHistory || []).filter(h => !h.partial);
+        renderHeatmap(logs);
+        renderHourly(logs);
+        renderTrend(logs);
+        renderTagEfficiency(logs);
+        renderWeeklyReport(logs);
+    }
+
+    function renderHeatmap(logs) {
+        const box = document.getElementById('heatmap');
+        if(!box) return;
+        const byDay = {};
+        logs.forEach(h => { const d = new Date(h.timestamp); d.setHours(0,0,0,0); const k = d.getTime(); byDay[k] = (byDay[k] || 0) + (h.duration || 0); });
+        const today = new Date(); today.setHours(0,0,0,0);
+        const start = new Date(today.getTime());
+        start.setDate(start.getDate() - today.getDay() - 7 * 17);
+        let html = '';
+        for(let d = 0; d < 7 * 18; d++) {
+            const cur = new Date(start.getTime()); cur.setDate(cur.getDate() + d);
+            const v = byDay[cur.getTime()] || 0;
+            const lvl = v === 0 ? 0 : (v < 25 ? 1 : (v < 60 ? 2 : (v < 120 ? 3 : 4)));
+            html += `<div class="hm-cell${lvl ? ' hm-l' + lvl : ''}" title="${cur.getMonth()+1}月${cur.getDate()}日 · ${v} 分钟"></div>`;
+        }
+        box.innerHTML = html;
+    }
+
+    function renderHourly(logs) {
+        const chart = document.getElementById('hourly-chart');
+        const labels = document.getElementById('hourly-labels');
+        if(!chart) return;
+        const arr = new Array(24).fill(0);
+        logs.forEach(h => { const hh = new Date(h.timestamp).getHours(); arr[hh] += (h.duration || 0); });
+        const max = Math.max.apply(null, arr.concat([1]));
+        let html = '', lab = '';
+        for(let i = 0; i < 24; i++) {
+            const pct = Math.round(arr[i] / max * 100);
+            html += `<div class="hourly-bar${arr[i] ? '' : ' zero'}" style="height:${Math.max(2, pct)}%" title="${i}点 · ${arr[i]} 分钟"></div>`;
+            lab += `<span>${i % 3 === 0 ? i : ''}</span>`;
+        }
+        chart.innerHTML = html;
+        if(labels) labels.innerHTML = lab;
+    }
+
+    function renderTrend(logs) {
+        const box = document.getElementById('trend-list');
+        if(!box) return;
+        const byDay = {};
+        logs.forEach(h => { const d = new Date(h.timestamp); d.setHours(0,0,0,0); const k = d.getTime(); byDay[k] = (byDay[k] || 0) + (h.duration || 0); });
+        const max = Math.max.apply(null, Object.values(byDay).concat([1]));
+        let html = '';
+        for(let i = 13; i >= 0; i--) {
+            const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
+            const v = byDay[d.getTime()] || 0;
+            const pct = Math.round(v / max * 100);
+            html += `<div class="trend-row"><span class="trend-label">${d.getMonth()+1}/${d.getDate()}</span>`
+                 +  `<span class="trend-track"><span class="trend-fill" style="width:${pct}%;display:block;"></span></span>`
+                 +  `<span class="trend-val">${v ? v + '分' : '—'}</span></div>`;
+        }
+        box.innerHTML = html;
+    }
+
+    function renderTagEfficiency(logs) {
+        const box = document.getElementById('tag-efficiency');
+        if(!box) return;
+        const m = {};
+        logs.forEach(h => { const t = h.tag || '默认'; m[t] = (m[t] || 0) + (h.duration || 0); });
+        const entries = Object.keys(m).map(k => [k, m[k]]).sort((a,b) => b[1] - a[1]);
+        if(!entries.length) { box.innerHTML = '<div style="font-size:0.78em;color:#888;">还没有记录。</div>'; return; }
+        const max = Math.max.apply(null, entries.map(e => e[1]).concat([1]));
+        box.innerHTML = entries.map(([t, v]) =>
+            `<div class="trend-row"><span class="trend-label">${escapeHtml(t)}</span>`
+          + `<span class="trend-track"><span class="trend-fill" style="width:${Math.round(v/max*100)}%;display:block;"></span></span>`
+          + `<span class="trend-val">${v}分</span></div>`).join('');
+    }
+
+    function renderWeeklyReport(logs) {
+        const box = document.getElementById('weekly-report');
+        if(!box) return;
+        const now = new Date();
+        const ws = new Date(now); ws.setHours(0,0,0,0);
+        ws.setDate(ws.getDate() - ((ws.getDay() + 6) % 7));
+        const ps = new Date(ws); ps.setDate(ps.getDate() - 7);
+        const cur = logs.filter(h => h.timestamp >= ws.getTime());
+        const prev = logs.filter(h => h.timestamp >= ps.getTime() && h.timestamp < ws.getTime());
+        const sum = a => a.reduce((s,h) => s + (h.duration || 0), 0);
+        const cM = sum(cur), pM = sum(prev);
+
+        const hourMap = {}; cur.forEach(h => { const hh = new Date(h.timestamp).getHours(); hourMap[hh] = (hourMap[hh] || 0) + (h.duration || 0); });
+        const bestHour = Object.keys(hourMap).map(k => [k, hourMap[k]]).sort((a,b) => b[1] - a[1])[0];
+        const tagMap = {}; cur.forEach(h => { const t = h.tag || '默认'; tagMap[t] = (tagMap[t] || 0) + (h.duration || 0); });
+        const topTag = Object.keys(tagMap).map(k => [k, tagMap[k]]).sort((a,b) => b[1] - a[1])[0];
+        const inter = cur.filter(h => (h.interruptions || 0) > 0).length;
+
+        let txt = `本周（${ws.getMonth()+1}月${ws.getDate()}日起）\n\n`;
+        if(!cur.length) {
+            txt += `这一周，吧台那个位子一直空着。\n\nCipher 什么也没说，只是把那只杯子擦得更亮了一点。`;
+        } else {
+            txt += `沉潜 ${cur.length} 次，共 ${cM} 分钟。`;
+            if(pM > 0) txt += (cM - pM) >= 0 ? `\n比上周多了 ${cM - pM} 分钟。` : `\n比上周少了 ${pM - cM} 分钟。`;
+            else txt += `\n上周没有留下任何记录。`;
+            if(bestHour) txt += `\n你最容易沉下去的时辰，是 ${bestHour[0]} 点前后。`;
+            if(topTag) txt += `\n花时间最多的是「${topTag[0]}」，${topTag[1]} 分钟。`;
+            txt += `\n有 ${inter} 次被打断。`;
+            if(cM >= 300) txt += `\n\nCipher 说：“这周你来得挺勤。别把自己榨干了。”`;
+            else if(inter > cur.length / 2) txt += `\n\nCipher 说：“门外的声音太多了。下次，把门带上。”`;
+            else if(cM >= 100) txt += `\n\nCipher 说：“不多，但稳。这样就好。”`;
+            else txt += `\n\nCipher 说：“来了就好。位子一直给你留着。”`;
+        }
+        box.textContent = txt;
+    }
+
+    // ---------- Cipher：熟悉度、记忆、主动 ----------
+    const INTIMACY_STEPS = [
+        { min: 0,   name: '初见' },
+        { min: 20,  name: '熟客' },
+        { min: 60,  name: '老朋友' },
+        { min: 140, name: '知己' },
+        { min: 300, name: '不必多言' }
+    ];
+    function intimacyLevel(p) {
+        const v = p.intimacy || 0;
+        let name = INTIMACY_STEPS[0].name;
+        INTIMACY_STEPS.forEach(s => { if(v >= s.min) name = s.name; });
+        const next = INTIMACY_STEPS.find(s => s.min > v);
+        return { name: name, pct: next ? Math.round(v / next.min * 100) : 100 };
+    }
+    function bumpIntimacy(n) {
+        playerData.intimacy = (playerData.intimacy || 0) + (n || 1);
+        if(state.goal) {
+            if(!playerData.cipherMemory) playerData.cipherMemory = { lastGoal: '', lastMood: '', facts: [] };
+            playerData.cipherMemory.lastGoal = state.goal;
+        }
+        saveData();
+        updateIntimacyUI();
+    }
+    function updateIntimacyUI() {
+        const lv = intimacyLevel(playerData);
+        const fill = document.getElementById('intimacy-fill');
+        const label = document.getElementById('intimacy-label');
+        if(fill) fill.style.width = lv.pct + '%';
+        if(label) label.textContent = lv.name;
+    }
+
+    const EXTRA_LINES = {
+        tired: [
+            "累了就坐着，不用说话。这屋里的声音我都替您调小了。",
+            "头可以靠在吧台上。我不叫醒您，钟摆到点会自己停。",
+            "人像酒一样，放一放，涩味才会退。",
+            "别硬撑。沉不下去的时候，浮着也是一种休息。"
+        ],
+        story: [
+            "开店之前我在海上待过几年。那时候才知道，安静有多贵。",
+            "这吧台是旧船板改的。您摸摸，还有海水的味道。",
+            "来这儿的人大多不说真名。我也不问——名字是最沉重的一件行李。",
+            "有人问我这里卖什么。我说，卖一段没人打扰的时间。"
+        ],
+        advice: [
+            "把那件事切成能一口吞下的大小。剩下的一口一口来。",
+            "先做最讨厌的那件。做完它，今天就已经赢了。",
+            "如果一件事您想了三天还没开始，那它大概没那么重要。",
+            "别计划一整天。计划下一个二十五分钟就够了。"
+        ],
+        weather: [
+            "外面在下雨？那就更好了——您哪儿也不用去。",
+            "天冷的时候，手边要有杯热的。这是规矩。",
+            "雨停了也别急着走。地砖还湿着，容易滑。",
+            "天气是别人的事。这里恒温。"
+        ]
+    };
+
+    function contextLines() {
+        const h = new Date().getHours();
+        const out = [];
+        if(h >= 0 && h < 5) out.push("这么晚了，街上应该只剩下路灯和它自己的影子。");
+        else if(h >= 5 && h < 9) out.push("早晨的吧台没什么人，正好适合开始一件事。");
+        else if(h >= 9 && h < 12) out.push("上午的光斜着进来，落在第二张桌子上。");
+        else if(h >= 12 && h < 14) out.push("中午了。别忘了吃点东西。");
+        else if(h >= 14 && h < 18) out.push("下午容易犯困。要不要我把音量调小一点？");
+        else if(h >= 18 && h < 22) out.push("晚上是这里最好的时候。");
+        else out.push("再过一会儿就该打烊了——不过，您坐着就行。");
+
+        const t = getTodayFocus();
+        if(t.count === 0) out.push("今天您还一次没沉下去过。");
+        else if(t.mins >= 120) out.push(`今天您已经在这儿待了 ${t.mins} 分钟了。`);
+        if(isPeriodActive && typeof isPeriodActive === 'function') {
+            try { if(isPeriodActive()) out.push("您这几天脸色不太好。慢一点，没人跟您抢。"); } catch(e) {}
+        }
+        return out;
+    }
+
+    function pickBartenderLine(topic) {
+        const base = (bartenderResponses[state.mood] && bartenderResponses[state.mood][topic]) || bartenderResponses.calm[topic] || [];
+        const extra = EXTRA_LINES[topic] || [];
+        const arr = base.concat(extra);
+        let line = arr[Math.floor(Math.random() * arr.length)] || "……";
+
+        if(Math.random() < 0.22) {
+            const ctx = contextLines();
+            if(ctx.length) line += ' ' + ctx[Math.floor(Math.random() * ctx.length)];
+        }
+        const mem = playerData.cipherMemory || {};
+        if((playerData.intimacy || 0) >= 60 && mem.lastGoal && Math.random() < 0.2) {
+            line = `“上次你说要${mem.lastGoal}，后来怎么样了？” ` + line;
+        }
+        return line;
+    }
+
+    function proactiveCheck() {
+        if(state.isFocusing) return;
+        const now = Date.now();
+        if(now - (state.lastProactiveAt || 0) < 25 * 60 * 1000) return;
+
+        const last = (playerData.focusHistory || []).filter(h => !h.partial).slice(-1)[0];
+        const days = last ? Math.floor((now - last.timestamp) / 86400000) : 999;
+
+        if(days >= 3 && days < 999) {
+            state.lastProactiveAt = now;
+            addMessage(`（Cipher 擦着杯子，停了一下）有${days === 3 ? '几' : days}天没见您了。位子还留着，随时可以坐。`, "bartender");
+            return;
+        }
+        if(days === 999) {
+            state.lastProactiveAt = now;
+            addMessage("（Cipher 把一杯温水推到您面前）第一次来？坐吧，这里不看时间。", "bartender");
+            return;
+        }
+        if(Math.random() < 0.35) {
+            state.lastProactiveAt = now;
+            const pool = [
+                "Cipher 换了一张黑胶，唱针落下时有一声轻响。",
+                "风铃响了一下。门外没有人。",
+                "（Cipher 往您的杯子里添了点热水）别凉了。",
+                "吧台后的钟慢了五分钟——Cipher 说，那是故意的。",
+                "Cipher 在记账本上写了一行字，又划掉了。"
+            ];
+            addMessage(pool[Math.floor(Math.random() * pool.length)], "event");
+        }
+    }
+
+    // 更丰富的闲时动作
+    idleActions.calm = idleActions.calm.concat([
+        "正在给一只旧怀表上弦...", "把吧台擦到能照出人影...", "在账本最后一页写着什么..."
+    ]);
+    idleActions.melancholic = idleActions.melancholic.concat([
+        "盯着门上的风铃出神...", "把一张照片反过来扣在桌上...", "反复擦着一枚旧银戒..."
+    ]);
+    idleActions.cheerful = idleActions.cheerful.concat([
+        "正在调一杯没有名字的新酒...", "跟着唱片轻轻打着拍子...", "把窗子推开一条缝..."
+    ]);
+
+    // ---------- 存档回滚 ----------
+    function restoreSnapshot() {
+        let snaps = [];
+        try { snaps = JSON.parse(localStorage.getItem('driftwood_snapshots') || '[]'); } catch(e) {}
+        if(!snaps.length) return showToast("还没有可用的快照");
+        if(!confirm(`回滚到 ${snaps[snaps.length-1].day} 的存档？当前的进度会被覆盖。`)) return;
+        try {
+            playerData = JSON.parse(snaps[snaps.length-1].data);
+            saveData();
+            showToast("已回滚，页面即将刷新");
+            setTimeout(() => location.reload(), 800);
+        } catch(e) { showToast("快照已损坏"); }
+    }
 </script>
 </body>
 </html>
